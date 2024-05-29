@@ -42,7 +42,6 @@ dependencies:
   interactive_slider: ^0.2.1
   syncfusion_flutter_charts: ^20.1.60
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

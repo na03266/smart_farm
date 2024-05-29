@@ -1,147 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
-import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
+import 'package:flutter/material.dart';
 import 'package:smart_farm/consts/app_colors.dart';
-import 'package:smart_farm/consts/colors.dart';
 
-class TemperatureSettingModal extends StatefulWidget {
-  /// Unit Model 수정해야함.
-  const TemperatureSettingModal({
-    super.key,
-  });
-
-  @override
-  State<TemperatureSettingModal> createState() =>
-      _TemperatureSettingModalState();
-}
-
-class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
-  late bool isShowingMainData;
-
-  @override
-  void initState() {
-    super.initState();
-    isShowingMainData = true;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: colors[2],
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ///제목 바, 완료 버튼
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "온도 설정",
-                    style: TextStyle(
-                        color: colors[6],
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700),
-                  ),
-                  ElevatedButton(
-                    style: ButtonStyle(
-                        elevation: WidgetStateProperty.all(10), // 그림자 높이 설정
-                        backgroundColor: WidgetStateProperty.all(colors[7])),
-                    onPressed: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        '완료',
-                        style: TextStyle(
-                          color: colors[6],
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15), // 가장자리 둥글게 처리
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 5,
-                        color: colors[2],
-                      ),
-                      BoxShadow(
-                        offset: const Offset(1, 2),
-                        blurRadius: 5,
-                        spreadRadius: 2,
-                        color: colors[1],
-                        inset: true,
-                      ),
-                    ],
-                  ),
-                  ///chart
-                  child: AspectRatio(
-                    aspectRatio: 1.23,
-                    child: Stack(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch  ,
-                          children: [
-                            SizedBox(height: 37,),
-                            const Text(
-                              'Monthly Sales',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(
-                              height: 37,
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 16, left: 6),
-                                child: _LineChart(isShowingMainData: isShowingMainData),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.refresh,
-                            color: Colors.white.withOpacity(isShowingMainData ? 1.0 : 0.5),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              isShowingMainData = !isShowingMainData;
-                            });
-                          },
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 class _LineChart extends StatelessWidget {
   const _LineChart({required this.isShowingMainData});
 
@@ -239,14 +99,20 @@ class _LineChart extends StatelessWidget {
     );
     String text;
     switch (value.toInt()) {
-      case 0:
-        text = '1';
+      case 1:
+        text = '1m';
         break;
       case 2:
-        text = '25';
+        text = '2m';
+        break;
+      case 3:
+        text = '3m';
         break;
       case 4:
-        text = '50';
+        text = '5m';
+        break;
+      case 5:
+        text = '6m';
         break;
       default:
         return Container();
@@ -269,14 +135,14 @@ class _LineChart extends StatelessWidget {
     );
     Widget text;
     switch (value.toInt()) {
-      case 1:
-        text = const Text('0', style: style);
+      case 2:
+        text = const Text('SEPT', style: style);
         break;
       case 7:
-        text = const Text('12', style: style);
+        text = const Text('OCT', style: style);
         break;
-      case 24:
-        text = const Text('24', style: style);
+      case 12:
+        text = const Text('DEC', style: style);
         break;
       default:
         text = const Text('');
@@ -419,4 +285,73 @@ class _LineChart extends StatelessWidget {
       FlSpot(13, 4.5),
     ],
   );
+}
+
+class LineChartSample1 extends StatefulWidget {
+  const LineChartSample1({super.key});
+
+  @override
+  State<StatefulWidget> createState() => LineChartSample1State();
+}
+
+class LineChartSample1State extends State<LineChartSample1> {
+  late bool isShowingMainData;
+
+  @override
+  void initState() {
+    super.initState();
+    isShowingMainData = true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1.23,
+      child: Stack(
+        children: <Widget>[
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const SizedBox(
+                height: 37,
+              ),
+              const Text(
+                'Monthly Sales',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 37,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16, left: 6),
+                  child: _LineChart(isShowingMainData: isShowingMainData),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.refresh,
+              color: Colors.white.withOpacity(isShowingMainData ? 1.0 : 0.5),
+            ),
+            onPressed: () {
+              setState(() {
+                isShowingMainData = !isShowingMainData;
+              });
+            },
+          )
+        ],
+      ),
+    );
+  }
 }
