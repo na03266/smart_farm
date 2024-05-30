@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:smart_farm/consts/app_colors.dart';
 import 'package:smart_farm/consts/colors.dart';
+import 'package:smart_farm/consts/temp.dart';
 
 class TemperatureSettingModal extends StatefulWidget {
   /// Unit Model 수정해야함.
@@ -100,8 +101,7 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
                             ),
                             Expanded(
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.only(right: 16, left: 6),
+                                padding: const EdgeInsets.all(20),
                                 child: _LineChart(
                                     isShowingMainData: isShowingMainData),
                               ),
@@ -111,45 +111,51 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
                             ),
                           ],
                         ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                Icons.settings,
-                                color: Colors.white
-                                    .withOpacity(isShowingMainData ? 1.0 : 0.5),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  Icons.settings,
+                                  size: 28,
+                                  color: Colors.white.withOpacity(
+                                      isShowingMainData ? 1.0 : 0.5),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    isShowingMainData = !isShowingMainData;
+                                  });
+                                },
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  isShowingMainData = !isShowingMainData;
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.device_thermostat_rounded,
-                                color: Colors.redAccent
-                                    .withOpacity(isShowingMainData ? 0.0 : 1.0),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.device_thermostat_rounded,
+                                  size: 28,
+                                  color: Colors.redAccent.withOpacity(
+                                      isShowingMainData ? 0.0 : 1.0),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    /// 값 해당 줄만 변경할수있도록
+                                  });
+                                },
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  /// 값 해당 줄만 변경할수있도록
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.device_thermostat_rounded,
-                                color: Colors.lightBlueAccent
-                                    .withOpacity(isShowingMainData ? 0.0 : 1.0),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.device_thermostat_rounded,
+                                  size: 28,
+                                  color: Colors.lightBlueAccent.withOpacity(
+                                      isShowingMainData ? 0.0 : 1.0),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    /// 값 해당 줄만 변경할수있도록
+                                  });
+                                },
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  /// 값 해당 줄만 변경할수있도록
-                                });
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -164,51 +170,76 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
   }
 }
 
-class _LineChart extends StatelessWidget {
+class _LineChart extends StatefulWidget {
+  final bool isShowingMainData;
+
   const _LineChart({required this.isShowingMainData});
 
-  final bool isShowingMainData;
+  @override
+  State<_LineChart> createState() => _LineChartState();
+}
+
+class _LineChartState extends State<_LineChart> {
+  List<FlSpot> highData = generateHighTempData()
+      .map(
+        (HighTemperatureInfo e) => FlSpot(
+          e.highTime + 0.5,
+          e.highTemp + 0.5,
+        ),
+      )
+      .toList();
+
+  List<FlSpot> lowData = generateLowTempData()
+      .map(
+        (LowTemperatureInfo e) => FlSpot(
+          e.lowTime + 0.5,
+          e.lowTemp + 0.5,
+        ),
+      )
+      .toList();
 
   @override
   Widget build(BuildContext context) {
     return LineChart(
-      isShowingMainData ? sampleData1 : sampleData2,
+      /// 차트 전환
+      widget.isShowingMainData ? mainChart : settingChart,
       duration: const Duration(milliseconds: 250),
     );
   }
 
-  LineChartData get sampleData1 => LineChartData(
-        lineTouchData: lineTouchData1,
+  LineChartData get mainChart => LineChartData(
+        lineTouchData: mainlineTouchData,
         gridData: gridData,
-        titlesData: titlesData1,
+        titlesData: mainTitlesData,
         borderData: borderData,
-        lineBarsData: lineBarsData1,
+        lineBarsData: mainLineBarsData,
         minX: 0,
-        maxX: 14,
-        maxY: 4,
+        maxX: 48,
+        maxY: 50,
         minY: 0,
       );
 
-  LineChartData get sampleData2 => LineChartData(
-        lineTouchData: lineTouchData2,
+  LineChartData get settingChart => LineChartData(
+        lineTouchData: settingLineTouchData,
         gridData: gridData,
-        titlesData: titlesData2,
+        titlesData: settingTitlesData,
         borderData: borderData,
-        lineBarsData: lineBarsData2,
+        lineBarsData: settingLineBarsData,
         minX: 0,
-        maxX: 14,
-        maxY: 6,
+        maxX: 48,
+        maxY: 50,
         minY: 0,
       );
 
-  LineTouchData get lineTouchData1 => LineTouchData(
+  /// 기본 차트
+  LineTouchData get mainlineTouchData => LineTouchData(
         handleBuiltInTouches: true,
         touchTooltipData: LineTouchTooltipData(
-          getTooltipColor: (touchedSpot) => Colors.blueGrey.withOpacity(0.8),
+          getTooltipColor: (touchedSpot) => colors[1],
         ),
       );
 
-  FlTitlesData get titlesData1 => FlTitlesData(
+  FlTitlesData get mainTitlesData => FlTitlesData(
         bottomTitles: AxisTitles(
           sideTitles: bottomTitles,
         ),
@@ -223,17 +254,17 @@ class _LineChart extends StatelessWidget {
         ),
       );
 
-  List<LineChartBarData> get lineBarsData1 => [
-        lineChartBarData1_1,
-        lineChartBarData1_2,
-        lineChartBarData1_3,
+  List<LineChartBarData> get mainLineBarsData => [
+        mainHighLineChartBarData,
+        mainLowLineChartBarData,
       ];
 
-  LineTouchData get lineTouchData2 => const LineTouchData(
+  /// 설정 차트
+  LineTouchData get settingLineTouchData => const LineTouchData(
         enabled: false,
       );
 
-  FlTitlesData get titlesData2 => FlTitlesData(
+  FlTitlesData get settingTitlesData => FlTitlesData(
         bottomTitles: AxisTitles(
           sideTitles: bottomTitles,
         ),
@@ -248,27 +279,34 @@ class _LineChart extends StatelessWidget {
         ),
       );
 
-  List<LineChartBarData> get lineBarsData2 => [
-        lineChartBarData2_1,
-        lineChartBarData2_2,
-        lineChartBarData2_3,
+  List<LineChartBarData> get settingLineBarsData => [
+        settingHighLineChartBarData,
+        settingLowLineChartBarData,
       ];
 
+  /// Y축 설명
   Widget leftTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
+      color: Colors.white,
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
     String text;
     switch (value.toInt()) {
       case 0:
-        text = '1';
+        text = '0.0';
         break;
-      case 2:
-        text = '25';
+      case 13:
+        text = '12.5';
         break;
-      case 4:
-        text = '50';
+      case 25:
+        text = '25.0';
+        break;
+      case 38:
+        text = '37.5';
+        break;
+      case 50:
+        text = '50.0';
         break;
       default:
         return Container();
@@ -284,20 +322,28 @@ class _LineChart extends StatelessWidget {
         reservedSize: 40,
       );
 
+  /// X축 설명
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
       fontWeight: FontWeight.bold,
+      color: Colors.white,
       fontSize: 16,
     );
     Widget text;
     switch (value.toInt()) {
-      case 1:
+      case 0:
         text = const Text('0', style: style);
         break;
-      case 7:
-        text = const Text('12', style: style);
+      case 12:
+        text = const Text('6', style: style);
         break;
       case 24:
+        text = const Text('12', style: style);
+        break;
+      case 36:
+        text = const Text('18', style: style);
+        break;
+      case 48:
         text = const Text('24', style: style);
         break;
       default:
@@ -321,38 +367,32 @@ class _LineChart extends StatelessWidget {
 
   FlGridData get gridData => const FlGridData(show: false);
 
+  /// 차트 축 색상
   FlBorderData get borderData => FlBorderData(
         show: true,
         border: Border(
           bottom:
               BorderSide(color: AppColors.primary.withOpacity(0.2), width: 4),
-          left: const BorderSide(color: Colors.transparent),
+          left: BorderSide(color: AppColors.primary.withOpacity(0.2), width: 4),
           right: const BorderSide(color: Colors.transparent),
           top: const BorderSide(color: Colors.transparent),
         ),
       );
 
-  LineChartBarData get lineChartBarData1_1 => LineChartBarData(
+  /// 곡선
+  LineChartBarData get mainHighLineChartBarData => LineChartBarData(
         isCurved: true,
-        color: AppColors.contentColorGreen,
+        color: Colors.redAccent,
         barWidth: 8,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(show: false),
-        spots: const [
-          FlSpot(1, 1),
-          FlSpot(3, 1.5),
-          FlSpot(5, 1.4),
-          FlSpot(7, 3.4),
-          FlSpot(10, 2),
-          FlSpot(12, 2.2),
-          FlSpot(13, 1.8),
-        ],
+        spots: highData,
       );
 
-  LineChartBarData get lineChartBarData1_2 => LineChartBarData(
+  LineChartBarData get mainLowLineChartBarData => LineChartBarData(
         isCurved: true,
-        color: AppColors.contentColorPink,
+        color: Colors.blueAccent,
         barWidth: 8,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
@@ -360,85 +400,34 @@ class _LineChart extends StatelessWidget {
           show: false,
           color: AppColors.contentColorPink.withOpacity(0),
         ),
-        spots: const [
-          FlSpot(1, 1),
-          FlSpot(3, 2.8),
-          FlSpot(7, 1.2),
-          FlSpot(10, 2.8),
-          FlSpot(12, 2.6),
-          FlSpot(13, 3.9),
-        ],
+        spots: lowData,
       );
 
-  LineChartBarData get lineChartBarData1_3 => LineChartBarData(
-        isCurved: true,
-        color: AppColors.contentColorCyan,
-        barWidth: 8,
-        isStrokeCapRound: true,
-        dotData: const FlDotData(show: false),
-        belowBarData: BarAreaData(show: false),
-        spots: const [
-          FlSpot(1, 2.8),
-          FlSpot(3, 1.9),
-          FlSpot(6, 3),
-          FlSpot(10, 1.3),
-          FlSpot(13, 2.5),
-        ],
-      );
-
-  LineChartBarData get lineChartBarData2_1 => LineChartBarData(
+  ///꺽은선
+  LineChartBarData get settingHighLineChartBarData => LineChartBarData(
         isCurved: true,
         curveSmoothness: 0,
-        color: AppColors.contentColorGreen.withOpacity(0.5),
+        color: Colors.redAccent.withOpacity(0.5),
         barWidth: 4,
-        isStrokeCapRound: true,
-        dotData: const FlDotData(show: false),
-        belowBarData: BarAreaData(show: false),
-        spots: const [
-          FlSpot(1, 1),
-          FlSpot(3, 4),
-          FlSpot(5, 1.8),
-          FlSpot(7, 5),
-          FlSpot(10, 2),
-          FlSpot(12, 2.2),
-          FlSpot(13, 1.8),
-        ],
-      );
-
-  LineChartBarData get lineChartBarData2_2 => LineChartBarData(
-        isCurved: true,
-        color: AppColors.contentColorPink.withOpacity(0.5),
-        barWidth: 4,
-        isStrokeCapRound: true,
-        dotData: const FlDotData(show: false),
-        belowBarData: BarAreaData(
-          show: true,
-          color: AppColors.contentColorPink.withOpacity(0.2),
-        ),
-        spots: const [
-          FlSpot(1, 1),
-          FlSpot(3, 2.8),
-          FlSpot(7, 1.2),
-          FlSpot(10, 2.8),
-          FlSpot(12, 2.6),
-          FlSpot(13, 3.9),
-        ],
-      );
-
-  LineChartBarData get lineChartBarData2_3 => LineChartBarData(
-        isCurved: true,
-        curveSmoothness: 0,
-        color: AppColors.contentColorCyan.withOpacity(0.5),
-        barWidth: 2,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: true),
-        belowBarData: BarAreaData(show: false),
-        spots: const [
-          FlSpot(1, 3.8),
-          FlSpot(3, 1.9),
-          FlSpot(6, 5),
-          FlSpot(10, 3.3),
-          FlSpot(13, 4.5),
-        ],
+        aboveBarData: BarAreaData(
+          show: true,
+          color: Colors.redAccent.withOpacity(0.2),
+        ),
+        spots: highData,
+      );
+
+  LineChartBarData get settingLowLineChartBarData => LineChartBarData(
+        isCurved: true,
+        color: Colors.blueAccent.withOpacity(0.5),
+        barWidth: 4,
+        isStrokeCapRound: true,
+        dotData: const FlDotData(show: true),
+        belowBarData: BarAreaData(
+          show: true,
+          color: Colors.blueAccent.withOpacity(0.2),
+        ),
+        spots: lowData,
       );
 }
