@@ -6,7 +6,6 @@ import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/consts/temp.dart';
 
 class TemperatureSettingModal extends StatefulWidget {
-  /// Unit Model 수정해야함.
   const TemperatureSettingModal({
     super.key,
   });
@@ -18,11 +17,15 @@ class TemperatureSettingModal extends StatefulWidget {
 
 class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
   late bool isShowingMainData;
+  late bool isConfigHighData;
+  late bool isConfigLowData;
 
   @override
   void initState() {
     super.initState();
     isShowingMainData = true;
+    isConfigHighData = false;
+    isConfigLowData = false;
   }
 
   @override
@@ -90,20 +93,23 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
 
                   ///chart
                   child: AspectRatio(
-                    aspectRatio: 1.23,
+                    aspectRatio: 1.5,
                     child: Stack(
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            SizedBox(
-                              height: 37,
+                            const SizedBox(
+                              height: 40,
                             ),
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.all(20),
                                 child: _LineChart(
-                                    isShowingMainData: isShowingMainData),
+                                  isShowingMainData: isShowingMainData,
+                                  isConfigHighData: isConfigHighData,
+                                  isConfigLowData: isConfigLowData,
+                                ),
                               ),
                             ),
                             const SizedBox(
@@ -137,7 +143,7 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    /// 값 해당 줄만 변경할수있도록
+                                    isConfigHighData = !isConfigHighData;
                                   });
                                 },
                               ),
@@ -150,7 +156,7 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    /// 값 해당 줄만 변경할수있도록
+                                    isConfigLowData = !isConfigLowData;
                                   });
                                 },
                               ),
@@ -172,8 +178,14 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
 
 class _LineChart extends StatefulWidget {
   final bool isShowingMainData;
+  final bool isConfigHighData;
+  final bool isConfigLowData;
 
-  const _LineChart({required this.isShowingMainData});
+  const _LineChart({
+    required this.isShowingMainData,
+    required this.isConfigHighData,
+    required this.isConfigLowData,
+  });
 
   @override
   State<_LineChart> createState() => _LineChartState();
@@ -183,8 +195,8 @@ class _LineChartState extends State<_LineChart> {
   List<FlSpot> highData = generateHighTempData()
       .map(
         (HighTemperatureInfo e) => FlSpot(
-          e.highTime + 0.5,
-          e.highTemp + 0.5,
+          e.highTime + 0.1,
+          e.highTemp,
         ),
       )
       .toList();
@@ -192,19 +204,48 @@ class _LineChartState extends State<_LineChart> {
   List<FlSpot> lowData = generateLowTempData()
       .map(
         (LowTemperatureInfo e) => FlSpot(
-          e.lowTime + 0.5,
-          e.lowTemp + 0.5,
+          e.lowTime + 0.1,
+          e.lowTemp,
         ),
       )
       .toList();
 
   @override
   Widget build(BuildContext context) {
-    return LineChart(
-      /// 차트 전환
-      widget.isShowingMainData ? mainChart : settingChart,
-      duration: const Duration(milliseconds: 250),
-    );
+    /// 차트 전환
+    return widget.isShowingMainData
+        ? LineChart(
+            mainChart,
+            duration: const Duration(milliseconds: 250),
+          )
+        : GestureDetector(
+            onPanUpdate: (details) {
+              /// 215이하,
+              /// [215 + 19.2 * i]~
+              /// [215 + 19.2 * 47 ]이상
+              // for (int i = 0; i < 48; i++) {
+              //   double dx = details.globalPosition.dx;
+              //   double x = 215 + 19.2 * i;
+              //
+              //   if (dx < x) {
+              //     // Add your logic here for dx < x
+              //   } else if (dx >= x - 9.6 && dx <= x + 9.6) {
+              //     // Add your logic here for x - 9.6 < dx < x + 9.6
+              //   } else {
+              //     // Add your logic here for the else condition
+              //   }
+              // }
+
+              setState(() {
+                var y = details.globalPosition.dy;
+                print(y);
+              });
+            },
+            child: LineChart(
+              settingChart,
+              duration: const Duration(milliseconds: 250),
+            ),
+          );
   }
 
   LineChartData get mainChart => LineChartData(
