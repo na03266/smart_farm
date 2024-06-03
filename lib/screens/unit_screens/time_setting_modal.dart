@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:smart_farm/consts/colors.dart';
@@ -17,9 +18,8 @@ class TimeSettingModal extends StatefulWidget {
 }
 
 class _TimeSettingModalState extends State<TimeSettingModal> {
-  double _currentSliderValue = 20;
   late final int unitCount;
-  int timeSettings = 1;
+  int timeSettings = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -33,38 +33,36 @@ class _TimeSettingModalState extends State<TimeSettingModal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ///제목 바, 완료 버튼
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.label,
-                      style: TextStyle(
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.label,
+                    style: TextStyle(
+                        color: colors[6],
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700),
+                  ),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                        elevation: WidgetStateProperty.all(10), // 그림자 높이 설정
+                        backgroundColor: WidgetStateProperty.all(colors[7])),
+                    onPressed: () {},
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        '완료',
+                        style: TextStyle(
                           color: colors[6],
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700),
-                    ),
-                    ElevatedButton(
-                      style: ButtonStyle(
-                          elevation: WidgetStateProperty.all(10), // 그림자 높이 설정
-                          backgroundColor: WidgetStateProperty.all(colors[7])),
-                      onPressed: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          '완료',
-                          style: TextStyle(
-                            color: colors[6],
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                          ),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -162,7 +160,53 @@ class _TimeSettingModalState extends State<TimeSettingModal> {
                                                   fontWeight: FontWeight.w700,
                                                 ),
                                               ),
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                showCupertinoDialog(
+                                                  context: context,
+                                                  barrierDismissible: true,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return Align(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      child: Row(
+                                                        children: [
+                                                          Container(
+                                                            color: Colors.white,
+                                                            width: 400,
+                                                            child:
+                                                                CupertinoDatePicker(
+                                                              mode:
+                                                                  CupertinoDatePickerMode
+                                                                      .time,
+                                                              onDateTimeChanged:
+                                                                  (DateTime
+                                                                      time) {
+                                                                print(time);
+                                                              },
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            color: Colors.white,
+                                                            width: 400,
+                                                            child:
+                                                                CupertinoDatePicker(
+                                                              mode:
+                                                                  CupertinoDatePickerMode
+                                                                      .time,
+                                                              onDateTimeChanged:
+                                                                  (DateTime
+                                                                      time) {
+                                                                print(time);
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
                                             ),
                                           );
                                         }),
@@ -199,39 +243,43 @@ class _TimeSettingModalState extends State<TimeSettingModal> {
                             ),
                           ],
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Center(
-                            child: GridView.count(
-                              shrinkWrap: true,
-                              crossAxisCount: 4,
-                              // 한 줄에 4개의 버튼
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 20,
-                              children: List.generate(7, (index) {
-                                return SizedBox(
-                                  height: 20,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            10.0), // 버튼의 모양 설정
+                        child: Center(
+                          child: CustomScrollView(
+                            primary: false,
+                            slivers: <Widget>[
+                              SliverPadding(
+                                padding: EdgeInsets.all(20),
+                                sliver: SliverGrid.count(
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 20,
+                                  crossAxisCount: 4,
+                                  children: List.generate(7, (index) {
+                                    return SizedBox(
+                                      height: 20,
+                                      child: ElevatedButton(
+                                        onPressed: () {},
+                                        style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                10.0), // 버튼의 모양 설정
+                                          ),
+                                          backgroundColor:
+                                              colors[1], // 버튼의 배경색 설정
+                                        ),
+                                        child: Text(
+                                          '번호',
+                                          style: TextStyle(
+                                            color: colors[6],
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
                                       ),
-                                      backgroundColor: colors[1], // 버튼의 배경색 설정
-                                    ),
-                                    child: Text(
-                                      '번호',
-                                      style: TextStyle(
-                                        color: colors[6],
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    onPressed: () {},
-                                  ),
-                                );
-                              }),
-                            ),
+                                    );
+                                  }),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ),
