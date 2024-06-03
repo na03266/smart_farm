@@ -461,7 +461,7 @@ class _LineChartState extends State<_LineChart> {
   LineChartBarData get mainHighLineChartBarData => LineChartBarData(
         isCurved: true,
         color: Colors.blueAccent,
-        barWidth: 8,
+        barWidth: 4,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(show: false),
@@ -471,7 +471,7 @@ class _LineChartState extends State<_LineChart> {
   LineChartBarData get mainLowLineChartBarData => LineChartBarData(
         isCurved: true,
         color: Colors.redAccent,
-        barWidth: 8,
+        barWidth: 4,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(show: false),
