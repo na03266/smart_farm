@@ -19,6 +19,7 @@ class TimeSettingModal extends StatefulWidget {
 class _TimeSettingModalState extends State<TimeSettingModal> {
   double _currentSliderValue = 20;
   late final int unitCount;
+  int timeSettings = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,6 @@ class _TimeSettingModalState extends State<TimeSettingModal> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
             ///제목 바, 완료 버튼
             Container(
               child: Padding(
@@ -70,135 +70,104 @@ class _TimeSettingModalState extends State<TimeSettingModal> {
 
             ///좌 설정 카드
             Expanded(
-              child: Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.circular(15), // 가장자리 둥글게 처리
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 5,
-                                color: colors[2],
-                              ),
-                              BoxShadow(
-                                offset: Offset(1, 2),
-                                blurRadius: 5,
-                                spreadRadius: 2,
-                                color: colors[1],
-                                inset: true,
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '개별 전원',
-                                  style: TextStyle(
-                                    color: colors[6],
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                Container(
-                                  height: 4,
-                                  width: 200,
-                                  color: Color(0xff22534d),
-                                ),
-                                Expanded(
-                                  child: CustomScrollView(
-                                    primary: false,
-                                    slivers: <Widget>[
-                                      SliverPadding(
-                                        padding: EdgeInsets.all(20),
-                                        sliver: SliverGrid.count(
-                                          crossAxisSpacing: 10,
-                                          mainAxisSpacing: 10,
-                                          crossAxisCount: 2,
-                                          children: List.generate(10, (index) {
-                                            return ElevatedButton(
-                                              onPressed: () {
-                                                print('Button $index pressed');
-                                              },
-                                              child: Text(''),
-                                            );
-                                          }),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(15), // 가장자리 둥글게 처리
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 5,
+                              color: colors[2],
                             ),
-                          ),
+                            BoxShadow(
+                              offset: Offset(1, 2),
+                              blurRadius: 5,
+                              spreadRadius: 2,
+                              color: colors[1],
+                              inset: true,
+                            ),
+                          ],
                         ),
-                      ),
-                      flex: 2,
-                    ),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.circular(15), // 가장자리 둥글게 처리
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 5,
-                                color: colors[2],
-                              ),
-                              BoxShadow(
-                                offset: Offset(1, 2),
-                                blurRadius: 5,
-                                spreadRadius: 2,
-                                color: colors[1],
-                                inset: true,
-                              ),
-                            ],
-                          ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Slider(
-                                activeColor: colors[8],
-                                inactiveColor: colors[9],
-                                value: _currentSliderValue,
-                                max: 50,
-                                onChanged: (double value) {
-                                  print(_currentSliderValue);
-                                  setState(() {
-                                    _currentSliderValue = value;
-                                  });
-                                },
-                              ),
-                              Slider(
-                                value: _currentSliderValue,
-                                max: 50,
-                                onChanged: (double value) {
-                                  setState(() {
-                                    _currentSliderValue = value;
-                                  });
-                                },
-                              ),
-                              Container(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.timelapse_outlined),
-                                    Text(
-                                      "data",
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          10.0), // 버튼의 모양 설정
                                     ),
-                                    Text("오전/후"),
-                                    Text("시간"),
+                                    backgroundColor: colors[3], // 버튼의 배경색 설정
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      '시간 추가',
+                                      style: TextStyle(
+                                        color: colors[6],
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      /// 값을 전달하고, 내용을 전달 받는 부분 추가 필요
+                                      timeSettings += 1;
+                                    });
+                                  },
+                                ),
+                              ),
+                              Expanded(
+                                child: CustomScrollView(
+                                  primary: false,
+                                  slivers: <Widget>[
+                                    SliverPadding(
+                                      padding: EdgeInsets.all(10),
+                                      sliver: SliverGrid.count(
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 20,
+                                        childAspectRatio: 2.5,
+                                        crossAxisCount: 1,
+                                        children: List.generate(timeSettings,
+                                            (index) {
+                                          return SizedBox(
+                                            height: 20,
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0), // 버튼의 모양 설정
+                                                ),
+                                                backgroundColor:
+                                                    colors[1], // 버튼의 배경색 설정
+                                              ),
+                                              child: Text(
+                                                '시간',
+                                                style: TextStyle(
+                                                  color: colors[6],
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              onPressed: () {},
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    )
                                   ],
                                 ),
                               )
@@ -206,10 +175,70 @@ class _TimeSettingModalState extends State<TimeSettingModal> {
                           ),
                         ),
                       ),
-                      flex: 5,
-                    )
-                  ],
-                ),
+                    ),
+                    flex: 2,
+                  ),
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(10), // 가장자리 둥글게 처리
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 5,
+                              color: colors[2],
+                            ),
+                            BoxShadow(
+                              offset: Offset(1, 2),
+                              blurRadius: 5,
+                              spreadRadius: 2,
+                              color: colors[1],
+                              inset: true,
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Center(
+                            child: GridView.count(
+                              shrinkWrap: true,
+                              crossAxisCount: 4,
+                              // 한 줄에 4개의 버튼
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 20,
+                              children: List.generate(7, (index) {
+                                return SizedBox(
+                                  height: 20,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            10.0), // 버튼의 모양 설정
+                                      ),
+                                      backgroundColor: colors[1], // 버튼의 배경색 설정
+                                    ),
+                                    child: Text(
+                                      '번호',
+                                      style: TextStyle(
+                                        color: colors[6],
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    onPressed: () {},
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    flex: 5,
+                  )
+                ],
               ),
             ),
           ],
