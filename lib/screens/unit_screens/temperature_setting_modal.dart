@@ -138,12 +138,19 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
                                 icon: Icon(
                                   Icons.device_thermostat_rounded,
                                   size: 28,
-                                  color: Colors.redAccent.withOpacity(
-                                      isShowingMainData ? 0.0 : 1.0),
+                                  color: Colors.lightBlueAccent
+                                      .withOpacity(isShowingMainData
+                                          ? 0.0
+                                          : isConfigHighData
+                                              ? 1
+                                              : 0.5),
                                 ),
                                 onPressed: () {
                                   setState(() {
                                     isConfigHighData = !isConfigHighData;
+                                    if (isConfigLowData) {
+                                      isConfigLowData = !isConfigLowData;
+                                    }
                                   });
                                 },
                               ),
@@ -151,12 +158,19 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
                                 icon: Icon(
                                   Icons.device_thermostat_rounded,
                                   size: 28,
-                                  color: Colors.lightBlueAccent.withOpacity(
-                                      isShowingMainData ? 0.0 : 1.0),
+                                  color: Colors.redAccent
+                                      .withOpacity(isShowingMainData
+                                          ? 0.0
+                                          : isConfigLowData
+                                              ? 1.0
+                                              : 0.5),
                                 ),
                                 onPressed: () {
                                   setState(() {
                                     isConfigLowData = !isConfigLowData;
+                                    if (isConfigHighData) {
+                                      isConfigHighData = !isConfigHighData;
+                                    }
                                   });
                                 },
                               ),
@@ -218,34 +232,54 @@ class _LineChartState extends State<_LineChart> {
             mainChart,
             duration: const Duration(milliseconds: 250),
           )
-        : GestureDetector(
-            onPanUpdate: (details) {
-              /// 215이하,
-              /// [215 + 19.2 * i]~
-              /// [215 + 19.2 * 47 ]이상
-              // for (int i = 0; i < 48; i++) {
-              //   double dx = details.globalPosition.dx;
-              //   double x = 215 + 19.2 * i;
-              //
-              //   if (dx < x) {
-              //     // Add your logic here for dx < x
-              //   } else if (dx >= x - 9.6 && dx <= x + 9.6) {
-              //     // Add your logic here for x - 9.6 < dx < x + 9.6
-              //   } else {
-              //     // Add your logic here for the else condition
-              //   }
-              // }
+        : (widget.isConfigHighData || widget.isConfigLowData)
+            ? GestureDetector(
+                onPanUpdate: (details) {
+                  List<FlSpot> updatedHighData = List.from(highData);
+                  List<FlSpot> updatedLowData = List.from(lowData);
 
-              setState(() {
-                var y = details.globalPosition.dy;
-                print(y);
-              });
-            },
-            child: LineChart(
-              settingChart,
-              duration: const Duration(milliseconds: 250),
-            ),
-          );
+                  for (int i = 0; i < 49; i++) {
+                    double coordinateX = details.globalPosition.dx;
+                    double timeX = 215 + 19.2 * i;
+                    double coordinateY = details.globalPosition.dy;
+
+                    /// tempY = a*y + b >> 화면 좌표 기준 온도 값 변환식
+                    double tempY = (5 * 580 / 31) - (5 / 31 * coordinateY);
+
+                    tempY = double.parse(tempY.toStringAsFixed(1));
+
+                    /// 그래프 안의 좌표만 허용
+                    bool timeCondition = coordinateX <= timeX + 9.6 &&
+                        coordinateX >= timeX - 9.6;
+                    bool tempCondition =
+                        coordinateY <= 580 && coordinateY >= 270;
+
+                    /// 표 오른쪽 바깥인 경우 행동안함
+                    if (timeCondition && tempCondition) {
+                      print(tempY);
+                      if (widget.isConfigHighData) {
+                        updatedHighData[i] = FlSpot(i.toDouble(), tempY);
+                      }
+                      if (widget.isConfigLowData) {
+                        updatedLowData[i] = FlSpot(i.toDouble(), tempY);
+                      }
+                    }
+                  }
+
+                  setState(() {
+                    if (widget.isConfigHighData) highData = updatedHighData;
+                    if (widget.isConfigLowData) lowData = updatedLowData;
+                  });
+                },
+                child: LineChart(
+                  settingChart,
+                  duration: const Duration(milliseconds: 0),
+                ),
+              )
+            : LineChart(
+                settingChart,
+                duration: const Duration(milliseconds: 0),
+              );
   }
 
   LineChartData get mainChart => LineChartData(
@@ -301,8 +335,11 @@ class _LineChartState extends State<_LineChart> {
       ];
 
   /// 설정 차트
-  LineTouchData get settingLineTouchData => const LineTouchData(
-        enabled: false,
+  LineTouchData get settingLineTouchData => LineTouchData(
+        handleBuiltInTouches: true,
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipColor: (touchedSpot) => colors[1],
+        ),
       );
 
   FlTitlesData get settingTitlesData => FlTitlesData(
@@ -423,7 +460,7 @@ class _LineChartState extends State<_LineChart> {
   /// 곡선
   LineChartBarData get mainHighLineChartBarData => LineChartBarData(
         isCurved: true,
-        color: Colors.redAccent,
+        color: Colors.blueAccent,
         barWidth: 8,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
@@ -433,41 +470,38 @@ class _LineChartState extends State<_LineChart> {
 
   LineChartBarData get mainLowLineChartBarData => LineChartBarData(
         isCurved: true,
-        color: Colors.blueAccent,
+        color: Colors.redAccent,
         barWidth: 8,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
-        belowBarData: BarAreaData(
-          show: false,
-          color: AppColors.contentColorPink.withOpacity(0),
-        ),
+        belowBarData: BarAreaData(show: false),
         spots: lowData,
       );
 
   ///꺽은선
   LineChartBarData get settingHighLineChartBarData => LineChartBarData(
-        isCurved: true,
+        isCurved: false,
         curveSmoothness: 0,
-        color: Colors.redAccent.withOpacity(0.5),
+        color: Colors.blueAccent.withOpacity(0.5),
         barWidth: 4,
         isStrokeCapRound: true,
-        dotData: const FlDotData(show: true),
+        dotData: const FlDotData(show: false),
         aboveBarData: BarAreaData(
           show: true,
-          color: Colors.redAccent.withOpacity(0.2),
+          color: Colors.blueAccent.withOpacity(0.2),
         ),
         spots: highData,
       );
 
   LineChartBarData get settingLowLineChartBarData => LineChartBarData(
         isCurved: true,
-        color: Colors.blueAccent.withOpacity(0.5),
+        color: Colors.redAccent.withOpacity(0.5),
         barWidth: 4,
         isStrokeCapRound: true,
-        dotData: const FlDotData(show: true),
+        dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(
           show: true,
-          color: Colors.blueAccent.withOpacity(0.2),
+          color: Colors.redAccent.withOpacity(0.2),
         ),
         spots: lowData,
       );
