@@ -12,7 +12,7 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text('Setting'),
+      body: Column(),
     );
   }
 }

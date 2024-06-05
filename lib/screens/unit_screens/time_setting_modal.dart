@@ -7,7 +7,6 @@ import 'package:smart_farm/consts/units.dart';
 class TimeSettingModal extends StatefulWidget {
   final String label;
 
-  /// Unit Model 수정해야함.
   const TimeSettingModal({
     super.key,
     required this.label,
@@ -36,7 +35,6 @@ class _TimeSettingModalState extends State<TimeSettingModal> {
             ///제목 바, 완료 버튼
             _Top(label: widget.label),
 
-            ///하단 설정 카드
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +106,7 @@ class _TopState extends State<_Top> {
 
 class _BottomLeft extends StatefulWidget {
   int timeSettings = 0;
-  String? inputText = '';
+  String? timerTitleText = '';
 
   _BottomLeft({
     super.key,
@@ -240,13 +238,14 @@ class _BottomLeftState extends State<_BottomLeft> {
           alignment: Alignment.center,
           child: _TimeSetting(
             index: index,
+            timerSettingFinish: (String timerTitleData) {},
           ),
         );
       },
     );
   }
-}
 
+}
 
 class _BottomRight extends StatefulWidget {
   _BottomRight({super.key});
@@ -325,10 +324,12 @@ class _BottomRightState extends State<_BottomRight> {
 
 class _TimeSetting extends StatefulWidget {
   final int index;
+  final Function(String) timerSettingFinish;
 
   _TimeSetting({
     super.key,
     required this.index,
+    required this.timerSettingFinish,
   });
 
   @override
@@ -336,6 +337,8 @@ class _TimeSetting extends StatefulWidget {
 }
 
 class _TimeSettingState extends State<_TimeSetting> {
+  String titleCustomText = '';
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -363,8 +366,7 @@ class _TimeSettingState extends State<_TimeSetting> {
                       resizeToAvoidBottomInset: false, // 키보드가 올라올 때 레이아웃 유지
                       body: TextField(
                         onChanged: (String inputText) {
-                          setState(() {
-                          });
+                          titleCustomText = inputText;
                         },
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
@@ -380,7 +382,9 @@ class _TimeSettingState extends State<_TimeSetting> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: (){},
+                    onPressed: () {
+                      widget.timerSettingFinish(titleCustomText);
+                    },
                     child: Text('완료'),
                   ),
                 ],
