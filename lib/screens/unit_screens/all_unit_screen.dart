@@ -84,8 +84,7 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
           child: SizedBox(
             height: MediaQuery.of(context).size.height / 4 * 3,
             width: MediaQuery.of(context).size.width / 6 * 5,
-            child: TemperatureSettingModal(
-            ),
+            child: TemperatureSettingModal(),
           ),
         );
       },
@@ -123,7 +122,7 @@ class _TopBarState extends State<_TopBar> {
             SizedBox(
               height: 60,
               child: Row(
-                children: [
+                children:  [
                   Icon(
                     Icons.power_settings_new_outlined,
                     size: 35,
@@ -222,8 +221,6 @@ class _BottomState extends State<_Bottom> {
                             setState(() {
                               e.status = !e.status;
                             });
-                            print(
-                                'New condition for ${e.label}: $newCondition');
                           },
                           onToggle: widget.onToggle,
                           onPressed: (label) {
