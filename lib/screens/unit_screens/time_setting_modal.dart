@@ -208,6 +208,7 @@ class _BottomLeftState extends State<_BottomLeft> {
                                     ),
                                   ],
                                 ),
+                                ///시간 세팅화면으로 전환
                                 onPressed: () {
                                   _timeSettings(index);
                                 },
@@ -229,7 +230,6 @@ class _BottomLeftState extends State<_BottomLeft> {
   }
 
   void _timeSettings(int index) {
-    ///인덱스를 받는 부분 추가 필요
     showCupertinoDialog(
       context: context,
       barrierDismissible: true,
@@ -238,7 +238,6 @@ class _BottomLeftState extends State<_BottomLeft> {
           alignment: Alignment.center,
           child: _TimeSetting(
             index: index,
-            timerSettingFinish: (String timerTitleData) {},
           ),
         );
       },
@@ -324,12 +323,10 @@ class _BottomRightState extends State<_BottomRight> {
 
 class _TimeSetting extends StatefulWidget {
   final int index;
-  final Function(String) timerSettingFinish;
 
   _TimeSetting({
     super.key,
     required this.index,
-    required this.timerSettingFinish,
   });
 
   @override
@@ -383,7 +380,6 @@ class _TimeSettingState extends State<_TimeSetting> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      widget.timerSettingFinish(titleCustomText);
                     },
                     child: Text('완료'),
                   ),
