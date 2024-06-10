@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart'hide BoxDecoration, BoxShadow;
+import 'package:flutter/cupertino.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/consts/units.dart';
 
 class TimeSettingModal extends StatefulWidget {
   final String label;
@@ -22,37 +21,57 @@ class _TimeSettingModalState extends State<TimeSettingModal> {
 
   @override
   Widget build(BuildContext context) {
-    final unit = UNITS.where((e) => e.label == widget.label);
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: colors[2],
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ///제목 바, 완료 버튼
-            _Top(label: widget.label),
-
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  /// 좌측 시간 설정
-                  _BottomLeft(
-                    timeSettings: timeSettings,
-                  ),
-
-                  /// 우측 적용 버튼 카드
-                  _BottomRight(),
-                ],
-              ),
-            ),
-          ],
+      body: Center(
+        child: ElevatedButton(
+          onPressed: _showTimeSettingDialog,
+          child: Text('시간 설정 열기'),
         ),
       ),
     );
+  }
+
+  void _showTimeSettingDialog() {
+    showCupertinoDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Align(
+            alignment: Alignment.center,
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height / 4 * 3,
+              width: MediaQuery.of(context).size.width / 6 * 5,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ///제목 바, 완료 버튼
+                    _Top(label: widget.label),
+
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+
+                          /// 좌측 시간 설정
+                          _BottomLeft(
+                            timeSettings: timeSettings,
+                          ),
+
+                          /// 우측 적용 버튼 카드
+                          _BottomRight(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 }
 
@@ -208,6 +227,7 @@ class _BottomLeftState extends State<_BottomLeft> {
                                     ),
                                   ],
                                 ),
+
                                 ///시간 세팅화면으로 전환
                                 onPressed: () {
                                   _timeSettings(index);
@@ -243,7 +263,6 @@ class _BottomLeftState extends State<_BottomLeft> {
       },
     );
   }
-
 }
 
 class _BottomRight extends StatefulWidget {
@@ -379,8 +398,7 @@ class _TimeSettingState extends State<_TimeSetting> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                    },
+                    onPressed: () {},
                     child: Text('완료'),
                   ),
                 ],

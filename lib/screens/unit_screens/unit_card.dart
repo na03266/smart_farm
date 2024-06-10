@@ -5,19 +5,13 @@ import 'package:toggle_switch/toggle_switch.dart';
 class UnitCard extends StatefulWidget {
   final String label;
   final IconData icon;
-  final bool condition;
-  final Function(bool) onChangeCondition; // 변경된 상태를 상위 위젯으로 전달할 콜백 함수
-  final OnToggle onToggle;
-  final Function(String) onPressed; // 시간 제어 버튼
+  late bool condition;
 
-  const UnitCard({
+  UnitCard({
     super.key,
     required this.label,
     required this.icon,
     required this.condition,
-    required this.onChangeCondition, // 콜백 함수
-    required this.onToggle,
-    required this.onPressed, // 시간 제어 버튼
   });
 
   @override
@@ -35,13 +29,12 @@ class _UnitCardState extends State<UnitCard> {
   @override
   void initState() {
     super.initState();
-
     _condition = widget.condition;
   }
 
   @override
   Widget build(BuildContext context) {
-    final selectedTheme = UnitCard.selectTheme(widget.condition);
+    final selectedTheme = UnitCard.selectTheme(_condition);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -57,136 +50,210 @@ class _UnitCardState extends State<UnitCard> {
           Padding(
             padding: const EdgeInsets.all(8.0),
 
-            ///큰 아이콘과 온 오프 버튼
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  widget.icon,
-                  size: 40,
-                  color: selectedTheme.icon,
-                ),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      ///여기서 바뀌는 값을 상위로 전달해야함,
-                      _condition = !_condition;
-                      widget.onChangeCondition(_condition);
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(30), // 원형 버튼을 만들기 위해 설정
-                  child: Ink(
-                    decoration: const ShapeDecoration(
-                      shape: CircleBorder(), // 원 모양으로 설정
-                    ),
-                    child: Container(
-                      width: 25,
-                      height: 25,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: selectedTheme.onOff, // 배경색
-                        borderRadius: BorderRadius.circular(30), // 둥근 정도 설정
-                      ),
-                      child: Text(
-                        widget.condition ? 'ON' : 'OFF',
-                        style: TextStyle(
-                          color: selectedTheme.onOffFont,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              ],
+            /// 카드 최상단 아이콘,온오프 버튼
+            child: _CardTop(
+              icon: widget.icon,
+              isOnTheme: selectedTheme,
+              condition: widget.condition,
+              onChangeCondition: isOn,
             ),
           ),
 
           /// 아이콘 아래 글자
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              top: 4,
-            ),
-            child: Text(
-              widget.label,
-              style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w700,
-                  color: selectedTheme.labelFont),
-            ),
-          ),
-          const SizedBox(
-            height: 8,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(
-                width: 30,
-              ),
+          _CardLabel(label: widget.label, isOnTheme: selectedTheme),
 
-              /// 시간 제어 화면 전환 버튼
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: selectedTheme.timeControl,
-                ),
-                onPressed: () {
-                  widget.onPressed(widget.label);
-                },
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.access_time,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Text(
-                      '시간 설정',
-                      style: TextStyle(
-                        color: selectedTheme.timeControlFont,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ],
+          ///공백
+          const SizedBox(height: 8),
+
+          /// 개별 제어 버튼
+          _EachControlButton(isOnTheme: selectedTheme),
+
+          /// 자동 수동 버튼
+          _IsAutoButton(isOnTheme: selectedTheme),
+        ],
+      ),
+    );
+  }
+
+  ///전체 온오프 버튼 함수
+  isOn(bool isOn) {
+    setState(() {
+      _condition = isOn;
+    });
+  }
+}
+
+class _CardTop extends StatefulWidget {
+  final IconData icon;
+  final UnitCardColor isOnTheme;
+  final bool condition;
+  final Function(bool) onChangeCondition; // 변경된 상태를 상위 위젯으로 전달할 콜백 함수
+
+  const _CardTop({
+    super.key,
+    required this.icon,
+    required this.isOnTheme,
+    required this.condition,
+    required this.onChangeCondition,
+  });
+
+  @override
+  State<_CardTop> createState() => _CardTopState();
+}
+
+class _CardTopState extends State<_CardTop> {
+  late bool _condition;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _condition = widget.condition;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          widget.icon,
+          size: 48,
+          color: widget.isOnTheme.icon,
+        ),
+        TextButton(
+          onPressed: () {
+            _condition = !_condition;
+            ///위에서 선언된 함수에 [_condition] 전달
+            widget.onChangeCondition(_condition);
+          },
+          // 원형 버튼을 만들기 위해 설정
+          style: TextButton.styleFrom(
+              shape: const CircleBorder(),
+              backgroundColor: widget.isOnTheme.onOff),
+          child: Text(
+            widget.condition ? 'ON' : 'OFF',
+            style: TextStyle(
+              color: widget.isOnTheme.onOffFont,
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        )
+      ],
+    );
+  }
+}
+
+class _CardLabel extends StatelessWidget {
+  final String label;
+  final UnitCardColor isOnTheme;
+
+  const _CardLabel({super.key, required this.label, required this.isOnTheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        top: 4,
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.w700,
+          color: isOnTheme.labelFont,
+        ),
+      ),
+    );
+  }
+}
+
+class _EachControlButton extends StatelessWidget {
+  final UnitCardColor isOnTheme;
+
+  const _EachControlButton({
+    super.key,
+    required this.isOnTheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const SizedBox(width: 30),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isOnTheme.timeControl,
+          ),
+          onPressed: () {},
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const Icon(
+                Icons.settings_input_component_outlined,
+                color: Colors.white,
+                size: 20,
+              ),
               const SizedBox(
                 width: 8,
               ),
-              ToggleSwitch(
-                minWidth: 80.0,
-                borderColor: const [Colors.black],
-                borderWidth: 0.4,
-                cornerRadius: 20.0,
-                activeBgColors: [
-                  [selectedTheme.manual],
-                  [selectedTheme.manual]
-                ],
-                activeFgColor: Colors.white,
-                inactiveBgColor: selectedTheme.auto,
-                inactiveFgColor: selectedTheme.autoFont,
-                initialLabelIndex: 1,
-                totalSwitches: 2,
-                labels: const ['자동', '수동'],
-                radiusStyle: true,
-                onToggle: widget.onToggle,
-              ),
+              Text(
+                '개별 제어',
+                style: TextStyle(
+                  color: isOnTheme.timeControlFont,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+              )
             ],
-          )
-        ],
-      ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IsAutoButton extends StatelessWidget {
+  final UnitCardColor isOnTheme;
+
+  const _IsAutoButton({
+    super.key,
+    required this.isOnTheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const SizedBox(
+          width: 8,
+        ),
+        ToggleSwitch(
+          minWidth: 80.0,
+          borderColor: const [Colors.black],
+          borderWidth: 0.4,
+          cornerRadius: 20.0,
+          activeBgColors: [
+            [isOnTheme.manual],
+            [isOnTheme.manual]
+          ],
+          activeFgColor: Colors.white,
+          inactiveBgColor: isOnTheme.auto,
+          inactiveFgColor: isOnTheme.autoFont,
+          initialLabelIndex: 1,
+          totalSwitches: 2,
+          labels: const ['자동', '수동'],
+          radiusStyle: true,
+          onToggle: (isAuto) {
+            print(isAuto);
+          },
+        ),
+      ],
     );
   }
 }

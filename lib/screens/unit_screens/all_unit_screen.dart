@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/consts/units.dart';
-import 'package:smart_farm/screens/unit_screens/temperature_setting_modal.dart';
 import 'package:smart_farm/screens/unit_screens/time_setting_modal.dart';
 import 'package:smart_farm/screens/unit_screens/unit_card.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -27,13 +26,10 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
             ),
             Expanded(
               child: _Bottom(
-                onToggle: isAutoToggle,
                 onPressed: (label) {
                   unitTimeSetting(label);
                 },
-                floatingOnPressed: (){
-                  temperatureSetting();
-                },
+                floatingOnPressed: () {},
               ),
             ),
           ],
@@ -49,9 +45,7 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
     /// 1이면 모든 것을 다 켬
   }
 
-  void isAutoToggle(int? isAuto) {
-    print(isAuto);
-  }
+
 
   /// 상세 제어 화면
   void unitTimeSetting(String label) {
@@ -67,24 +61,6 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
             child: TimeSettingModal(
               label: label,
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// 상세 제어 화면
-  void temperatureSetting() {
-    showCupertinoDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return Align(
-          alignment: Alignment.center,
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height / 4 * 3,
-            width: MediaQuery.of(context).size.width / 6 * 5,
-            child: TemperatureSettingModal(),
           ),
         );
       },
@@ -122,7 +98,7 @@ class _TopBarState extends State<_TopBar> {
             SizedBox(
               height: 60,
               child: Row(
-                children:  [
+                children: [
                   Icon(
                     Icons.power_settings_new_outlined,
                     size: 35,
@@ -167,13 +143,11 @@ class _TopBarState extends State<_TopBar> {
 }
 
 class _Bottom extends StatefulWidget {
-  final OnToggle onToggle;
   final Function(String) onPressed;
   final Function() floatingOnPressed;
 
   const _Bottom({
     super.key,
-    required this.onToggle,
     required this.onPressed,
     required this.floatingOnPressed,
   });
@@ -189,7 +163,6 @@ class _BottomState extends State<_Bottom> {
       floatingActionButton: FloatingActionButton.large(
         onPressed: widget.floatingOnPressed,
         heroTag: "actionButton",
-
         backgroundColor: colors[7],
         child: const Icon(
           Icons.device_thermostat_outlined,
@@ -217,18 +190,9 @@ class _BottomState extends State<_Bottom> {
                           condition: e.status,
                           label: e.label,
                           icon: e.icon,
-                          onChangeCondition: (newCondition) {
-                            setState(() {
-                              e.status = !e.status;
-                            });
-                          },
-                          onToggle: widget.onToggle,
-                          onPressed: (label) {
-                            widget.onPressed(label);
-                          },
                         ),
                       )
-                      .toList(),
+                      ,
                 ],
               ),
             ),
