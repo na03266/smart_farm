@@ -1,21 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/consts/units.dart';
+import 'package:smart_farm/provider/unit_provider.dart';
 import 'package:smart_farm/screens/unit_screens/time_setting_modal.dart';
 import 'package:smart_farm/screens/unit_screens/unit_card.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class AllUnitScreen extends StatefulWidget {
-  const AllUnitScreen({super.key});
+   AllUnitScreen({super.key});
+  late UnitProvider _unitProvider;
 
   @override
   State<AllUnitScreen> createState() => _AllUnitScreenState();
 }
 
 class _AllUnitScreenState extends State<AllUnitScreen> {
+  ///UNIT 의 목록중 state 가 하나라도 true 면 1 아니면 0
+  int selectedIndex = UnitProvider().UNITS.any((unit) => unit.status) ? 1 : 0;
+
   @override
   Widget build(BuildContext context) {
+    widget._unitProvider = Provider.of<UnitProvider>(context);
     return SizedBox(
       height: MediaQuery.of(context).size.height,
       child: Scaffold(
@@ -23,13 +29,16 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
           children: [
             _TopBar(
               onToggle: mainOnToggle,
+              selectedIndex: selectedIndex,
             ),
             Expanded(
               child: _Bottom(
                 onPressed: (label) {
                   unitTimeSetting(label);
                 },
-                floatingOnPressed: () {},
+                floatingOnPressed: () {
+                  print('Pressed');
+                },
               ),
             ),
           ],
@@ -39,13 +48,7 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
   }
 
   mainOnToggle(int? isOn) {
-    print(isOn);
-
-    /// 0이면,모든 것을 다 끔
-    /// 1이면 모든 것을 다 켬
   }
-
-
 
   /// 상세 제어 화면
   void unitTimeSetting(String label) {
@@ -69,11 +72,13 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
 }
 
 class _TopBar extends StatefulWidget {
-  final OnToggle onToggle;
+  final Function(int?) onToggle;
+  late int selectedIndex;
 
-  const _TopBar({
+  _TopBar({
     super.key,
     required this.onToggle,
+    required this.selectedIndex,
   });
 
   @override
@@ -129,11 +134,17 @@ class _TopBarState extends State<_TopBar> {
               activeFgColor: Colors.white,
               inactiveBgColor: colors[1],
               inactiveFgColor: Colors.white,
-              initialLabelIndex: 1,
+              initialLabelIndex: widget.selectedIndex,
               totalSwitches: 2,
               labels: const ['OFF', 'ON'],
               radiusStyle: true,
-              onToggle: widget.onToggle,
+              onToggle: (index) {
+                setState(() {
+                  widget.selectedIndex = index!;
+                  bool status = index == 1;
+                  UnitProvider().UNITS.map((unit) => unit.status = status);
+                });
+              },
             ),
           ],
         ),
@@ -184,15 +195,13 @@ class _BottomState extends State<_Bottom> {
                 mainAxisSpacing: 10,
                 crossAxisCount: 5,
                 children: <Widget>[
-                  ...UNITS
-                      .map(
+                  ...UnitProvider().UNITS.map(
                         (e) => UnitCard(
                           condition: e.status,
                           label: e.label,
                           icon: e.icon,
                         ),
-                      )
-                      ,
+                      ),
                 ],
               ),
             ),

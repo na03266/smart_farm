@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:smart_farm/provider/unit_provider.dart';
 import 'package:smart_farm/screens/intro_screen.dart';
 
 void main() {
@@ -20,7 +22,12 @@ void main() {
               displaySmall: TextStyle(
                 color: Colors.white,
               ))),
-      home: const IntroScreen(),
+      /// 하위 페이지에서 ChangeNotifierProvider 접근 가능
+      home: ChangeNotifierProvider(
+          create: (context) {
+            return UnitProvider();
+          },
+          child: const IntroScreen()),
     ),
   );
 }
