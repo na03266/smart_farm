@@ -48,8 +48,7 @@ class _UnitCardState extends State<UnitCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-
+            padding: const EdgeInsets.only(left: 8, top: 8),
             /// 카드 최상단 아이콘,온오프 버튼
             child: _CardTop(
               icon: widget.icon,

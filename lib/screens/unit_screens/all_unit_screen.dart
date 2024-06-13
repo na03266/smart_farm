@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/provider/unit_provider.dart';
 import 'package:smart_farm/screens/unit_screens/time_setting_modal.dart';
@@ -9,7 +8,6 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 class AllUnitScreen extends StatefulWidget {
    AllUnitScreen({super.key});
-  late UnitProvider _unitProvider;
 
   @override
   State<AllUnitScreen> createState() => _AllUnitScreenState();
@@ -21,7 +19,6 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    widget._unitProvider = Provider.of<UnitProvider>(context);
     return SizedBox(
       height: MediaQuery.of(context).size.height,
       child: Scaffold(
