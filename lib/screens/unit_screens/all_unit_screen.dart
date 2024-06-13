@@ -1,21 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_farm/consts/colors.dart';
+import 'package:smart_farm/consts/units.dart';
 import 'package:smart_farm/provider/unit_provider.dart';
-import 'package:smart_farm/screens/unit_screens/time_setting_modal.dart';
-import 'package:smart_farm/screens/unit_screens/unit_card.dart';
+import 'package:smart_farm/screens/unit_screens/component/time_setting_modal.dart';
+import 'package:smart_farm/screens/unit_screens/component/unit_card.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class AllUnitScreen extends StatefulWidget {
-  AllUnitScreen({super.key});
+  const AllUnitScreen({super.key});
 
   @override
   State<AllUnitScreen> createState() => _AllUnitScreenState();
 }
 
 class _AllUnitScreenState extends State<AllUnitScreen> {
+  final units = UnitProvider().UNITS.toList();
+
   ///UNIT 의 목록중 state 가 하나라도 true 면 1 아니면 0
-  int selectedIndex = UnitProvider().UNITS.any((unit) => unit.status) ? 1 : 0;
+  int unitsStatus = UnitProvider().UNITS.any((unit) => unit.status) ? 1 : 0;
 
   @override
   Widget build(BuildContext context) {
@@ -26,30 +29,43 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
           children: [
             _TopBar(
               onToggle: allUnitOnToggle,
-              selectedIndex: selectedIndex,
+              selectedIndex: unitsStatus,
             ),
 
             /// 토글 까지는 완료 이제 아래 유닛 카드에 값을 적용시켜야함.
             Expanded(
               child: _UnitCard(
-                onPressed: (label) {
-                  unitTimeSetting(label);
-                },
+                /// 여기에도 유닛리스트를 넣어서 각각의 레이블에 반환하도록 할것
+                units: units,
+                onPressed: isOnOffButtonOnPressed,
               ),
             ),
           ],
         ),
-        floatingActionButton: _FloatingButton(),
+        floatingActionButton: _SettingButtons(),
       ),
     );
   }
 
+  ///버튼 전체 통합 제어
   void allUnitOnToggle(int? index) {
+    unitsStatus = index!;
     setState(() {
-      selectedIndex = index!;
-      bool status = index == 1;
-      UnitProvider().UNITS.map((unit) => unit.status = status);
+      bool status = unitsStatus == 1;
+      for (var unit in units) {
+        unit.status = status;
+      }
     });
+  }
+
+  /// 카드 온오프 유닛별 제어
+  isOnOffButtonOnPressed(UnitInfo selectedUnit) {
+    setState(() {
+      selectedUnit.status = !selectedUnit.status;
+      /// 하나라도 켜지면 전체 전원은 올라간 걸로 친다.
+      unitsStatus = 1;
+    });
+
   }
 
   /// 개별 제어 화면
@@ -75,7 +91,7 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
 
 class _TopBar extends StatefulWidget {
   final OnToggle? onToggle;
-  late int selectedIndex;
+  int selectedIndex;
 
   _TopBar({
     super.key,
@@ -88,6 +104,11 @@ class _TopBar extends StatefulWidget {
 }
 
 class _TopBarState extends State<_TopBar> {
+  final dialogTextStyle = const TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -141,6 +162,36 @@ class _TopBarState extends State<_TopBar> {
               labels: const ['OFF', 'ON'],
               radiusStyle: true,
               onToggle: widget.onToggle,
+              cancelToggle: (index) async {
+                String selection = index == 0 ? '전체 끄기' : '전체 켜기';
+                return await showDialog(
+                  context: context,
+                  builder: (dialogContext) => Container(
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(4)),
+                    child: AlertDialog(
+                      content: Text(
+                        " $selection",
+                        style: dialogTextStyle,
+                      ),
+                      actions: [
+                        TextButton(
+                            child: Text("Yes", style: dialogTextStyle),
+                            onPressed: () {
+                              Navigator.pop(dialogContext, false);
+                            }),
+                        TextButton(
+                            child: Text("No",
+                                style: dialogTextStyle.copyWith(
+                                    color: Colors.red)),
+                            onPressed: () {
+                              Navigator.pop(dialogContext, true);
+                            }),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -149,19 +200,18 @@ class _TopBarState extends State<_TopBar> {
   }
 }
 
-class _UnitCard extends StatefulWidget {
-  final Function(String) onPressed;
+typedef OnOffUnitButtonPressed = void Function(UnitInfo selectedUnit);
+
+class _UnitCard extends StatelessWidget {
+  final List<UnitInfo> units;
+  final OnOffUnitButtonPressed onPressed;
 
   const _UnitCard({
     super.key,
+    required this.units,
     required this.onPressed,
   });
 
-  @override
-  State<_UnitCard> createState() => _UnitCardState();
-}
-
-class _UnitCardState extends State<_UnitCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -176,13 +226,17 @@ class _UnitCardState extends State<_UnitCard> {
               mainAxisSpacing: 10,
               crossAxisCount: 5,
               children: <Widget>[
-                ...UnitProvider().UNITS.map(
-                      (e) => UnitCard(
-                        condition: e.status,
-                        label: e.label,
-                        icon: e.icon,
-                      ),
-                    ),
+                ...units.map(
+                  (e) => UnitCard(
+                    condition: e.status,
+                    label: e.label,
+                    icon: e.icon,
+                    selectedTheme: e.status ? CARDS[0] : CARDS[1],
+                    onPressed: () {
+                      onPressed(e);
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -192,8 +246,8 @@ class _UnitCardState extends State<_UnitCard> {
   }
 }
 
-class _FloatingButton extends StatelessWidget {
-  const _FloatingButton({super.key});
+class _SettingButtons extends StatelessWidget {
+  const _SettingButtons({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -206,17 +260,18 @@ class _FloatingButton extends StatelessWidget {
           heroTag: "timeButton",
           backgroundColor: colors[7],
           child: const Icon(
-            Icons.device_thermostat_outlined,
+            Icons.timer,
             size: 50,
             color: Colors.white,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 16),
+
         /// 온도 제어 화면 전환 버튼
         FloatingActionButton.large(
           onPressed: () {},
           heroTag: "tempButton",
-          backgroundColor: colors[7],
+          backgroundColor: colors[10],
           child: const Icon(
             Icons.device_thermostat_outlined,
             size: 50,

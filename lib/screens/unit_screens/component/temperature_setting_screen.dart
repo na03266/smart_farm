@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
-import 'package:smart_farm/consts/app_colors.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/consts/temp.dart';
 
@@ -450,8 +449,8 @@ class _LineChartState extends State<_LineChart> {
         show: true,
         border: Border(
           bottom:
-              BorderSide(color: AppColors.primary.withOpacity(0.2), width: 4),
-          left: BorderSide(color: AppColors.primary.withOpacity(0.2), width: 4),
+              BorderSide(color: const Color(0xFF50E4FF).withOpacity(0.2), width: 4),
+          left: BorderSide(color: const Color(0xFF50E4FF).withOpacity(0.2), width: 4),
           right: const BorderSide(color: Colors.transparent),
           top: const BorderSide(color: Colors.transparent),
         ),

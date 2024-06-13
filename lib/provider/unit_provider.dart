@@ -17,7 +17,7 @@ class UnitProvider extends ChangeNotifier {
     ),
     UnitInfo(
       icon: Icons.view_agenda_outlined,
-      label: '가스제어',
+      label: '가스제어기',
       status: false,
       count: 4,
     ),

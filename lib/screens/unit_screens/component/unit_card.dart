@@ -2,45 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
+
 class UnitCard extends StatefulWidget {
   final String label;
   final IconData icon;
-  late bool condition;
+  final bool condition;
+  final UnitCardColor selectedTheme;
+  final VoidCallback onPressed;
 
-  UnitCard({
+  const UnitCard({
     super.key,
     required this.label,
     required this.icon,
     required this.condition,
+    required this.selectedTheme,
+    required this.onPressed,
   });
 
   @override
   State<UnitCard> createState() => _UnitCardState();
-
-  /// 조건에 따라 다른 색상 반환
-  static UnitCardColor selectTheme(bool condition) {
-    return condition ? CARDS[0] : CARDS[1];
-  }
 }
 
 class _UnitCardState extends State<UnitCard> {
-  late bool _condition;
-
-  @override
-  void initState() {
-    super.initState();
-    _condition = widget.condition;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final selectedTheme = UnitCard.selectTheme(_condition);
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: selectedTheme.bg,
+        color: widget.selectedTheme.bg,
       ),
       height: MediaQuery.of(context).size.height / 2 - 50,
       child: Column(
@@ -49,36 +39,30 @@ class _UnitCardState extends State<UnitCard> {
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 8, top: 8),
+
             /// 카드 최상단 아이콘,온오프 버튼
             child: _CardTop(
               icon: widget.icon,
-              isOnTheme: selectedTheme,
+              isOnTheme: widget.selectedTheme,
               condition: widget.condition,
-              onChangeCondition: isOn,
+              onPressed: widget.onPressed,
             ),
           ),
 
           /// 아이콘 아래 글자
-          _CardLabel(label: widget.label, isOnTheme: selectedTheme),
+          _CardLabel(label: widget.label, isOnTheme: widget.selectedTheme),
 
           ///공백
           const SizedBox(height: 8),
 
           /// 개별 제어 버튼
-          _EachControlButton(isOnTheme: selectedTheme),
+          _EachControlButton(isOnTheme: widget.selectedTheme),
 
           /// 자동 수동 버튼
-          _IsAutoButton(isOnTheme: selectedTheme),
+          _IsAutoButton(isOnTheme: widget.selectedTheme),
         ],
       ),
     );
-  }
-
-  ///전체 온오프 버튼 함수
-  isOn(bool isOn) {
-    setState(() {
-      _condition = isOn;
-    });
   }
 }
 
@@ -86,14 +70,14 @@ class _CardTop extends StatefulWidget {
   final IconData icon;
   final UnitCardColor isOnTheme;
   final bool condition;
-  final Function(bool) onChangeCondition; // 변경된 상태를 상위 위젯으로 전달할 콜백 함수
+  final VoidCallback? onPressed; // 변경된 상태를 상위 위젯으로 전달할 콜백 함수
 
   const _CardTop({
     super.key,
     required this.icon,
     required this.isOnTheme,
     required this.condition,
-    required this.onChangeCondition,
+    required this.onPressed,
   });
 
   @override
@@ -101,15 +85,6 @@ class _CardTop extends StatefulWidget {
 }
 
 class _CardTopState extends State<_CardTop> {
-  late bool _condition;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _condition = widget.condition;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -122,11 +97,8 @@ class _CardTopState extends State<_CardTop> {
           color: widget.isOnTheme.icon,
         ),
         TextButton(
-          onPressed: () {
-            _condition = !_condition;
-            ///위에서 선언된 함수에 [_condition] 전달
-            widget.onChangeCondition(_condition);
-          },
+          ///상위로 상태관리 전달해야함
+          onPressed: widget.onPressed,
           // 원형 버튼을 만들기 위해 설정
           style: TextButton.styleFrom(
               shape: const CircleBorder(),
