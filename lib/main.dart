@@ -23,11 +23,7 @@ void main() {
                 color: Colors.white,
               ))),
       /// 하위 페이지에서 ChangeNotifierProvider 접근 가능
-      home: ChangeNotifierProvider(
-          create: (context) {
-            return UnitProvider();
-          },
-          child: const IntroScreen()),
+      home: const IntroScreen(),
     ),
   );
 }

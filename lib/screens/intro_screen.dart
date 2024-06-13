@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/screens/home_screen.dart';
 
+/// 인트로 스크린을 따로 만들지 말고 퓨처 빌더로 생성 후 기다렸다가 전달하는 방식 이용할것
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
