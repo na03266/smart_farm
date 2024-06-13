@@ -13,7 +13,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-
   ///탭바 이용을 위한 컨트롤러
   late final TabController tabController;
 
@@ -25,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       length: TABS.length,
       vsync: this,
     );
+
     tabController.addListener(() {
       setState(() {});
     });
@@ -35,22 +35,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     ///상단 메뉴바 부분 제외
     return SafeArea(
         child: Scaffold(
-          appBar: _AppBar(),
-          body: TabBarView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: tabController,
-              children: [
-                DashBoardScreen(),
-                AllUnitScreen(),
-                SettingScreen(),
-              ]
-          ),
-          bottomNavigationBar: _BottomNavBar(
-            tabController: tabController,
-          ),
-        )
-
-    );
+      appBar: const _AppBar(),
+      body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
+          controller: tabController,
+          children: [
+            DashBoardScreen(),
+            AllUnitScreen(),
+            SettingScreen(),
+          ]),
+      bottomNavigationBar: _BottomNavBar(
+        tabController: tabController,
+      ),
+    ));
   }
 }
 
@@ -59,9 +56,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme
-        .of(context)
-        .textTheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return AppBar(
       backgroundColor: colors[2],
@@ -77,12 +72,22 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(
-            Icons.admin_panel_settings_outlined,
-            color: Colors.white,
-          ),
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                /// 관리자 모드 비밀번호 입력 모달,
+                /// 권한 받을시 조건을 변경,
+                /// 세팅화면에서 조건에따라 보여주는 화면을 바꾸도록 세팅
+              },
+              icon: const Icon(
+                Icons.admin_panel_settings_outlined,
+                color: Colors.white,
+                size: 35,
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
         )
       ],
     );
@@ -91,7 +96,6 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-
 
 class _BottomNavBar extends StatefulWidget {
   final TabController tabController;
@@ -106,7 +110,6 @@ class _BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<_BottomNavBar> {
-
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
@@ -122,14 +125,13 @@ class _BottomNavBarState extends State<_BottomNavBar> {
       },
       items: TABS
           .map(
-            (e) =>
-            BottomNavigationBarItem(
+            (e) => BottomNavigationBarItem(
               icon: Icon(
                 e.icon,
               ),
               label: e.label,
             ),
-      )
+          )
           .toList(),
     );
   }

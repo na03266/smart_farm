@@ -7,7 +7,7 @@ import 'package:smart_farm/screens/unit_screens/unit_card.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class AllUnitScreen extends StatefulWidget {
-   AllUnitScreen({super.key});
+  AllUnitScreen({super.key});
 
   @override
   State<AllUnitScreen> createState() => _AllUnitScreenState();
@@ -25,29 +25,34 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
         body: Column(
           children: [
             _TopBar(
-              onToggle: mainOnToggle,
+              onToggle: allUnitOnToggle,
               selectedIndex: selectedIndex,
             ),
+
+            /// 토글 까지는 완료 이제 아래 유닛 카드에 값을 적용시켜야함.
             Expanded(
-              child: _Bottom(
+              child: _UnitCard(
                 onPressed: (label) {
                   unitTimeSetting(label);
-                },
-                floatingOnPressed: () {
-                  print('Pressed');
                 },
               ),
             ),
           ],
         ),
+        floatingActionButton: _FloatingButton(),
       ),
     );
   }
 
-  mainOnToggle(int? isOn) {
+  void allUnitOnToggle(int? index) {
+    setState(() {
+      selectedIndex = index!;
+      bool status = index == 1;
+      UnitProvider().UNITS.map((unit) => unit.status = status);
+    });
   }
 
-  /// 상세 제어 화면
+  /// 개별 제어 화면
   void unitTimeSetting(String label) {
     showCupertinoDialog(
       context: context,
@@ -69,7 +74,7 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
 }
 
 class _TopBar extends StatefulWidget {
-  final Function(int?) onToggle;
+  final OnToggle? onToggle;
   late int selectedIndex;
 
   _TopBar({
@@ -135,13 +140,7 @@ class _TopBarState extends State<_TopBar> {
               totalSwitches: 2,
               labels: const ['OFF', 'ON'],
               radiusStyle: true,
-              onToggle: (index) {
-                setState(() {
-                  widget.selectedIndex = index!;
-                  bool status = index == 1;
-                  UnitProvider().UNITS.map((unit) => unit.status = status);
-                });
-              },
+              onToggle: widget.onToggle,
             ),
           ],
         ),
@@ -150,61 +149,81 @@ class _TopBarState extends State<_TopBar> {
   }
 }
 
-class _Bottom extends StatefulWidget {
+class _UnitCard extends StatefulWidget {
   final Function(String) onPressed;
-  final Function() floatingOnPressed;
 
-  const _Bottom({
+  const _UnitCard({
     super.key,
     required this.onPressed,
-    required this.floatingOnPressed,
   });
 
   @override
-  State<_Bottom> createState() => _BottomState();
+  State<_UnitCard> createState() => _UnitCardState();
 }
 
-class _BottomState extends State<_Bottom> {
+class _UnitCardState extends State<_UnitCard> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton.large(
-        onPressed: widget.floatingOnPressed,
-        heroTag: "actionButton",
-        backgroundColor: colors[7],
-        child: const Icon(
-          Icons.device_thermostat_outlined,
-          size: 50,
-          color: Colors.white,
-        ),
-      ),
-      body: Container(
-        color: colors[2],
-
-        /// 각각 유닛 카드
-        child: CustomScrollView(
-          primary: false,
-          slivers: <Widget>[
-            SliverPadding(
-              padding: const EdgeInsets.all(20),
-              sliver: SliverGrid.count(
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                crossAxisCount: 5,
-                children: <Widget>[
-                  ...UnitProvider().UNITS.map(
-                        (e) => UnitCard(
-                          condition: e.status,
-                          label: e.label,
-                          icon: e.icon,
-                        ),
+    return Container(
+      color: colors[2],
+      child: CustomScrollView(
+        primary: false,
+        slivers: <Widget>[
+          SliverPadding(
+            padding: const EdgeInsets.all(20),
+            sliver: SliverGrid.count(
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              crossAxisCount: 5,
+              children: <Widget>[
+                ...UnitProvider().UNITS.map(
+                      (e) => UnitCard(
+                        condition: e.status,
+                        label: e.label,
+                        icon: e.icon,
                       ),
-                ],
-              ),
+                    ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _FloatingButton extends StatelessWidget {
+  const _FloatingButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        /// 시간 제어 화면 전환 버튼
+        FloatingActionButton.large(
+          onPressed: () {},
+          heroTag: "timeButton",
+          backgroundColor: colors[7],
+          child: const Icon(
+            Icons.device_thermostat_outlined,
+            size: 50,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(width: 8),
+        /// 온도 제어 화면 전환 버튼
+        FloatingActionButton.large(
+          onPressed: () {},
+          heroTag: "tempButton",
+          backgroundColor: colors[7],
+          child: const Icon(
+            Icons.device_thermostat_outlined,
+            size: 50,
+            color: Colors.white,
+          ),
+        )
+      ],
     );
   }
 }
