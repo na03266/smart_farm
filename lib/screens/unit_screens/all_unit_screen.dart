@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/consts/units.dart';
 import 'package:smart_farm/provider/unit_provider.dart';
-import 'package:smart_farm/screens/unit_screens/component/time_setting_modal.dart';
+import 'package:smart_farm/screens/unit_screens/component/time_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/unit_card.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -62,13 +62,13 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
   isOnOffButtonOnPressed(UnitInfo selectedUnit) {
     setState(() {
       selectedUnit.status = !selectedUnit.status;
+
       /// 하나라도 켜지면 전체 전원은 올라간 걸로 친다.
       unitsStatus = 1;
     });
-
   }
 
-  /// 개별 제어 화면
+  /// 개별 제어 모달
   void unitTimeSetting(String label) {
     showCupertinoDialog(
       context: context,
@@ -79,9 +79,7 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
           child: SizedBox(
             height: MediaQuery.of(context).size.height / 4 * 3,
             width: MediaQuery.of(context).size.width / 6 * 5,
-            child: TimeSettingModal(
-              label: label,
-            ),
+            child: Container(),
           ),
         );
       },
@@ -144,7 +142,7 @@ class _TopBarState extends State<_TopBar> {
             ),
             const SizedBox(width: 30),
 
-            ///전원 토글 스위치
+            ///전체 전원 토글 스위치
             ToggleSwitch(
               minWidth: 90.0,
               borderColor: const [Colors.black],
@@ -256,7 +254,15 @@ class _SettingButtons extends StatelessWidget {
       children: [
         /// 시간 제어 화면 전환 버튼
         FloatingActionButton.large(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return TimerSettingScreen();
+                },
+              ),
+            );
+          },
           heroTag: "timeButton",
           backgroundColor: colors[7],
           child: const Icon(
