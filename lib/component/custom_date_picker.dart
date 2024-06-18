@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class CustomDatePicker extends StatelessWidget {
   final String label;
   final ValueChanged<DateTime> onDateTimeChanged;
+  final DateTime? initialTime;
 
   const CustomDatePicker({
     super.key,
     required this.label,
     required this.onDateTimeChanged,
+    required this.initialTime,
   });
 
   @override
@@ -30,6 +32,7 @@ class CustomDatePicker extends StatelessWidget {
           height: 300,
           child: CupertinoDatePicker(
             mode: CupertinoDatePickerMode.time,
+            initialDateTime: initialTime,
             onDateTimeChanged: onDateTimeChanged,
           ),
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:smart_farm/component/custom_text_field.dart';
 import 'package:smart_farm/consts/colors.dart';
+import 'package:smart_farm/model/timer_model.dart';
 import 'package:smart_farm/screens/unit_screens/component/timer_card.dart';
 
 import '../../../component/timer_modal_popup.dart';
@@ -17,8 +18,65 @@ class TimerSettingScreen extends StatefulWidget {
 }
 
 class _TimerSettingScreenState extends State<TimerSettingScreen> {
-  late final int unitCount;
-  int timeSettings = 1;
+  int selectedCard = 1;
+  List<TimerModel> timer = [
+    TimerModel(
+      id: 1,
+      startTime: DateTime.now(),
+      endTime: DateTime.now(),
+      name: '1번',
+      activatedUnit: [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+    ),
+    TimerModel(
+      id: 2,
+      startTime: DateTime.now(),
+      endTime: DateTime.now(),
+      name: '2번',
+      activatedUnit: [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+    )
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +127,7 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                   ),
                 ],
               ),
-              body: const Column(
+              body: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
@@ -78,7 +136,15 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                       children: [
                         Flexible(
                           flex: 2,
-                          child: _Left(),
+                          child: _Left(
+                            selectedCard: selectedCard,
+                            onTap: (int id) {
+                              setState(() {
+                                selectedCard = id;
+                              });
+                            },
+                            timer: timer,
+                          ),
                         ),
                         Flexible(
                           flex: 5,
@@ -101,9 +167,18 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
   }
 }
 
+typedef OnCardSelected = void Function(int id);
+
 class _Left extends StatefulWidget {
+  final int selectedCard;
+  final OnCardSelected onTap;
+  final List<TimerModel> timer;
+
   const _Left({
     super.key,
+    required this.selectedCard,
+    required this.onTap,
+    required this.timer,
   });
 
   @override
@@ -161,14 +236,17 @@ class _LeftState extends State<_Left> {
                   ),
                   onPressed: () {
                     showCupertinoModalPopup(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: (_) {
-                          return TimerModalPopup(
-                            startTimeChanged: (DateTime value) {},
-                            endTimeChanged: (DateTime value) {},
-                          );
-                        });
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (_) {
+                        return TimerModalPopup(
+                          startTimeChanged: (DateTime value) {},
+                          endTimeChanged: (DateTime value) {},
+                          startTime: DateTime.now(),
+                          endTime: DateTime.now(),
+                        );
+                      },
+                    );
                   },
                 ),
               ),
@@ -179,14 +257,22 @@ class _LeftState extends State<_Left> {
                 child: Padding(
                   padding:
                       const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
-                  child: ListView(
-                    children: [
-                      TimerCard(
-                        startTime: DateTime.now(),
-                        endTime: DateTime.now(),
-                        content: 'content',
-                      ),
-                    ],
+                  child: ListView.separated(
+                    itemCount: widget.timer.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return TimerCard(
+                        startTime: widget.timer[index].startTime,
+                        endTime: widget.timer[index].endTime,
+                        content: widget.timer[index].name,
+                        selectedCard:
+                            widget.selectedCard == widget.timer[index].id,
+                        onTap: () {
+                          widget.onTap(widget.timer[index].id);
+                        },
+                      );
+                    }, separatorBuilder: (BuildContext context, int index) {
+                      return const SizedBox(height: 8.0);
+                  },
                   ),
                 ),
               ),

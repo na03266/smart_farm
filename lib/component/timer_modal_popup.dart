@@ -6,10 +6,15 @@ import 'custom_text_field.dart';
 class TimerModalPopup extends StatefulWidget {
   final ValueChanged<DateTime> startTimeChanged;
   final ValueChanged<DateTime> endTimeChanged;
+  final DateTime startTime;
+  final DateTime endTime;
 
   const TimerModalPopup({
     super.key,
-    required this.startTimeChanged, required this.endTimeChanged,
+    required this.startTimeChanged,
+    required this.endTimeChanged,
+    required this.startTime,
+    required this.endTime,
   });
 
   @override
@@ -17,6 +22,8 @@ class TimerModalPopup extends StatefulWidget {
 }
 
 class _TimerModalPopupState extends State<TimerModalPopup> {
+
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -41,10 +48,12 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
                   CustomDatePicker(
                     label: '시작 시간',
                     onDateTimeChanged: widget.startTimeChanged,
+                    initialTime: widget.startTime,
                   ),
                   CustomDatePicker(
                     label: '종료 시간',
                     onDateTimeChanged: widget.endTimeChanged,
+                    initialTime: widget.endTime,
                   ),
                   Column(
                     children: [
