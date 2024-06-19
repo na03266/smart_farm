@@ -66,7 +66,9 @@ class TimerCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      print('tap');
+                    },
                     icon: const Icon(
                       Icons.settings,
                       color: Colors.white,

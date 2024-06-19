@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
-import 'package:smart_farm/component/custom_text_field.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/model/timer_model.dart';
 import 'package:smart_farm/screens/unit_screens/component/timer_card.dart';
@@ -26,7 +25,7 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
       endTime: DateTime.now(),
       name: '1번',
       activatedUnit: [
-        0,
+        1,
         0,
         0,
         0,
@@ -54,8 +53,8 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
       endTime: DateTime.now(),
       name: '2번',
       activatedUnit: [
-        0,
-        0,
+        1,
+        1,
         0,
         0,
         0,
@@ -138,17 +137,15 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                           flex: 2,
                           child: _Left(
                             selectedCard: selectedCard,
-                            onTap: (int id) {
-                              setState(() {
-                                selectedCard = id;
-                              });
-                            },
+                            onTap: onCardTap,
                             timer: timer,
                           ),
                         ),
                         Flexible(
                           flex: 5,
-                          child: _Right(),
+                          child: _Right(
+                              activatedUnit:
+                                  timer[selectedCard - 1].activatedUnit),
                         ),
                       ],
                     ),
@@ -165,11 +162,17 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
   saveTimerState() {
     Navigator.of(context).pop();
   }
+
+  onCardTap(int id) {
+    setState(() {
+      selectedCard = id;
+    });
+  }
 }
 
 typedef OnCardSelected = void Function(int id);
 
-class _Left extends StatefulWidget {
+class _Left extends StatelessWidget {
   final int selectedCard;
   final OnCardSelected onTap;
   final List<TimerModel> timer;
@@ -181,11 +184,6 @@ class _Left extends StatefulWidget {
     required this.timer,
   });
 
-  @override
-  State<_Left> createState() => _LeftState();
-}
-
-class _LeftState extends State<_Left> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -258,21 +256,21 @@ class _LeftState extends State<_Left> {
                   padding:
                       const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
                   child: ListView.separated(
-                    itemCount: widget.timer.length,
+                    itemCount: timer.length,
                     itemBuilder: (BuildContext context, int index) {
                       return TimerCard(
-                        startTime: widget.timer[index].startTime,
-                        endTime: widget.timer[index].endTime,
-                        content: widget.timer[index].name,
-                        selectedCard:
-                            widget.selectedCard == widget.timer[index].id,
+                        startTime: timer[index].startTime,
+                        endTime: timer[index].endTime,
+                        content: timer[index].name,
+                        selectedCard: selectedCard == timer[index].id,
                         onTap: () {
-                          widget.onTap(widget.timer[index].id);
+                          onTap(timer[index].id);
                         },
                       );
-                    }, separatorBuilder: (BuildContext context, int index) {
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
                       return const SizedBox(height: 8.0);
-                  },
+                    },
                   ),
                 ),
               ),
@@ -285,7 +283,12 @@ class _LeftState extends State<_Left> {
 }
 
 class _Right extends StatefulWidget {
-  const _Right({super.key});
+  final List<int> activatedUnit;
+
+  const _Right({
+    super.key,
+    required this.activatedUnit,
+  });
 
   @override
   State<_Right> createState() => _RightState();
@@ -314,136 +317,68 @@ class _RightState extends State<_Right> {
           ],
         ),
         child: Center(
-          child: CustomScrollView(
-            primary: false,
-            slivers: <Widget>[
-              SliverPadding(
-                padding: const EdgeInsets.all(20),
-                sliver: SliverGrid.count(
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  crossAxisCount: 4,
-                  children: List.generate(7, (index) {
-                    return SizedBox(
-                      height: 20,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(10.0), // 버튼의 모양 설정
-                          ),
-                          backgroundColor: colors[1], // 버튼의 배경색 설정
-                        ),
-                        child: Text(
-                          '번호',
-                          style: TextStyle(
-                            color: colors[6],
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                /// 시간 추가 버튼
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0), // 버튼의 모양 설정
+                      ),
+                      backgroundColor: colors[3],
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        '현재 타이머에 적용하기',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                    );
-                  }),
+                    ),
+                    onPressed: () {
+                      /// 누를 시 DB 갱신
+                    },
+                  ),
                 ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
-class _TimeSetting extends StatelessWidget {
-  _TimeSetting({
-    super.key,
-  });
-
-  String titleCustomText = '';
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        width: 700,
-        height: 600,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  const Expanded(
-                    child: CustomTextField(label: '타이머 이름'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text('완료'),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Column(
-                    children: [
-                      Text(
-                        '시작 시간',
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(0.5),
-                          fontSize: 16,
-                          decoration: TextDecoration.none,
-                        ),
+                /// 타이머 목록
+                /// 스트림 빌더로 전환
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4, // 각 항목의 너비를 고정
+                        mainAxisSpacing: 8.0, // 세로 간격
+                        crossAxisSpacing: 8.0, // 가로 간격
+                        childAspectRatio: 16 / 9,
                       ),
-                      Container(
-                        color: Colors.white,
-                        width: 300,
-                        height: 300,
-                        child: CupertinoDatePicker(
-                          mode: CupertinoDatePickerMode.time,
-                          onDateTimeChanged: (DateTime time) {
-                            print("Left: $time");
-                          },
-                        ),
-                      ),
-                    ],
+                      itemCount: 20,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          color: Colors.blue,
+                          child: Center(
+                            child: Text(
+                              'Item $index',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  Column(
-                    children: [
-                      Text(
-                        '종료 시간',
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(0.5),
-                          fontSize: 16,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                      Container(
-                        color: Colors.white,
-                        width: 300,
-                        height: 300,
-                        child: CupertinoDatePicker(
-                          mode: CupertinoDatePickerMode.time,
-                          onDateTimeChanged: (DateTime time) {
-                            print("Right: $time");
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

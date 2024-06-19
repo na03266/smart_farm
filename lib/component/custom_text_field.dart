@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 class CustomTextField extends StatelessWidget {
   final String label;
   final bool expand;
+  final FormFieldSetter<String> onSaved;
 
   const CustomTextField({
     super.key,
     required this.label,
-    this.expand = false,
+    this.expand = false, required this.onSaved,
   });
 
   @override
@@ -39,7 +40,7 @@ class CustomTextField extends StatelessWidget {
         border: InputBorder.none,
         fillColor: Colors.grey[300],
         filled: true,
-      ),
+      ),onSaved: onSaved,
       expands: expand,
       maxLines: expand ? null : 1,
       minLines: expand ? null : 1,
