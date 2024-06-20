@@ -3,12 +3,12 @@
 part of 'drift.dart';
 
 // ignore_for_file: type=lint
-class $UnitTableTable extends UnitTable
-    with TableInfo<$UnitTableTable, UnitTableData> {
+class $TimerTableTable extends TimerTable
+    with TableInfo<$TimerTableTable, TimerTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $UnitTableTable(this.attachedDatabase, [this._alias]);
+  $TimerTableTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -18,86 +18,83 @@ class $UnitTableTable extends UnitTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  static const VerificationMeta _startTimeMeta =
+      const VerificationMeta('startTime');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _unitNumberMeta =
-      const VerificationMeta('unitNumber');
-  @override
-  late final GeneratedColumn<int> unitNumber = GeneratedColumn<int>(
-      'unit_number', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<bool> status = GeneratedColumn<bool>(
-      'status', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("status" IN (0, 1))'));
-  static const VerificationMeta _modeMeta = const VerificationMeta('mode');
-  @override
-  late final GeneratedColumn<bool> mode = GeneratedColumn<bool>(
-      'mode', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("mode" IN (0, 1))'));
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+      'start_time', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _endTimeMeta =
+      const VerificationMeta('endTime');
+  @override
+  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
+      'end_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _timerNameMeta =
+      const VerificationMeta('timerName');
+  @override
+  late final GeneratedColumn<String> timerName = GeneratedColumn<String>(
+      'timer_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _activatedUnitMeta =
+      const VerificationMeta('activatedUnit');
+  @override
+  late final GeneratedColumn<String> activatedUnit = GeneratedColumn<String>(
+      'activated_unit', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now().toUtc());
   @override
   List<GeneratedColumn> get $columns =>
-      [id, name, unitNumber, status, mode, updatedAt];
+      [id, startTime, endTime, timerName, activatedUnit, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'unit_table';
+  static const String $name = 'timer_table';
   @override
-  VerificationContext validateIntegrity(Insertable<UnitTableData> instance,
+  VerificationContext validateIntegrity(Insertable<TimerTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('name')) {
+    if (data.containsKey('start_time')) {
+      context.handle(_startTimeMeta,
+          startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
+    } else if (isInserting) {
+      context.missing(_startTimeMeta);
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(_endTimeMeta,
+          endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta));
+    } else if (isInserting) {
+      context.missing(_endTimeMeta);
+    }
+    if (data.containsKey('timer_name')) {
+      context.handle(_timerNameMeta,
+          timerName.isAcceptableOrUnknown(data['timer_name']!, _timerNameMeta));
+    } else if (isInserting) {
+      context.missing(_timerNameMeta);
+    }
+    if (data.containsKey('activated_unit')) {
       context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+          _activatedUnitMeta,
+          activatedUnit.isAcceptableOrUnknown(
+              data['activated_unit']!, _activatedUnitMeta));
     } else if (isInserting) {
-      context.missing(_nameMeta);
+      context.missing(_activatedUnitMeta);
     }
-    if (data.containsKey('unit_number')) {
-      context.handle(
-          _unitNumberMeta,
-          unitNumber.isAcceptableOrUnknown(
-              data['unit_number']!, _unitNumberMeta));
-    } else if (isInserting) {
-      context.missing(_unitNumberMeta);
-    }
-    if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
-    } else if (isInserting) {
-      context.missing(_statusMeta);
-    }
-    if (data.containsKey('mode')) {
-      context.handle(
-          _modeMeta, mode.isAcceptableOrUnknown(data['mode']!, _modeMeta));
-    } else if (isInserting) {
-      context.missing(_modeMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     }
     return context;
   }
@@ -105,89 +102,89 @@ class $UnitTableTable extends UnitTable
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  UnitTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TimerTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return UnitTableData(
+    return TimerTableData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      unitNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}unit_number'])!,
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}status'])!,
-      mode: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}mode'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      startTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
+      endTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_time'])!,
+      timerName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}timer_name'])!,
+      activatedUnit: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}activated_unit'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
   @override
-  $UnitTableTable createAlias(String alias) {
-    return $UnitTableTable(attachedDatabase, alias);
+  $TimerTableTable createAlias(String alias) {
+    return $TimerTableTable(attachedDatabase, alias);
   }
 }
 
-class UnitTableData extends DataClass implements Insertable<UnitTableData> {
-  /// primary
+class TimerTableData extends DataClass implements Insertable<TimerTableData> {
+  /// 식별 가능한 ID
   final int id;
 
-  /// 유닛 이름
-  final String name;
+  /// 시작 시간
+  final DateTime startTime;
 
-  /// 유닛 번호
-  final int unitNumber;
+  /// 종료 시간
+  final DateTime endTime;
 
-  /// 유닛 상태(켜짐 꺼짐)
-  final bool status;
+  /// 타이머 이름
+  final String timerName;
 
-  /// 유닛 모드(자동:false 수동:true)
-  /// false 경우만 시간 설정이 적용 되도록.
-  final bool mode;
+  /// 할당된 유닛
+  /// 2진수 16자리
+  final String activatedUnit;
 
-  ///갱신 시간
-  final DateTime updatedAt;
-  const UnitTableData(
+  /// 생성일자
+  final DateTime createdAt;
+  const TimerTableData(
       {required this.id,
-      required this.name,
-      required this.unitNumber,
-      required this.status,
-      required this.mode,
-      required this.updatedAt});
+      required this.startTime,
+      required this.endTime,
+      required this.timerName,
+      required this.activatedUnit,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['name'] = Variable<String>(name);
-    map['unit_number'] = Variable<int>(unitNumber);
-    map['status'] = Variable<bool>(status);
-    map['mode'] = Variable<bool>(mode);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['start_time'] = Variable<DateTime>(startTime);
+    map['end_time'] = Variable<DateTime>(endTime);
+    map['timer_name'] = Variable<String>(timerName);
+    map['activated_unit'] = Variable<String>(activatedUnit);
+    map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
 
-  UnitTableCompanion toCompanion(bool nullToAbsent) {
-    return UnitTableCompanion(
+  TimerTableCompanion toCompanion(bool nullToAbsent) {
+    return TimerTableCompanion(
       id: Value(id),
-      name: Value(name),
-      unitNumber: Value(unitNumber),
-      status: Value(status),
-      mode: Value(mode),
-      updatedAt: Value(updatedAt),
+      startTime: Value(startTime),
+      endTime: Value(endTime),
+      timerName: Value(timerName),
+      activatedUnit: Value(activatedUnit),
+      createdAt: Value(createdAt),
     );
   }
 
-  factory UnitTableData.fromJson(Map<String, dynamic> json,
+  factory TimerTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return UnitTableData(
+    return TimerTableData(
       id: serializer.fromJson<int>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
-      unitNumber: serializer.fromJson<int>(json['unitNumber']),
-      status: serializer.fromJson<bool>(json['status']),
-      mode: serializer.fromJson<bool>(json['mode']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      startTime: serializer.fromJson<DateTime>(json['startTime']),
+      endTime: serializer.fromJson<DateTime>(json['endTime']),
+      timerName: serializer.fromJson<String>(json['timerName']),
+      activatedUnit: serializer.fromJson<String>(json['activatedUnit']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
   @override
@@ -195,116 +192,115 @@ class UnitTableData extends DataClass implements Insertable<UnitTableData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'name': serializer.toJson<String>(name),
-      'unitNumber': serializer.toJson<int>(unitNumber),
-      'status': serializer.toJson<bool>(status),
-      'mode': serializer.toJson<bool>(mode),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'startTime': serializer.toJson<DateTime>(startTime),
+      'endTime': serializer.toJson<DateTime>(endTime),
+      'timerName': serializer.toJson<String>(timerName),
+      'activatedUnit': serializer.toJson<String>(activatedUnit),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  UnitTableData copyWith(
+  TimerTableData copyWith(
           {int? id,
-          String? name,
-          int? unitNumber,
-          bool? status,
-          bool? mode,
-          DateTime? updatedAt}) =>
-      UnitTableData(
+          DateTime? startTime,
+          DateTime? endTime,
+          String? timerName,
+          String? activatedUnit,
+          DateTime? createdAt}) =>
+      TimerTableData(
         id: id ?? this.id,
-        name: name ?? this.name,
-        unitNumber: unitNumber ?? this.unitNumber,
-        status: status ?? this.status,
-        mode: mode ?? this.mode,
-        updatedAt: updatedAt ?? this.updatedAt,
+        startTime: startTime ?? this.startTime,
+        endTime: endTime ?? this.endTime,
+        timerName: timerName ?? this.timerName,
+        activatedUnit: activatedUnit ?? this.activatedUnit,
+        createdAt: createdAt ?? this.createdAt,
       );
   @override
   String toString() {
-    return (StringBuffer('UnitTableData(')
+    return (StringBuffer('TimerTableData(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('unitNumber: $unitNumber, ')
-          ..write('status: $status, ')
-          ..write('mode: $mode, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('timerName: $timerName, ')
+          ..write('activatedUnit: $activatedUnit, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, name, unitNumber, status, mode, updatedAt);
+      Object.hash(id, startTime, endTime, timerName, activatedUnit, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is UnitTableData &&
+      (other is TimerTableData &&
           other.id == this.id &&
-          other.name == this.name &&
-          other.unitNumber == this.unitNumber &&
-          other.status == this.status &&
-          other.mode == this.mode &&
-          other.updatedAt == this.updatedAt);
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
+          other.timerName == this.timerName &&
+          other.activatedUnit == this.activatedUnit &&
+          other.createdAt == this.createdAt);
 }
 
-class UnitTableCompanion extends UpdateCompanion<UnitTableData> {
+class TimerTableCompanion extends UpdateCompanion<TimerTableData> {
   final Value<int> id;
-  final Value<String> name;
-  final Value<int> unitNumber;
-  final Value<bool> status;
-  final Value<bool> mode;
-  final Value<DateTime> updatedAt;
-  const UnitTableCompanion({
+  final Value<DateTime> startTime;
+  final Value<DateTime> endTime;
+  final Value<String> timerName;
+  final Value<String> activatedUnit;
+  final Value<DateTime> createdAt;
+  const TimerTableCompanion({
     this.id = const Value.absent(),
-    this.name = const Value.absent(),
-    this.unitNumber = const Value.absent(),
-    this.status = const Value.absent(),
-    this.mode = const Value.absent(),
-    this.updatedAt = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
+    this.timerName = const Value.absent(),
+    this.activatedUnit = const Value.absent(),
+    this.createdAt = const Value.absent(),
   });
-  UnitTableCompanion.insert({
+  TimerTableCompanion.insert({
     this.id = const Value.absent(),
-    required String name,
-    required int unitNumber,
-    required bool status,
-    required bool mode,
-    required DateTime updatedAt,
-  })  : name = Value(name),
-        unitNumber = Value(unitNumber),
-        status = Value(status),
-        mode = Value(mode),
-        updatedAt = Value(updatedAt);
-  static Insertable<UnitTableData> custom({
+    required DateTime startTime,
+    required DateTime endTime,
+    required String timerName,
+    required String activatedUnit,
+    this.createdAt = const Value.absent(),
+  })  : startTime = Value(startTime),
+        endTime = Value(endTime),
+        timerName = Value(timerName),
+        activatedUnit = Value(activatedUnit);
+  static Insertable<TimerTableData> custom({
     Expression<int>? id,
-    Expression<String>? name,
-    Expression<int>? unitNumber,
-    Expression<bool>? status,
-    Expression<bool>? mode,
-    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? startTime,
+    Expression<DateTime>? endTime,
+    Expression<String>? timerName,
+    Expression<String>? activatedUnit,
+    Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (name != null) 'name': name,
-      if (unitNumber != null) 'unit_number': unitNumber,
-      if (status != null) 'status': status,
-      if (mode != null) 'mode': mode,
-      if (updatedAt != null) 'updated_at': updatedAt,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
+      if (timerName != null) 'timer_name': timerName,
+      if (activatedUnit != null) 'activated_unit': activatedUnit,
+      if (createdAt != null) 'created_at': createdAt,
     });
   }
 
-  UnitTableCompanion copyWith(
+  TimerTableCompanion copyWith(
       {Value<int>? id,
-      Value<String>? name,
-      Value<int>? unitNumber,
-      Value<bool>? status,
-      Value<bool>? mode,
-      Value<DateTime>? updatedAt}) {
-    return UnitTableCompanion(
+      Value<DateTime>? startTime,
+      Value<DateTime>? endTime,
+      Value<String>? timerName,
+      Value<String>? activatedUnit,
+      Value<DateTime>? createdAt}) {
+    return TimerTableCompanion(
       id: id ?? this.id,
-      name: name ?? this.name,
-      unitNumber: unitNumber ?? this.unitNumber,
-      status: status ?? this.status,
-      mode: mode ?? this.mode,
-      updatedAt: updatedAt ?? this.updatedAt,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      timerName: timerName ?? this.timerName,
+      activatedUnit: activatedUnit ?? this.activatedUnit,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -314,33 +310,33 @@ class UnitTableCompanion extends UpdateCompanion<UnitTableData> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
+    if (startTime.present) {
+      map['start_time'] = Variable<DateTime>(startTime.value);
     }
-    if (unitNumber.present) {
-      map['unit_number'] = Variable<int>(unitNumber.value);
+    if (endTime.present) {
+      map['end_time'] = Variable<DateTime>(endTime.value);
     }
-    if (status.present) {
-      map['status'] = Variable<bool>(status.value);
+    if (timerName.present) {
+      map['timer_name'] = Variable<String>(timerName.value);
     }
-    if (mode.present) {
-      map['mode'] = Variable<bool>(mode.value);
+    if (activatedUnit.present) {
+      map['activated_unit'] = Variable<String>(activatedUnit.value);
     }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('UnitTableCompanion(')
+    return (StringBuffer('TimerTableCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('unitNumber: $unitNumber, ')
-          ..write('status: $status, ')
-          ..write('mode: $mode, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('timerName: $timerName, ')
+          ..write('activatedUnit: $activatedUnit, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
@@ -349,161 +345,161 @@ class UnitTableCompanion extends UpdateCompanion<UnitTableData> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
-  late final $UnitTableTable unitTable = $UnitTableTable(this);
+  late final $TimerTableTable timerTable = $TimerTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [unitTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [timerTable];
 }
 
-typedef $$UnitTableTableInsertCompanionBuilder = UnitTableCompanion Function({
+typedef $$TimerTableTableInsertCompanionBuilder = TimerTableCompanion Function({
   Value<int> id,
-  required String name,
-  required int unitNumber,
-  required bool status,
-  required bool mode,
-  required DateTime updatedAt,
+  required DateTime startTime,
+  required DateTime endTime,
+  required String timerName,
+  required String activatedUnit,
+  Value<DateTime> createdAt,
 });
-typedef $$UnitTableTableUpdateCompanionBuilder = UnitTableCompanion Function({
+typedef $$TimerTableTableUpdateCompanionBuilder = TimerTableCompanion Function({
   Value<int> id,
-  Value<String> name,
-  Value<int> unitNumber,
-  Value<bool> status,
-  Value<bool> mode,
-  Value<DateTime> updatedAt,
+  Value<DateTime> startTime,
+  Value<DateTime> endTime,
+  Value<String> timerName,
+  Value<String> activatedUnit,
+  Value<DateTime> createdAt,
 });
 
-class $$UnitTableTableTableManager extends RootTableManager<
+class $$TimerTableTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $UnitTableTable,
-    UnitTableData,
-    $$UnitTableTableFilterComposer,
-    $$UnitTableTableOrderingComposer,
-    $$UnitTableTableProcessedTableManager,
-    $$UnitTableTableInsertCompanionBuilder,
-    $$UnitTableTableUpdateCompanionBuilder> {
-  $$UnitTableTableTableManager(_$AppDatabase db, $UnitTableTable table)
+    $TimerTableTable,
+    TimerTableData,
+    $$TimerTableTableFilterComposer,
+    $$TimerTableTableOrderingComposer,
+    $$TimerTableTableProcessedTableManager,
+    $$TimerTableTableInsertCompanionBuilder,
+    $$TimerTableTableUpdateCompanionBuilder> {
+  $$TimerTableTableTableManager(_$AppDatabase db, $TimerTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           filteringComposer:
-              $$UnitTableTableFilterComposer(ComposerState(db, table)),
+              $$TimerTableTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
-              $$UnitTableTableOrderingComposer(ComposerState(db, table)),
+              $$TimerTableTableOrderingComposer(ComposerState(db, table)),
           getChildManagerBuilder: (p) =>
-              $$UnitTableTableProcessedTableManager(p),
+              $$TimerTableTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
             Value<int> id = const Value.absent(),
-            Value<String> name = const Value.absent(),
-            Value<int> unitNumber = const Value.absent(),
-            Value<bool> status = const Value.absent(),
-            Value<bool> mode = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime> startTime = const Value.absent(),
+            Value<DateTime> endTime = const Value.absent(),
+            Value<String> timerName = const Value.absent(),
+            Value<String> activatedUnit = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
           }) =>
-              UnitTableCompanion(
+              TimerTableCompanion(
             id: id,
-            name: name,
-            unitNumber: unitNumber,
-            status: status,
-            mode: mode,
-            updatedAt: updatedAt,
+            startTime: startTime,
+            endTime: endTime,
+            timerName: timerName,
+            activatedUnit: activatedUnit,
+            createdAt: createdAt,
           ),
           getInsertCompanionBuilder: ({
             Value<int> id = const Value.absent(),
-            required String name,
-            required int unitNumber,
-            required bool status,
-            required bool mode,
-            required DateTime updatedAt,
+            required DateTime startTime,
+            required DateTime endTime,
+            required String timerName,
+            required String activatedUnit,
+            Value<DateTime> createdAt = const Value.absent(),
           }) =>
-              UnitTableCompanion.insert(
+              TimerTableCompanion.insert(
             id: id,
-            name: name,
-            unitNumber: unitNumber,
-            status: status,
-            mode: mode,
-            updatedAt: updatedAt,
+            startTime: startTime,
+            endTime: endTime,
+            timerName: timerName,
+            activatedUnit: activatedUnit,
+            createdAt: createdAt,
           ),
         ));
 }
 
-class $$UnitTableTableProcessedTableManager extends ProcessedTableManager<
+class $$TimerTableTableProcessedTableManager extends ProcessedTableManager<
     _$AppDatabase,
-    $UnitTableTable,
-    UnitTableData,
-    $$UnitTableTableFilterComposer,
-    $$UnitTableTableOrderingComposer,
-    $$UnitTableTableProcessedTableManager,
-    $$UnitTableTableInsertCompanionBuilder,
-    $$UnitTableTableUpdateCompanionBuilder> {
-  $$UnitTableTableProcessedTableManager(super.$state);
+    $TimerTableTable,
+    TimerTableData,
+    $$TimerTableTableFilterComposer,
+    $$TimerTableTableOrderingComposer,
+    $$TimerTableTableProcessedTableManager,
+    $$TimerTableTableInsertCompanionBuilder,
+    $$TimerTableTableUpdateCompanionBuilder> {
+  $$TimerTableTableProcessedTableManager(super.$state);
 }
 
-class $$UnitTableTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $UnitTableTable> {
-  $$UnitTableTableFilterComposer(super.$state);
+class $$TimerTableTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $TimerTableTable> {
+  $$TimerTableTableFilterComposer(super.$state);
   ColumnFilters<int> get id => $state.composableBuilder(
       column: $state.table.id,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<String> get name => $state.composableBuilder(
-      column: $state.table.name,
+  ColumnFilters<DateTime> get startTime => $state.composableBuilder(
+      column: $state.table.startTime,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<int> get unitNumber => $state.composableBuilder(
-      column: $state.table.unitNumber,
+  ColumnFilters<DateTime> get endTime => $state.composableBuilder(
+      column: $state.table.endTime,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<bool> get status => $state.composableBuilder(
-      column: $state.table.status,
+  ColumnFilters<String> get timerName => $state.composableBuilder(
+      column: $state.table.timerName,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<bool> get mode => $state.composableBuilder(
-      column: $state.table.mode,
+  ColumnFilters<String> get activatedUnit => $state.composableBuilder(
+      column: $state.table.activatedUnit,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 }
 
-class $$UnitTableTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $UnitTableTable> {
-  $$UnitTableTableOrderingComposer(super.$state);
+class $$TimerTableTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $TimerTableTable> {
+  $$TimerTableTableOrderingComposer(super.$state);
   ColumnOrderings<int> get id => $state.composableBuilder(
       column: $state.table.id,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<String> get name => $state.composableBuilder(
-      column: $state.table.name,
+  ColumnOrderings<DateTime> get startTime => $state.composableBuilder(
+      column: $state.table.startTime,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<int> get unitNumber => $state.composableBuilder(
-      column: $state.table.unitNumber,
+  ColumnOrderings<DateTime> get endTime => $state.composableBuilder(
+      column: $state.table.endTime,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<bool> get status => $state.composableBuilder(
-      column: $state.table.status,
+  ColumnOrderings<String> get timerName => $state.composableBuilder(
+      column: $state.table.timerName,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<bool> get mode => $state.composableBuilder(
-      column: $state.table.mode,
+  ColumnOrderings<String> get activatedUnit => $state.composableBuilder(
+      column: $state.table.activatedUnit,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
@@ -511,6 +507,6 @@ class $$UnitTableTableOrderingComposer
 class _$AppDatabaseManager {
   final _$AppDatabase _db;
   _$AppDatabaseManager(this._db);
-  $$UnitTableTableTableManager get unitTable =>
-      $$UnitTableTableTableManager(_db, _db.unitTable);
+  $$TimerTableTableTableManager get timerTable =>
+      $$TimerTableTableTableManager(_db, _db.timerTable);
 }

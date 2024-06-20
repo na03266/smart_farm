@@ -19,19 +19,19 @@ class TimerSettingScreen extends StatefulWidget {
 class _TimerSettingScreenState extends State<TimerSettingScreen> {
   int selectedCard = 1;
 
-  List<TimerModel> timer = [
-    TimerModel(
-      startTime: DateTime.now(),
-      endTime: DateTime.now(),
-      name: '1번',
-      activatedUnit: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ),
-    TimerModel(
-      startTime: DateTime.now(),
-      endTime: DateTime.now(),
-      name: '2번',
-      activatedUnit: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    )
+  List<TimerTable> timer = [
+    // TimerTable(
+    //   startTime: DateTime.now(),
+    //   endTime: DateTime.now(),
+    //   name: '1번',
+    //   activatedUnit: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // ),
+    // TimerTable(
+    //   startTime: DateTime.now(),
+    //   endTime: DateTime.now(),
+    //   name: '2번',
+    //   activatedUnit: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // )
   ];
 
   @override
@@ -102,7 +102,7 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                           flex: 5,
                           child: _Right(
                             activatedUnit:
-                                timer[selectedCard - 1].activatedUnit,
+                                [],//timer[selectedCard - 1].activatedUnit,
                             onTap: onUnitTap,
                           ),
                         ),
@@ -119,28 +119,29 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
   }
 
   onTimerPlusTap() async {
-    if (timer.length < 16) {
-      final resp = await showCupertinoModalPopup<TimerModel>(
+    if (0 < 16) {
+      final resp = await showCupertinoModalPopup<TimerTable>(
         barrierDismissible: false,
         context: context,
         builder: (_) {
           return TimerModalPopup(
             initStartTime: DateTime.now(),
             initEndTime: DateTime.now(),
-            initName: timer.length,
+            initName: 0,
           );
         },
       );
       if (resp == null) {
         return;
       }
-      setState(() {
-        timer = [
-          ...timer,
-          resp,
-        ];
-      });
+      // setState(() {
+      //   timer = [
+      //     ...timer,
+      //     resp,
+      //   ];
+      // });
     } else {
+      /// 타이머 16개 초과 시
       showDialog(
         context: context,
         builder: (dialogContext) => Container(
@@ -174,10 +175,10 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
   }
 
   onUnitTap(int index) {
-    setState(() {
-      timer[selectedCard - 1].activatedUnit[index] =
-          timer[selectedCard - 1].activatedUnit[index] == 1 ? 0 : 1;
-    });
+    // setState(() {
+    //   timer[selectedCard - 1].activatedUnit[index] =
+    //       timer[selectedCard - 1].activatedUnit[index] == 1 ? 0 : 1;
+    // });
   }
 
   saveTimerState() {
@@ -196,7 +197,7 @@ typedef OnCardSelected = void Function(int index);
 class _Left extends StatelessWidget {
   final int selectedCard;
   final OnCardSelected onTap;
-  final List<TimerModel> timer;
+  final List<TimerTable> timer;
   final VoidCallback onPressed;
 
   const _Left({
@@ -268,15 +269,16 @@ class _Left extends StatelessWidget {
                   child: ListView.separated(
                     itemCount: timer.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return TimerCard(
-                        startTime: timer[index].startTime,
-                        endTime: timer[index].endTime,
-                        content: timer[index].name,
-                        selectedCard: index == selectedCard - 1,
-                        onTap: () {
-                          onTap(index);
-                        },
-                      );
+                      return ;
+                      //   TimerCard(
+                      //   startTime: timer[index].startTime,
+                      //   endTime: timer[index].endTime,
+                      //   content: timer[index].name,
+                      //   selectedCard: index == selectedCard - 1,
+                      //   onTap: () {
+                      //     onTap(index);
+                      //   },
+                      // );
                     },
                     separatorBuilder: (BuildContext context, int index) {
                       return const SizedBox(height: 8.0);

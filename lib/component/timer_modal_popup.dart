@@ -100,12 +100,12 @@ class TimerModalPopup extends StatelessWidget {
 
   onFinishPressed(BuildContext context) {
     formKey.currentState!.save();
-    final timer = TimerModel(
-      startTime: startTime!,
-      endTime: endTime!,
-      name: timerName!,
-      activatedUnit: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    );
-    Navigator.of(context).pop(timer);
+    // final timer = TimerTable(
+    //   startTime: startTime!,
+    //   endTime: endTime!,
+    //   name: timerName!,
+    //   activatedUnit: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // );
+    // Navigator.of(context).pop(timer);
   }
 }
