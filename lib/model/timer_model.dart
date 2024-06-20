@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 class TimerModel extends Table {
   /// 식별 가능한 ID
-  final int id;
 
   /// 시작 시간
   final DateTime startTime;
@@ -18,7 +17,6 @@ class TimerModel extends Table {
   final List<int> activatedUnit;
 
   TimerModel({
-    required this.id,
     required this.startTime,
     required this.endTime,
     required this.name,

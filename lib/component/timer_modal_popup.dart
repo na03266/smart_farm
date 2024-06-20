@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:smart_farm/model/timer_model.dart';
 
 import 'custom_date_picker.dart';
 import 'custom_text_field.dart';
 
 class TimerModalPopup extends StatelessWidget {
-  final ValueChanged<DateTime> startTimeChanged;
-  final ValueChanged<DateTime> endTimeChanged;
-  final DateTime startTime;
-  final DateTime endTime;
+  final DateTime initStartTime;
+  final DateTime initEndTime;
+  final int initName;
   final GlobalKey<FormState> formKey = GlobalKey();
+  String? timerName;
 
+  DateTime? startTime;
+  DateTime? endTime;
+
+  /// 시작 종료 시간 초기값 설정
   TimerModalPopup({
     super.key,
-    required this.startTimeChanged,
-    required this.endTimeChanged,
-    required this.startTime,
-    required this.endTime,
-  });
-
+    required this.initStartTime,
+    required this.initEndTime,
+    required this.initName,
+  })  : startTime = initStartTime,
+        endTime = initEndTime;
 
   @override
   Widget build(BuildContext context) {
-    String? name;
-    DateTime? startTime;
-    DateTime? endTime;
-
-    return Form(
-      key: formKey,
-      child: Padding(
-        padding: const EdgeInsets.all(100.0),
+    return Padding(
+      padding: const EdgeInsets.all(100.0),
+      child: Form(
+        key: formKey,
         child: Material(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10.0),
@@ -41,9 +41,7 @@ class TimerModalPopup extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 50),
                   child: CustomTextField(
                     label: '타이머 이름',
-                    onSaved: (String? newValue) {
-                      print(newValue);
-                    },
+                    onSaved: onNameSaved,
                   ),
                 ),
                 Row(
@@ -51,18 +49,22 @@ class TimerModalPopup extends StatelessWidget {
                   children: [
                     CustomDatePicker(
                       label: '시작 시간',
-                      onDateTimeChanged: startTimeChanged,
-                      initialTime: startTime,
+                      onDateTimeChanged: (DateTime value) {
+                        startTime = value;
+                      },
+                      initialTime: initStartTime,
                     ),
                     CustomDatePicker(
                       label: '종료 시간',
-                      onDateTimeChanged: endTimeChanged,
-                      initialTime: endTime,
+                      onDateTimeChanged: (DateTime value) {
+                        endTime = value;
+                      },
+                      initialTime: initEndTime,
                     ),
                     Column(
                       children: [
                         OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () => onFinishPressed(context),
                           style: OutlinedButton.styleFrom(
                               minimumSize: const Size(200, 50)),
                           child: const Text('완료'),
@@ -87,11 +89,23 @@ class TimerModalPopup extends StatelessWidget {
       ),
     );
   }
-  onTimerNameSaved(String? val){
-    if(val == null){
-      return;
+
+  onNameSaved(String? name) {
+    if (name == '') {
+      timerName = '${initName + 1}번';
+    } else {
+      timerName = name;
     }
-    formKey.currentState!.save();
   }
 
+  onFinishPressed(BuildContext context) {
+    formKey.currentState!.save();
+    final timer = TimerModel(
+      startTime: startTime!,
+      endTime: endTime!,
+      name: timerName!,
+      activatedUnit: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    );
+    Navigator.of(context).pop(timer);
+  }
 }

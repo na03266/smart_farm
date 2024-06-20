@@ -97,7 +97,6 @@ class _CardTopState extends State<_CardTop> {
           color: widget.isOnTheme.icon,
         ),
         TextButton(
-          ///상위로 상태관리 전달해야함
           onPressed: widget.onPressed,
           // 원형 버튼을 만들기 위해 설정
           style: TextButton.styleFrom(

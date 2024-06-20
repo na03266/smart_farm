@@ -18,62 +18,19 @@ class TimerSettingScreen extends StatefulWidget {
 
 class _TimerSettingScreenState extends State<TimerSettingScreen> {
   int selectedCard = 1;
+
   List<TimerModel> timer = [
     TimerModel(
-      id: 1,
       startTime: DateTime.now(),
       endTime: DateTime.now(),
       name: '1번',
-      activatedUnit: [
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
+      activatedUnit: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ),
     TimerModel(
-      id: 2,
       startTime: DateTime.now(),
       endTime: DateTime.now(),
       name: '2번',
-      activatedUnit: [
-        1,
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
+      activatedUnit: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     )
   ];
 
@@ -86,7 +43,6 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Scaffold(
-              resizeToAvoidBottomInset: false,
               backgroundColor: colors[2],
               appBar: AppBar(
                 backgroundColor: colors[2],
@@ -137,15 +93,18 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                           flex: 2,
                           child: _Left(
                             selectedCard: selectedCard,
-                            onTap: onCardTap,
+                            onTap: onTimerCardTap,
                             timer: timer,
+                            onPressed: onTimerPlusTap,
                           ),
                         ),
                         Flexible(
                           flex: 5,
                           child: _Right(
-                              activatedUnit:
-                                  timer[selectedCard - 1].activatedUnit),
+                            activatedUnit:
+                                timer[selectedCard - 1].activatedUnit,
+                            onTap: onUnitTap,
+                          ),
                         ),
                       ],
                     ),
@@ -159,29 +118,93 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
     );
   }
 
+  onTimerPlusTap() async {
+    if (timer.length < 16) {
+      final resp = await showCupertinoModalPopup<TimerModel>(
+        barrierDismissible: false,
+        context: context,
+        builder: (_) {
+          return TimerModalPopup(
+            initStartTime: DateTime.now(),
+            initEndTime: DateTime.now(),
+            initName: timer.length,
+          );
+        },
+      );
+      if (resp == null) {
+        return;
+      }
+      setState(() {
+        timer = [
+          ...timer,
+          resp,
+        ];
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+          child: AlertDialog(
+            content: const Text(
+              "타이머는 16개를 초과할 수 없습니다.",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: const Text(
+                  "확인",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(dialogContext, false);
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  onUnitTap(int index) {
+    setState(() {
+      timer[selectedCard - 1].activatedUnit[index] =
+          timer[selectedCard - 1].activatedUnit[index] == 1 ? 0 : 1;
+    });
+  }
+
   saveTimerState() {
     Navigator.of(context).pop();
   }
 
-  onCardTap(int id) {
+  onTimerCardTap(int index) {
     setState(() {
-      selectedCard = id;
+      selectedCard = index + 1;
     });
   }
 }
 
-typedef OnCardSelected = void Function(int id);
+typedef OnCardSelected = void Function(int index);
 
 class _Left extends StatelessWidget {
   final int selectedCard;
   final OnCardSelected onTap;
   final List<TimerModel> timer;
+  final VoidCallback onPressed;
 
   const _Left({
     super.key,
     required this.selectedCard,
     required this.onTap,
     required this.timer,
+    required this.onPressed,
   });
 
   @override
@@ -215,6 +238,7 @@ class _Left extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: ElevatedButton(
+                  onPressed: onPressed,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0), // 버튼의 모양 설정
@@ -232,20 +256,6 @@ class _Left extends StatelessWidget {
                       ),
                     ),
                   ),
-                  onPressed: () {
-                    showCupertinoModalPopup(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (_) {
-                        return TimerModalPopup(
-                          startTimeChanged: (DateTime value) {},
-                          endTimeChanged: (DateTime value) {},
-                          startTime: DateTime.now(),
-                          endTime: DateTime.now(),
-                        );
-                      },
-                    );
-                  },
                 ),
               ),
 
@@ -262,9 +272,9 @@ class _Left extends StatelessWidget {
                         startTime: timer[index].startTime,
                         endTime: timer[index].endTime,
                         content: timer[index].name,
-                        selectedCard: selectedCard == timer[index].id,
+                        selectedCard: index == selectedCard - 1,
                         onTap: () {
-                          onTap(timer[index].id);
+                          onTap(index);
                         },
                       );
                     },
@@ -282,12 +292,16 @@ class _Left extends StatelessWidget {
   }
 }
 
+typedef OnUnitTap = void Function(int index);
+
 class _Right extends StatefulWidget {
   final List<int> activatedUnit;
+  final OnUnitTap onTap;
 
   const _Right({
     super.key,
     required this.activatedUnit,
+    required this.onTap,
   });
 
   @override
@@ -356,20 +370,38 @@ class _RightState extends State<_Right> {
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4, // 각 항목의 너비를 고정
                         mainAxisSpacing: 8.0, // 세로 간격
                         crossAxisSpacing: 8.0, // 가로 간격
                         childAspectRatio: 16 / 9,
                       ),
-                      itemCount: 20,
+                      itemCount: widget.activatedUnit.length,
                       itemBuilder: (context, index) {
-                        return Container(
-                          color: Colors.blue,
-                          child: Center(
-                            child: Text(
-                              'Item $index',
-                              style: TextStyle(color: Colors.white),
+                        return GestureDetector(
+                          onTap: () {
+                            widget.onTap(index);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: widget.activatedUnit[index] == 1
+                                  ? Border.all(width: 2, color: Colors.white)
+                                  : null,
+                              color: widget.activatedUnit[index] == 1
+                                  ? colors[3]
+                                  : colors[1],
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Units ${index + 1}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 24,
+                                ),
+                              ),
                             ),
                           ),
                         );
