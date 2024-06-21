@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
+import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/model/timer_model.dart';
+import 'package:smart_farm/database/drift.dart';
+import 'package:smart_farm/model/timer_table.dart';
 import 'package:smart_farm/screens/unit_screens/component/timer_card.dart';
 
 import '../../../component/timer_modal_popup.dart';
@@ -18,21 +20,6 @@ class TimerSettingScreen extends StatefulWidget {
 
 class _TimerSettingScreenState extends State<TimerSettingScreen> {
   int selectedCard = 1;
-
-  List<TimerTable> timer = [
-    // TimerTable(
-    //   startTime: DateTime.now(),
-    //   endTime: DateTime.now(),
-    //   name: '1번',
-    //   activatedUnit: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    // ),
-    // TimerTable(
-    //   startTime: DateTime.now(),
-    //   endTime: DateTime.now(),
-    //   name: '2번',
-    //   activatedUnit: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    // )
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -94,15 +81,31 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                           child: _Left(
                             selectedCard: selectedCard,
                             onTap: onTimerCardTap,
-                            timer: timer,
                             onPressed: onTimerPlusTap,
                           ),
                         ),
                         Flexible(
                           flex: 5,
                           child: _Right(
-                            activatedUnit:
-                                [],//timer[selectedCard - 1].activatedUnit,
+                            activatedUnit: [
+                              0,
+                              1,
+                              0,
+                              1,
+                              1,
+                              0,
+                              1,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0
+                            ],
+                            //timer[selectedCard - 1].activatedUnit,
                             onTap: onUnitTap,
                           ),
                         ),
@@ -119,27 +122,29 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
   }
 
   onTimerPlusTap() async {
-    if (0 < 16) {
-      final resp = await showCupertinoModalPopup<TimerTable>(
+    final database = GetIt.I<AppDatabase>();
+    final timerStream = database.getTimers();
+    var timers = [];
+
+    /// 스트림의 경우 최초에 널 값을 던지기 때문에
+    /// 한번 불러 오는 작업을 거쳐야 함.
+    await for (var timerList in timerStream) {
+      timers = timerList;
+      break; // 스트림에서 첫 번째 데이터 목록을 가져온 후 종료합니다.
+    }
+
+    if (16 > timers.length) {
+      await showCupertinoModalPopup<TimerTable>(
         barrierDismissible: false,
         context: context,
         builder: (_) {
           return TimerModalPopup(
             initStartTime: DateTime.now(),
             initEndTime: DateTime.now(),
-            initName: 0,
+            initName: timers.length,
           );
         },
       );
-      if (resp == null) {
-        return;
-      }
-      // setState(() {
-      //   timer = [
-      //     ...timer,
-      //     resp,
-      //   ];
-      // });
     } else {
       /// 타이머 16개 초과 시
       showDialog(
@@ -174,6 +179,7 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
     }
   }
 
+  ///
   onUnitTap(int index) {
     // setState(() {
     //   timer[selectedCard - 1].activatedUnit[index] =
@@ -181,33 +187,38 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
     // });
   }
 
+  /// 전체 저장 버튼(메뉴)
   saveTimerState() {
     Navigator.of(context).pop();
   }
 
+  /// Timer 카드 누르면 할당된 유닛 들을 보여 주는 함수
   onTimerCardTap(int index) {
     setState(() {
-      selectedCard = index + 1;
+      selectedCard = index;
     });
   }
 }
 
 typedef OnCardSelected = void Function(int index);
 
-class _Left extends StatelessWidget {
+class _Left extends StatefulWidget {
   final int selectedCard;
   final OnCardSelected onTap;
-  final List<TimerTable> timer;
   final VoidCallback onPressed;
 
   const _Left({
     super.key,
     required this.selectedCard,
     required this.onTap,
-    required this.timer,
     required this.onPressed,
   });
 
+  @override
+  State<_Left> createState() => _LeftState();
+}
+
+class _LeftState extends State<_Left> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -239,7 +250,7 @@ class _Left extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: ElevatedButton(
-                  onPressed: onPressed,
+                  onPressed: widget.onPressed,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0), // 버튼의 모양 설정
@@ -266,24 +277,55 @@ class _Left extends StatelessWidget {
                 child: Padding(
                   padding:
                       const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
-                  child: ListView.separated(
-                    itemCount: timer.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ;
-                      //   TimerCard(
-                      //   startTime: timer[index].startTime,
-                      //   endTime: timer[index].endTime,
-                      //   content: timer[index].name,
-                      //   selectedCard: index == selectedCard - 1,
-                      //   onTap: () {
-                      //     onTap(index);
-                      //   },
-                      // );
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return const SizedBox(height: 8.0);
-                    },
-                  ),
+                  child: StreamBuilder<List<TimerTableData>>(
+                      stream: GetIt.I<AppDatabase>().getTimers(),
+                      builder: (context, snapshot) {
+                        /// 에러 있을 시
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text(
+                              snapshot.error.toString(),
+                            ),
+                          );
+                        }
+
+                        /// 값이 없고 로딩 중일 경우
+                        if (snapshot.data == null) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          );
+                        }
+                        final timers = snapshot.data!.toList();
+
+                        return ListView.separated(
+                          itemCount: timers.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final timer = timers[index];
+                            return Dismissible(
+                              key: ObjectKey(timer.id),
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (DismissDirection direction) {
+                                GetIt.I<AppDatabase>().removeTimer(timer.id);
+                              },
+                              child: TimerCard(
+                                id: timer.id,
+                                startTime: timer.startTime,
+                                endTime: timer.endTime,
+                                timerName: timer.timerName,
+                                selectedCard: index == widget.selectedCard,
+                                onTap: () {
+                                  widget.onTap(index);
+                                },
+                              ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return const SizedBox(height: 8.0);
+                          },
+                        );
+                      }),
                 ),
               ),
             ],

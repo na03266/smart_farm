@@ -4,11 +4,14 @@ class CustomTextField extends StatelessWidget {
   final String label;
   final bool expand;
   final FormFieldSetter<String> onSaved;
+  final String? initialValue;
 
   const CustomTextField({
     super.key,
     required this.label,
-    this.expand = false, required this.onSaved,
+    this.expand = false,
+    required this.onSaved,
+    this.initialValue,
   });
 
   @override
@@ -40,11 +43,13 @@ class CustomTextField extends StatelessWidget {
         border: InputBorder.none,
         fillColor: Colors.grey[300],
         filled: true,
-      ),onSaved: onSaved,
+      ),
+      onSaved: onSaved,
       expands: expand,
       maxLines: expand ? null : 1,
       minLines: expand ? null : 1,
       cursorColor: Colors.grey,
+      initialValue: initialValue,
       style: TextStyle(
         color: Colors.black.withOpacity(0.7),
         fontSize: 20,

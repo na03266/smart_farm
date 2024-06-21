@@ -1,11 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_farm/component/timer_modal_popup.dart';
 import 'package:smart_farm/consts/colors.dart';
-
+import 'package:smart_farm/model/timer_table.dart';
 
 class TimerCard extends StatelessWidget {
+  final int id;
   final DateTime startTime;
   final DateTime endTime;
-  final String content;
+  final String timerName;
   final bool selectedCard;
   final VoidCallback onTap;
 
@@ -13,8 +16,10 @@ class TimerCard extends StatelessWidget {
     super.key,
     required this.startTime,
     required this.endTime,
-    required this.content,
-    this.selectedCard = false, required this.onTap,
+    required this.timerName,
+    this.selectedCard = false,
+    required this.onTap,
+    required this.id,
   });
 
   @override
@@ -24,7 +29,8 @@ class TimerCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
-          border: selectedCard ? Border.all(color: Colors.white, width: 2) : null,
+          border:
+              selectedCard ? Border.all(color: Colors.white, width: 2) : null,
           color: colors[1],
         ),
         child: Padding(
@@ -57,7 +63,7 @@ class TimerCard extends StatelessWidget {
                 const SizedBox(width: 24),
                 Expanded(
                   child: Text(
-                    content,
+                    timerName,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -66,8 +72,18 @@ class TimerCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                    onPressed: () {
-                      print('tap');
+                    onPressed: () async {
+                      await showCupertinoModalPopup<TimerTable>(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (_) {
+                          return TimerModalPopup(
+                            id: id,
+                            initStartTime: startTime,
+                            initEndTime: endTime,
+                          );
+                        },
+                      );
                     },
                     icon: const Icon(
                       Icons.settings,

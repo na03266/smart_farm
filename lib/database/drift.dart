@@ -4,8 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:smart_farm/model/timer_model.dart';
-import 'package:smart_farm/model/unit_table.dart';
+import 'package:smart_farm/model/timer_table.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
@@ -18,6 +17,41 @@ part 'drift.g.dart';
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+
+  /// 타이머 생성
+  Future<int> createTimer(TimerTableCompanion data) =>
+      into(timerTable).insert(data);
+
+  /// 타이머 목록 가져 오기
+  Stream<List<TimerTableData>> getTimers() => (select(timerTable)
+        ..orderBy([
+          (t) => OrderingTerm(
+                expression: t.startTime,
+                mode: OrderingMode.asc,
+              ),
+          (t) => OrderingTerm(
+                expression: t.endTime,
+                mode: OrderingMode.asc,
+              ),
+          (t) => OrderingTerm(
+                expression: t.timerName,
+                mode: OrderingMode.asc,
+              )
+        ]))
+      .watch();
+
+  /// 타이머 하나만 가져 오기
+  Future<TimerTableData> getTimerById(int id) =>
+      (select(timerTable)..where((table) => table.id.equals(id))).getSingle();
+
+  /// 타이머 갱신
+  Future<int> updateTimerById(int id, TimerTableCompanion data) =>
+      (update(timerTable)..where((t) => t.id.equals(id))).write(data);
+
+  /// 타이머 삭제
+  Future<int> removeTimer(int id) =>
+      (delete(timerTable)..where((table) => table.id.equals(id)))
+          .go();
 
   @override
   int get schemaVersion => 1;

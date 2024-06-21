@@ -17,7 +17,7 @@ class TimerTable extends Table {
   /// 2진수 16자리
   TextColumn get activatedUnit => text()();
 
-  /// 생성일자
+  /// 생성 일자
   DateTimeColumn get createdAt => dateTime().clientDefault(
         () => DateTime.now().toUtc(),
       )();
