@@ -12,9 +12,7 @@ void main() async {
   /// 전역 상태 관리 가능
   GetIt.I.registerSingleton<AppDatabase>(database);
 
-  final resp = await database.getTimers();
 
-  print(resp);
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,

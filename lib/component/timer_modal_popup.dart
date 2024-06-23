@@ -35,8 +35,8 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: widget.id == null
+    return StreamBuilder(
+        stream: widget.id == null
             ? null
             : GetIt.I<AppDatabase>().getTimerById(widget.id!),
         builder: (context, snapshot) {
@@ -131,14 +131,26 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     final database = GetIt.I<AppDatabase>();
 
     /// DB에 Timer 생성
-    await database.createTimer(
-      TimerTableCompanion(
-        startTime: Value(widget.startTime!),
-        endTime: Value(widget.endTime!),
-        timerName: Value(timerName!),
-        activatedUnit: const Value("0000000000000000"),
-      ),
-    );
+    if (widget.id == null) {
+      await database.createTimer(
+        TimerTableCompanion(
+          startTime: Value(widget.startTime!),
+          endTime: Value(widget.endTime!),
+          timerName: Value(timerName!),
+          activatedUnit: const Value("0000000000000000"),
+        ),
+      );
+    } else {
+      await database.updateTimerById(
+        widget.id!,
+        TimerTableCompanion(
+          startTime: Value(widget.startTime!),
+          endTime: Value(widget.endTime!),
+          timerName: Value(timerName!),
+          activatedUnit:  Value("0000000000000000"),
+        ),
+      );
+    }
 
     Navigator.of(context).pop();
   }
