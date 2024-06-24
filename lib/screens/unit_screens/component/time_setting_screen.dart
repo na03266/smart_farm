@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/cupertino.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
@@ -71,7 +72,6 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                     }
                     final timers = snapshot.data!.toList();
 
-
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -91,8 +91,10 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                               Flexible(
                                 flex: 5,
                                 child: _Right(
-                                  selectedTimer:timers,
-                                  selectedTimerCard: selectedTimerCard,
+                                  unitList: timers[selectedTimerCard]
+                                      .activatedUnit
+                                      .split(''),
+                                  selectedTimer: timers[selectedTimerCard],
                                 ),
                               ),
                             ],
@@ -291,13 +293,13 @@ class _LeftState extends State<_Left> {
 }
 
 class _Right extends StatefulWidget {
-  final List<TimerTableData> selectedTimer;
-  final int selectedTimerCard;
+  final List<String> unitList;
+  final TimerTableData selectedTimer;
 
   const _Right({
     super.key,
     required this.selectedTimer,
-    required this.selectedTimerCard,
+    required this.unitList,
   });
 
   @override
@@ -305,18 +307,6 @@ class _Right extends StatefulWidget {
 }
 
 class _RightState extends State<_Right> {
-  @override
-  void initState() {
-    super.initState();
-    parser();
-  }
-
-  List<String> activatedUnit = [];
-
-  parser() {
-    activatedUnit = widget.selectedTimer[widget.selectedTimerCard].activatedUnit.split('');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -356,6 +346,7 @@ class _RightState extends State<_Right> {
                       backgroundColor: colors[3],
                       foregroundColor: Colors.white,
                     ),
+                    onPressed: onEnableTap,
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
@@ -366,7 +357,6 @@ class _RightState extends State<_Right> {
                         ),
                       ),
                     ),
-                    onPressed: () {},
                   ),
                 ),
 
@@ -382,20 +372,22 @@ class _RightState extends State<_Right> {
                         crossAxisSpacing: 8.0, // 가로 간격
                         childAspectRatio: 16 / 9,
                       ),
-                      itemCount: activatedUnit.length ?? 0,
+                      itemCount: widget.unitList.length ?? 0,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
-                            activatedUnit[index] =
-                                activatedUnit[index] == '0' ? '1' : '0';
+                            widget.unitList[index] =
+                                widget.unitList[index] == '0' ? '1' : '0';
+                            print(widget.unitList);
+                            setState(() {});
                           },
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              border: activatedUnit[index] == '1'
+                              border: widget.unitList[index] == '1'
                                   ? Border.all(width: 2, color: Colors.white)
                                   : null,
-                              color: activatedUnit[index] == '1'
+                              color: widget.unitList[index] == '1'
                                   ? colors[3]
                                   : colors[1],
                             ),
@@ -419,6 +411,28 @@ class _RightState extends State<_Right> {
             ),
           ),
         ),
+      ),
+    );
+  }
+/// 적용하기 버튼
+  onEnableTap() async {
+    /// List를 문자로 반환
+    final activatedUnit = widget.unitList.join('');
+    await GetIt.I<AppDatabase>().updateTimerById(
+      widget.selectedTimer.id,
+      TimerTableCompanion(
+        startTime: Value(widget.selectedTimer.startTime),
+        endTime: Value(widget.selectedTimer.endTime),
+        timerName: Value(widget.selectedTimer.timerName),
+        activatedUnit: Value(activatedUnit),
+      ),
+    );
+    // Showing SnackBar notification
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+
+        content: Center(child: Text('적용되었습니다')),
+        duration: Duration(seconds: 3), // The SnackBar will disappear after 3 seconds
       ),
     );
   }
