@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/cupertino.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
@@ -50,32 +49,58 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
                 ),
               ),
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          flex: 2,
-                          child: _Left(
-                            selectedCard: selectedTimerCard,
-                            onTap: onTimerCardTap,
-                            onPressed: onTimerPlusTap,
-                          ),
+              body: StreamBuilder<List<TimerTableData>>(
+                  stream: GetIt.I<AppDatabase>().getTimers(),
+                  builder: (context, snapshot) {
+                    /// 에러 있을 시
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          snapshot.error.toString(),
                         ),
-                        Flexible(
-                          flex: 5,
-                          child: _Right(
-                            selectedTimer: selectedTimerCard,
+                      );
+                    }
+
+                    /// 값이 없고 로딩 중일 경우
+                    if (snapshot.data == null) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      );
+                    }
+                    final timers = snapshot.data!.toList();
+
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                flex: 2,
+                                child: _Left(
+                                  selectedCard: selectedTimerCard,
+                                  onTap: onTimerCardTap,
+                                  onPressed: onTimerPlusTap,
+                                  timers: timers,
+                                ),
+                              ),
+                              Flexible(
+                                flex: 5,
+                                child: _Right(
+                                  selectedTimer:timers,
+                                  selectedTimerCard: selectedTimerCard,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                ],
-              ),
+                    );
+                  }),
             ),
           ),
         ),
@@ -155,12 +180,14 @@ class _Left extends StatefulWidget {
   final int selectedCard;
   final OnCardSelected onTap;
   final VoidCallback onPressed;
+  final List<TimerTableData> timers;
 
   const _Left({
     super.key,
     required this.selectedCard,
     required this.onTap,
     required this.onPressed,
+    required this.timers,
   });
 
   @override
@@ -226,57 +253,33 @@ class _LeftState extends State<_Left> {
                 child: Padding(
                   padding:
                       const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
-                  child: StreamBuilder<List<TimerTableData>>(
-                      stream: GetIt.I<AppDatabase>().getTimers(),
-                      builder: (context, snapshot) {
-                        /// 에러 있을 시
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text(
-                              snapshot.error.toString(),
-                            ),
-                          );
-                        }
+                  child: ListView.separated(
+                    itemCount: widget.timers.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final timer = widget.timers[index];
 
-                        /// 값이 없고 로딩 중일 경우
-                        if (snapshot.data == null) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          );
-                        }
-                        final timers = snapshot.data!.toList();
-
-                        return ListView.separated(
-                          itemCount: timers.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final timer = timers[index];
-                            return Dismissible(
-                              key: ObjectKey(timer.id),
-                              direction: DismissDirection.endToStart,
-                              onDismissed: (DismissDirection direction) {
-                                GetIt.I<AppDatabase>().removeTimer(timer.id);
-                              },
-                              child: TimerCard(
-                                id: timer.id,
-                                startTime: timer.startTime,
-                                endTime: timer.endTime,
-                                timerName: timer.timerName,
-
-                                /// 선택된 타이머와 뭐가 같아야 활성화 될까?
-                                selectedCard: index == timer.id,
-                                onTap: () {
-                                  widget.onTap(timer.id);
-                                },
-                              ),
-                            );
+                      return Dismissible(
+                        key: ObjectKey(timer.id),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (DismissDirection direction) {
+                          GetIt.I<AppDatabase>().removeTimer(timer.id);
+                        },
+                        child: TimerCard(
+                          id: timer.id,
+                          startTime: timer.startTime,
+                          endTime: timer.endTime,
+                          timerName: timer.timerName,
+                          selectedCard: widget.selectedCard == timer.id,
+                          onTap: () {
+                            widget.onTap(timer.id);
                           },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return const SizedBox(height: 8.0);
-                          },
-                        );
-                      }),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const SizedBox(height: 8.0);
+                    },
+                  ),
                 ),
               ),
             ],
@@ -288,11 +291,13 @@ class _LeftState extends State<_Left> {
 }
 
 class _Right extends StatefulWidget {
-  final int selectedTimer;
+  final List<TimerTableData> selectedTimer;
+  final int selectedTimerCard;
 
   const _Right({
     super.key,
     required this.selectedTimer,
+    required this.selectedTimerCard,
   });
 
   @override
@@ -300,7 +305,17 @@ class _Right extends StatefulWidget {
 }
 
 class _RightState extends State<_Right> {
-  var activatedUnit;
+  @override
+  void initState() {
+    super.initState();
+    parser();
+  }
+
+  List<String> activatedUnit = [];
+
+  parser() {
+    activatedUnit = widget.selectedTimer[widget.selectedTimerCard].activatedUnit.split('');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -323,134 +338,86 @@ class _RightState extends State<_Right> {
             ),
           ],
         ),
-        child: StreamBuilder(
-          stream: GetIt.I<AppDatabase>().getTimerById(widget.selectedTimer),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(
-                  child: Text(
-                '타이머를 선택해주세요',
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ));
-            }
-            if (!snapshot.hasData &&
-                snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                  child: CircularProgressIndicator(color: Colors.white));
-            }
-
-            final stringData = snapshot.data!.activatedUnit.toString();
-            activatedUnit = stringData.split('');
-
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    /// 시간 추가 버튼
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(10.0), // 버튼의 모양 설정
-                          ),
-                          backgroundColor: colors[3],
-                          foregroundColor: Colors.white,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                /// 시간 추가 버튼
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0), // 버튼의 모양 설정
+                      ),
+                      backgroundColor: colors[3],
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        '현재 타이머에 적용하기',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            '현재 타이머에 적용하기',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {});
-
-                          /// 누를 시 DB 갱신
-                        },
                       ),
                     ),
+                    onPressed: () {},
+                  ),
+                ),
 
-                    /// 타이머 목록
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4, // 각 항목의 너비를 고정
-                            mainAxisSpacing: 8.0, // 세로 간격
-                            crossAxisSpacing: 8.0, // 가로 간격
-                            childAspectRatio: 16 / 9,
-                          ),
-                          itemCount: activatedUnit.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () async {
-                                activatedUnit[index] =
-                                    activatedUnit[index] == '0' ? '1' : '0';
-                                print(activatedUnit[index]);
-
-                                final strActivatedUnit = activatedUnit.join('');
-                                print(strActivatedUnit);
-
-                                /// 바로 디비에 갱신?
-                                await GetIt.I<AppDatabase>().updateTimerById(
-                                    index,
-                                    TimerTableCompanion(
-                                      startTime:
-                                          Value(snapshot.data!.startTime),
-                                      endTime: Value(snapshot.data!.endTime),
-                                      timerName:
-                                          Value(snapshot.data!.timerName),
-                                      activatedUnit: Value(strActivatedUnit),
-                                    ));
-
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: activatedUnit[index] == '1'
-                                      ? Border.all(
-                                          width: 2, color: Colors.white)
-                                      : null,
-                                  color: activatedUnit[index] == '1'
-                                      ? colors[3]
-                                      : colors[1],
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Units ${index + 1}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 24,
-                                    ),
-                                  ),
+                /// 타이머 목록
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4, // 각 항목의 너비를 고정
+                        mainAxisSpacing: 8.0, // 세로 간격
+                        crossAxisSpacing: 8.0, // 가로 간격
+                        childAspectRatio: 16 / 9,
+                      ),
+                      itemCount: activatedUnit.length ?? 0,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            activatedUnit[index] =
+                                activatedUnit[index] == '0' ? '1' : '0';
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: activatedUnit[index] == '1'
+                                  ? Border.all(width: 2, color: Colors.white)
+                                  : null,
+                              color: activatedUnit[index] == '1'
+                                  ? colors[3]
+                                  : colors[1],
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Units ${index + 1}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 24,
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
+              ],
+            ),
+          ),
         ),
       ),
     );
