@@ -191,7 +191,6 @@ class _Left extends StatefulWidget {
 class _LeftState extends State<_Left> {
   @override
   Widget build(BuildContext context) {
-    print(widget.timers.length);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -256,8 +255,41 @@ class _LeftState extends State<_Left> {
                       return Dismissible(
                         key: ObjectKey(timer.id),
                         direction: DismissDirection.endToStart,
-                        onDismissed: (DismissDirection direction) {
-                          GetIt.I<AppDatabase>().removeTimer(timer.id);
+                        confirmDismiss: (DismissDirection direction) async {
+                          bool? shouldDelete = await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: const Text('삭제 하시겠습니까?'),
+                                actions: [
+                                  TextButton(
+                                    child: Text(
+                                      "Yes",
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: Text(
+                                      "No",
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          if (shouldDelete == true) {
+                            GetIt.I<AppDatabase>().removeTimer(timer.id);
+                            return true;
+                          } else {
+                            // Dismissible를 취소하려면 키를 새로고침하여 원래 상태로 되돌립니다.
+                            setState(() {});
+                            return false;
+                          }
                         },
                         child: TimerCard(
                           id: timer.id,
@@ -266,7 +298,6 @@ class _LeftState extends State<_Left> {
                           timerName: timer.timerName,
                           selectedCard: widget.selectedCard == timer.id,
                           onTap: () {
-                            print(timer.id);
                             widget.onTap(timer.id);
                           },
                         ),
@@ -358,7 +389,7 @@ class _RightState extends State<_Right> {
                           if (futureSnapshot.hasError) {
                             return const Center(
                               child: Text(
-                                '타이머를 추가해주세요',
+                                '타이머를 추가하거나 선택해주세요',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 40,
@@ -390,8 +421,7 @@ class _RightState extends State<_Right> {
                               return GestureDetector(
                                 onTap: () {
                                   unitList?[index] =
-                                      unitList?[index] == '0' ? '1' : '0';
-                                  print(unitList);
+                                      unitList[index] == '0' ? '1' : '0';
                                   onEnableTap(unitList);
                                 },
                                 child: Container(
@@ -439,9 +469,9 @@ class _RightState extends State<_Right> {
     await GetIt.I<AppDatabase>().updateTimerById(
       widget.selectedTimerId,
       TimerTableCompanion(
-        startTime: Value(timer!.startTime),
-        endTime: Value(timer!.endTime),
-        timerName: Value(timer!.timerName),
+        startTime: Value(timer.startTime),
+        endTime: Value(timer.endTime),
+        timerName: Value(timer.timerName),
         activatedUnit: Value(activatedUnit!),
       ),
     );
