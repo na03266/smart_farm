@@ -35,8 +35,8 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: widget.id == null
+    return FutureBuilder(
+        future: widget.id == null
             ? null
             : GetIt.I<AppDatabase>().getTimerById(widget.id!),
         builder: (context, snapshot) {

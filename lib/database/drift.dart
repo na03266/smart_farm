@@ -41,8 +41,8 @@ class AppDatabase extends _$AppDatabase {
       .watch();
 
   /// 타이머 하나만 가져 오기
-  Stream<TimerTableData> getTimerById(int id) =>
-      (select(timerTable)..where((table) => table.id.equals(id))).watchSingle();
+  Future<TimerTableData> getTimerById(int id) =>
+      (select(timerTable)..where((table) => table.id.equals(id))).getSingle();
 
   /// 타이머 갱신
   Future<int> updateTimerById(int id, TimerTableCompanion data) =>

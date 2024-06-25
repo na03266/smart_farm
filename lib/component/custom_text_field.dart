@@ -49,7 +49,6 @@ class CustomTextField extends StatelessWidget {
       maxLines: expand ? null : 1,
       minLines: expand ? null : 1,
       cursorColor: Colors.grey,
-      initialValue: initialValue,
       style: TextStyle(
         color: Colors.black.withOpacity(0.7),
         fontSize: 20,

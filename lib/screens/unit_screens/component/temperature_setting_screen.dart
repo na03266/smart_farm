@@ -4,17 +4,17 @@ import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/consts/temp.dart';
 
-class TemperatureSettingModal extends StatefulWidget {
-  const TemperatureSettingModal({
+class TemperatureSettingScreen extends StatefulWidget {
+  const TemperatureSettingScreen({
     super.key,
   });
 
   @override
-  State<TemperatureSettingModal> createState() =>
-      _TemperatureSettingModalState();
+  State<TemperatureSettingScreen> createState() =>
+      _TemperatureSettingScreenState();
 }
 
-class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
+class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
   late bool isShowingMainData;
   late bool isConfigHighData;
   late bool isConfigLowData;
@@ -31,44 +31,52 @@ class _TemperatureSettingModalState extends State<TemperatureSettingModal> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors[2],
+      appBar: AppBar(
+        backgroundColor: colors[2],
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+
+        /// 제목
+        title: Text(
+          "온도 설정",
+          style: TextStyle(
+              color: colors[6], fontSize: 32, fontWeight: FontWeight.w700),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 32.0),
+            child: OutlinedButton(
+              style: ButtonStyle(
+                  elevation: WidgetStateProperty.all(10), // 그림자 높이 설정
+                  backgroundColor: WidgetStateProperty.all(colors[7])),
+              onPressed: () {},
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '완료',
+                  style: TextStyle(
+                    color: colors[6],
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.only(bottom: 24.0, left: 24.0, right: 24.0, top: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ///제목 바, 완료 버튼
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "온도 설정",
-                    style: TextStyle(
-                        color: colors[6],
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700),
-                  ),
-                  ElevatedButton(
-                    style: ButtonStyle(
-                        elevation: WidgetStateProperty.all(10), // 그림자 높이 설정
-                        backgroundColor: WidgetStateProperty.all(colors[7])),
-                    onPressed: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        '완료',
-                        style: TextStyle(
-                          color: colors[6],
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
             Flexible(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -239,23 +247,22 @@ class _LineChartState extends State<_LineChart> {
 
                   for (int i = 0; i < 49; i++) {
                     double coordinateX = details.globalPosition.dx;
-                    double timeX = 215 + 19.2 * i;
+                    double timeX = 100 + 23.2 * i;
                     double coordinateY = details.globalPosition.dy;
 
                     /// tempY = a*y + b >> 화면 좌표 기준 온도 값 변환식
-                    double tempY = (5 * 580 / 31) - (5 / 31 * coordinateY);
+                    double tempY = (5 * 660 / 51) - (50 / 510 * coordinateY);
 
                     tempY = double.parse(tempY.toStringAsFixed(1));
 
                     /// 그래프 안의 좌표만 허용
-                    bool timeCondition = coordinateX <= timeX + 9.6 &&
-                        coordinateX >= timeX - 9.6;
+                    bool timeCondition = coordinateX <= timeX + 11.6 &&
+                        coordinateX >= timeX - 11.6;
                     bool tempCondition =
-                        coordinateY <= 580 && coordinateY >= 270;
+                        coordinateY <= 600 && coordinateY >= 150;
 
                     /// 표 오른쪽 바깥인 경우 행동안함
                     if (timeCondition && tempCondition) {
-                      print(tempY);
                       if (widget.isConfigHighData) {
                         updatedHighData[i] = FlSpot(i.toDouble(), tempY);
                       }
@@ -448,9 +455,10 @@ class _LineChartState extends State<_LineChart> {
   FlBorderData get borderData => FlBorderData(
         show: true,
         border: Border(
-          bottom:
-              BorderSide(color: const Color(0xFF50E4FF).withOpacity(0.2), width: 4),
-          left: BorderSide(color: const Color(0xFF50E4FF).withOpacity(0.2), width: 4),
+          bottom: BorderSide(
+              color: const Color(0xFF50E4FF).withOpacity(0.2), width: 4),
+          left: BorderSide(
+              color: const Color(0xFF50E4FF).withOpacity(0.2), width: 4),
           right: const BorderSide(color: Colors.transparent),
           top: const BorderSide(color: Colors.transparent),
         ),

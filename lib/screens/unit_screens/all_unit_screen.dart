@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/consts/units.dart';
 import 'package:smart_farm/provider/unit_provider.dart';
+import 'package:smart_farm/screens/unit_screens/component/temperature_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/time_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/unit_card.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -258,7 +259,7 @@ class _SettingButtons extends StatelessWidget {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (BuildContext context) {
-                  return TimerSettingScreen();
+                  return const TimerSettingScreen();
                 },
               ),
             );
@@ -275,7 +276,15 @@ class _SettingButtons extends StatelessWidget {
 
         /// 온도 제어 화면 전환 버튼
         FloatingActionButton.large(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return const TemperatureSettingScreen();
+                },
+              ),
+            );
+          },
           heroTag: "tempButton",
           backgroundColor: colors[10],
           child: const Icon(

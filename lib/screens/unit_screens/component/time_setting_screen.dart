@@ -20,7 +20,7 @@ class TimerSettingScreen extends StatefulWidget {
 }
 
 class _TimerSettingScreenState extends State<TimerSettingScreen> {
-  int selectedTimerCard = 0;
+  int selectedTimerCardId = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +62,8 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                       );
                     }
 
+                    /// 일단 추가되는 리스트까진 표시되어야하고, 그럼 값은 현재 타이머리스트 전체를 전달한 다음에,
+                    /// 하위 위젯에서 Future빌더로 받아서 사용하는 방식으로 null 일 경우 널 표시만 해주게 바꿔야함.
                     /// 값이 없고 로딩 중일 경우
                     if (snapshot.data == null) {
                       return const Center(
@@ -72,32 +74,22 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                     }
                     final timers = snapshot.data!.toList();
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Flexible(
-                                flex: 2,
-                                child: _Left(
-                                  selectedCard: selectedTimerCard,
-                                  onTap: onTimerCardTap,
-                                  onPressed: onTimerPlusTap,
-                                  timers: timers,
-                                ),
-                              ),
-                              Flexible(
-                                flex: 5,
-                                child: _Right(
-                                  unitList: timers[selectedTimerCard]
-                                      .activatedUnit
-                                      .split(''),
-                                  selectedTimer: timers[selectedTimerCard],
-                                ),
-                              ),
-                            ],
+                        Flexible(
+                          flex: 2,
+                          child: _Left(
+                            selectedCard: selectedTimerCardId,
+                            onTap: onTimerCardTap,
+                            onPressed: onTimerPlusTap,
+                            timers: timers,
+                          ),
+                        ),
+                        Flexible(
+                          flex: 5,
+                          child: _Right(
+                            selectedTimerId: selectedTimerCardId,
                           ),
                         ),
                       ],
@@ -171,7 +163,7 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
   /// Timer 카드 누르면 할당된 유닛 들을 보여 주는 함수
   onTimerCardTap(int selectedTimerId) {
     setState(() {
-      selectedTimerCard = selectedTimerId;
+      selectedTimerCardId = selectedTimerId;
     });
   }
 }
@@ -199,6 +191,7 @@ class _Left extends StatefulWidget {
 class _LeftState extends State<_Left> {
   @override
   Widget build(BuildContext context) {
+    print(widget.timers.length);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -273,6 +266,7 @@ class _LeftState extends State<_Left> {
                           timerName: timer.timerName,
                           selectedCard: widget.selectedCard == timer.id,
                           onTap: () {
+                            print(timer.id);
                             widget.onTap(timer.id);
                           },
                         ),
@@ -293,13 +287,11 @@ class _LeftState extends State<_Left> {
 }
 
 class _Right extends StatefulWidget {
-  final List<String> unitList;
-  final TimerTableData selectedTimer;
+  final int selectedTimerId;
 
   const _Right({
     super.key,
-    required this.selectedTimer,
-    required this.unitList,
+    required this.selectedTimerId,
   });
 
   @override
@@ -328,6 +320,8 @@ class _RightState extends State<_Right> {
             ),
           ],
         ),
+
+        /// 현재 페이지 컨펌 받기
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -335,76 +329,97 @@ class _RightState extends State<_Right> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                /// 시간 추가 버튼
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0), // 버튼의 모양 설정
-                      ),
-                      backgroundColor: colors[3],
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: onEnableTap,
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        '현재 타이머에 적용하기',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
+                const Text(
+                  '',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
-                /// 타이머 목록
+                /// 유닛 목록
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4, // 각 항목의 너비를 고정
-                        mainAxisSpacing: 8.0, // 세로 간격
-                        crossAxisSpacing: 8.0, // 가로 간격
-                        childAspectRatio: 16 / 9,
-                      ),
-                      itemCount: widget.unitList.length ?? 0,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            widget.unitList[index] =
-                                widget.unitList[index] == '0' ? '1' : '0';
-                            print(widget.unitList);
-                            setState(() {});
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: widget.unitList[index] == '1'
-                                  ? Border.all(width: 2, color: Colors.white)
-                                  : null,
-                              color: widget.unitList[index] == '1'
-                                  ? colors[3]
-                                  : colors[1],
-                            ),
-                            child: Center(
+                    child: FutureBuilder<TimerTableData?>(
+                        future: GetIt.I<AppDatabase>()
+                            .getTimerById(widget.selectedTimerId),
+                        builder: (context, futureSnapshot) {
+                          if (futureSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            );
+                          }
+
+                          if (futureSnapshot.hasError) {
+                            return const Center(
                               child: Text(
-                                'Units ${index + 1}',
-                                style: const TextStyle(
+                                '타이머를 추가해주세요',
+                                style: TextStyle(
                                   color: Colors.white,
+                                  fontSize: 40,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 24,
                                 ),
                               ),
+                            );
+                          }
+
+                          if (!futureSnapshot.hasData) {
+                            return const Center(
+                              child: Text('선택된 타이머가 없습니다.'),
+                            );
+                          }
+                          final selectedTimer = futureSnapshot.data;
+                          final unitList =
+                              selectedTimer?.activatedUnit.split('');
+
+                          return GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4, // 각 항목의 너비를 고정
+                              mainAxisSpacing: 8.0, // 세로 간격
+                              crossAxisSpacing: 8.0, // 가로 간격
+                              childAspectRatio: 16 / 9,
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                            itemCount: unitList?.length ?? 0,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  unitList?[index] =
+                                      unitList?[index] == '0' ? '1' : '0';
+                                  print(unitList);
+                                  onEnableTap(unitList);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: unitList?[index] == '1'
+                                        ? Border.all(
+                                            width: 2, color: Colors.white)
+                                        : null,
+                                    color: unitList?[index] == '1'
+                                        ? colors[3]
+                                        : colors[1],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Units ${index + 1}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 24,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }),
                   ),
                 ),
               ],
@@ -414,25 +429,20 @@ class _RightState extends State<_Right> {
       ),
     );
   }
-/// 적용하기 버튼
-  onEnableTap() async {
-    /// List를 문자로 반환
-    final activatedUnit = widget.unitList.join('');
-    await GetIt.I<AppDatabase>().updateTimerById(
-      widget.selectedTimer.id,
-      TimerTableCompanion(
-        startTime: Value(widget.selectedTimer.startTime),
-        endTime: Value(widget.selectedTimer.endTime),
-        timerName: Value(widget.selectedTimer.timerName),
-        activatedUnit: Value(activatedUnit),
-      ),
-    );
-    // Showing SnackBar notification
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
 
-        content: Center(child: Text('적용되었습니다')),
-        duration: Duration(seconds: 3), // The SnackBar will disappear after 3 seconds
+  /// 적용하기 버튼
+  onEnableTap(List<String>? unitList) async {
+    /// List를 문자로 반환
+    final activatedUnit = unitList?.join('');
+    final timer =
+        await GetIt.I<AppDatabase>().getTimerById(widget.selectedTimerId);
+    await GetIt.I<AppDatabase>().updateTimerById(
+      widget.selectedTimerId,
+      TimerTableCompanion(
+        startTime: Value(timer!.startTime),
+        endTime: Value(timer!.endTime),
+        timerName: Value(timer!.timerName),
+        activatedUnit: Value(activatedUnit!),
       ),
     );
   }
