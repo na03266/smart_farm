@@ -111,20 +111,19 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
                                       children: [
                                         Text(
                                           '${timerList[index][0].hour.toString().padLeft(2, '0')}:${timerList[index][0].minute.toString().padLeft(2, '0')} ~ ',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 16,
                                           ),
                                         ),
                                         Text(
                                           '${timerList[index][1].hour.toString().padLeft(2, '0')}:${timerList[index][1].minute.toString().padLeft(2, '0')}',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 16,
                                           ),
                                         ),
                                         IconButton(
                                           onPressed: () {
                                             timerList.remove(timerList[index]);
-                                            print(timerList);
                                             setState(() {});
                                           },
                                           icon: const Icon(
@@ -211,6 +210,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     }
 
     /// 타이머 문자열 리스트 화
+    List<String> tempTimerList = timerValue.split("");
 
     final startMin = widget.startTime!.hour * 60 + widget.startTime!.minute;
     final endMin = widget.endTime!.hour * 60 + widget.endTime!.minute;
@@ -218,59 +218,58 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     final condition = startMin == endMin;
 
     /// 시간 값 동일 시 에러 처리
-    if (!condition) {
-      List<DateTime> subTimer = [widget.startTime!, widget.endTime!];
-      timerList.add(subTimer);
-    } else {
+    if (condition) {
       showErrorDialog('시작과 종료의 시간이 같습니다!');
+      return;
     }
+    /// 임시 타이머 목록에 추가
+    List<DateTime> subTimer = [widget.startTime!, widget.endTime!];
+    timerList.add(subTimer);
 
     /// 이미 인덱스가 1이면 애러 창 표현
-    for (List<DateTime> tempTimer in timerList) {
-      List<String> tempTimerList = timerValue.split("");
+    for (List<DateTime> tempTimer in List.from(timerList)) {
       int tempStartMin = tempTimer[0].hour * 60 + tempTimer[0].minute;
       int tempEndMin = tempTimer[1].hour * 60 + tempTimer[1].minute;
 
       /// 시작이 종료 보다 작을 때
       if (tempStartMin < tempEndMin) {
         /// 사이 시간 1로 채우기
-        for (int i = startMin; i < endMin; i++) {
+        for (int i = tempStartMin; i < tempEndMin; i++) {
           if (tempTimerList[i] != '1') {
             tempTimerList[i] = '1';
-            timerValue = tempTimerList.join('');
           } else {
-            timerList.remove(tempTimer);
+            timerList.remove(subTimer);
             showErrorDialog('시간이 겹치지 않도록 설정 해주세요!');
             return;
           }
         }
       } else {
         /// 시작 시간 뒷부분 1로 채우기
-        for (int i = startMin; i < 1440; i++) {
+        for (int i = tempStartMin; i < 1440; i++) {
           if (tempTimerList[i] != '1') {
             tempTimerList[i] = '1';
-            timerValue = tempTimerList.join('');
           } else {
-            timerList.remove(tempTimer);
+            timerList.remove(subTimer);
             showErrorDialog('시간이 겹치지 않도록 설정 해주세요!');
             return;
           }
         }
 
         /// 종료 시간 앞부분 1로 채우기
-        for (int i = endMin; i > 0; i--) {
+        for (int i = 0; i < tempEndMin; i++) {
           if (tempTimerList[i] != '1') {
             tempTimerList[i] = '1';
-            timerValue = tempTimerList.join('');
           } else {
-            timerList.remove(tempTimer);
+            timerList.remove(subTimer);
             showErrorDialog('시간이 겹치지 않도록 설정 해주세요!');
             return;
           }
         }
       }
-      setState(() {});
     }
+    timerValue = tempTimerList.join('');
+    print(tempTimerList);
+    setState(() {});
   }
 
   onNameSaved(String? name) {
