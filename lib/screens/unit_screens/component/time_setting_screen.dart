@@ -263,7 +263,7 @@ class _LeftState extends State<_Left> {
                                 content: const Text('삭제 하시겠습니까?'),
                                 actions: [
                                   TextButton(
-                                    child: Text(
+                                    child: const Text(
                                       "Yes",
                                     ),
                                     onPressed: () {
@@ -271,7 +271,7 @@ class _LeftState extends State<_Left> {
                                     },
                                   ),
                                   TextButton(
-                                    child: Text(
+                                    child: const Text(
                                       "No",
                                     ),
                                     onPressed: () {
@@ -293,8 +293,6 @@ class _LeftState extends State<_Left> {
                         },
                         child: TimerCard(
                           id: timer.id,
-                          startTime: timer.startTime,
-                          endTime: timer.endTime,
                           timerName: timer.timerName,
                           selectedCard: widget.selectedCard == timer.id,
                           onTap: () {
@@ -469,8 +467,7 @@ class _RightState extends State<_Right> {
     await GetIt.I<AppDatabase>().updateTimerById(
       widget.selectedTimerId,
       TimerTableCompanion(
-        startTime: Value(timer.startTime),
-        endTime: Value(timer.endTime),
+        bookingTime: Value(timer.bookingTime),
         timerName: Value(timer.timerName),
         activatedUnit: Value(activatedUnit!),
       ),

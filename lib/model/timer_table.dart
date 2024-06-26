@@ -4,11 +4,8 @@ class TimerTable extends Table {
   /// 식별 가능한 ID
   IntColumn get id => integer().autoIncrement()();
 
-  /// 시작 시간
-  DateTimeColumn get startTime => dateTime()();
-
-  /// 종료 시간
-  DateTimeColumn get endTime => dateTime()();
+  /// 예약 시간
+  TextColumn get bookingTime => text()();
 
   /// 타이머 이름
   TextColumn get timerName => text()();

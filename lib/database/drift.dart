@@ -26,14 +26,6 @@ class AppDatabase extends _$AppDatabase {
   Stream<List<TimerTableData>> getTimers() => (select(timerTable)
         ..orderBy([
           (t) => OrderingTerm(
-                expression: t.startTime,
-                mode: OrderingMode.asc,
-              ),
-          (t) => OrderingTerm(
-                expression: t.endTime,
-                mode: OrderingMode.asc,
-              ),
-          (t) => OrderingTerm(
                 expression: t.timerName,
                 mode: OrderingMode.asc,
               )
@@ -50,8 +42,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// 타이머 삭제
   Future<int> removeTimer(int id) =>
-      (delete(timerTable)..where((table) => table.id.equals(id)))
-          .go();
+      (delete(timerTable)..where((table) => table.id.equals(id))).go();
 
   @override
   int get schemaVersion => 1;

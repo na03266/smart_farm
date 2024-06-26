@@ -6,16 +6,12 @@ import 'package:smart_farm/model/timer_table.dart';
 
 class TimerCard extends StatelessWidget {
   final int id;
-  final DateTime startTime;
-  final DateTime endTime;
   final String timerName;
   final bool selectedCard;
   final VoidCallback onTap;
 
   const TimerCard({
     super.key,
-    required this.startTime,
-    required this.endTime,
     required this.timerName,
     this.selectedCard = false,
     required this.onTap,
@@ -40,27 +36,6 @@ class TimerCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
-                    ),
-                    Text(
-                      '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(width: 24),
                 Expanded(
                   child: Text(
                     timerName,
@@ -71,6 +46,7 @@ class TimerCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(width: 24),
                 IconButton(
                     onPressed: () async {
                       await showCupertinoModalPopup<TimerTable>(
@@ -79,8 +55,6 @@ class TimerCard extends StatelessWidget {
                         builder: (_) {
                           return TimerModalPopup(
                             id: id,
-                            initStartTime: startTime,
-                            initEndTime: endTime,
                           );
                         },
                       );

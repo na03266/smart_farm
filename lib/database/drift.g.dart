@@ -18,18 +18,12 @@ class $TimerTableTable extends TimerTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _startTimeMeta =
-      const VerificationMeta('startTime');
+  static const VerificationMeta _bookingTimeMeta =
+      const VerificationMeta('bookingTime');
   @override
-  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
-      'start_time', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _endTimeMeta =
-      const VerificationMeta('endTime');
-  @override
-  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
-      'end_time', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  late final GeneratedColumn<String> bookingTime = GeneratedColumn<String>(
+      'booking_time', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _timerNameMeta =
       const VerificationMeta('timerName');
   @override
@@ -52,7 +46,7 @@ class $TimerTableTable extends TimerTable
       clientDefault: () => DateTime.now().toUtc());
   @override
   List<GeneratedColumn> get $columns =>
-      [id, startTime, endTime, timerName, activatedUnit, createdAt];
+      [id, bookingTime, timerName, activatedUnit, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -66,17 +60,13 @@ class $TimerTableTable extends TimerTable
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('start_time')) {
-      context.handle(_startTimeMeta,
-          startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
+    if (data.containsKey('booking_time')) {
+      context.handle(
+          _bookingTimeMeta,
+          bookingTime.isAcceptableOrUnknown(
+              data['booking_time']!, _bookingTimeMeta));
     } else if (isInserting) {
-      context.missing(_startTimeMeta);
-    }
-    if (data.containsKey('end_time')) {
-      context.handle(_endTimeMeta,
-          endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta));
-    } else if (isInserting) {
-      context.missing(_endTimeMeta);
+      context.missing(_bookingTimeMeta);
     }
     if (data.containsKey('timer_name')) {
       context.handle(_timerNameMeta,
@@ -107,10 +97,8 @@ class $TimerTableTable extends TimerTable
     return TimerTableData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      startTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
-      endTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_time'])!,
+      bookingTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}booking_time'])!,
       timerName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}timer_name'])!,
       activatedUnit: attachedDatabase.typeMapping
@@ -130,11 +118,8 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
   /// 식별 가능한 ID
   final int id;
 
-  /// 시작 시간
-  final DateTime startTime;
-
-  /// 종료 시간
-  final DateTime endTime;
+  /// 예약 시간
+  final String bookingTime;
 
   /// 타이머 이름
   final String timerName;
@@ -143,12 +128,11 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
   /// 2진수 16자리
   final String activatedUnit;
 
-  /// 생성일자
+  /// 생성 일자
   final DateTime createdAt;
   const TimerTableData(
       {required this.id,
-      required this.startTime,
-      required this.endTime,
+      required this.bookingTime,
       required this.timerName,
       required this.activatedUnit,
       required this.createdAt});
@@ -156,8 +140,7 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['start_time'] = Variable<DateTime>(startTime);
-    map['end_time'] = Variable<DateTime>(endTime);
+    map['booking_time'] = Variable<String>(bookingTime);
     map['timer_name'] = Variable<String>(timerName);
     map['activated_unit'] = Variable<String>(activatedUnit);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -167,8 +150,7 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
   TimerTableCompanion toCompanion(bool nullToAbsent) {
     return TimerTableCompanion(
       id: Value(id),
-      startTime: Value(startTime),
-      endTime: Value(endTime),
+      bookingTime: Value(bookingTime),
       timerName: Value(timerName),
       activatedUnit: Value(activatedUnit),
       createdAt: Value(createdAt),
@@ -180,8 +162,7 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TimerTableData(
       id: serializer.fromJson<int>(json['id']),
-      startTime: serializer.fromJson<DateTime>(json['startTime']),
-      endTime: serializer.fromJson<DateTime>(json['endTime']),
+      bookingTime: serializer.fromJson<String>(json['bookingTime']),
       timerName: serializer.fromJson<String>(json['timerName']),
       activatedUnit: serializer.fromJson<String>(json['activatedUnit']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -192,8 +173,7 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'startTime': serializer.toJson<DateTime>(startTime),
-      'endTime': serializer.toJson<DateTime>(endTime),
+      'bookingTime': serializer.toJson<String>(bookingTime),
       'timerName': serializer.toJson<String>(timerName),
       'activatedUnit': serializer.toJson<String>(activatedUnit),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -202,15 +182,13 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
 
   TimerTableData copyWith(
           {int? id,
-          DateTime? startTime,
-          DateTime? endTime,
+          String? bookingTime,
           String? timerName,
           String? activatedUnit,
           DateTime? createdAt}) =>
       TimerTableData(
         id: id ?? this.id,
-        startTime: startTime ?? this.startTime,
-        endTime: endTime ?? this.endTime,
+        bookingTime: bookingTime ?? this.bookingTime,
         timerName: timerName ?? this.timerName,
         activatedUnit: activatedUnit ?? this.activatedUnit,
         createdAt: createdAt ?? this.createdAt,
@@ -219,8 +197,7 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
   String toString() {
     return (StringBuffer('TimerTableData(')
           ..write('id: $id, ')
-          ..write('startTime: $startTime, ')
-          ..write('endTime: $endTime, ')
+          ..write('bookingTime: $bookingTime, ')
           ..write('timerName: $timerName, ')
           ..write('activatedUnit: $activatedUnit, ')
           ..write('createdAt: $createdAt')
@@ -230,14 +207,13 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
 
   @override
   int get hashCode =>
-      Object.hash(id, startTime, endTime, timerName, activatedUnit, createdAt);
+      Object.hash(id, bookingTime, timerName, activatedUnit, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TimerTableData &&
           other.id == this.id &&
-          other.startTime == this.startTime &&
-          other.endTime == this.endTime &&
+          other.bookingTime == this.bookingTime &&
           other.timerName == this.timerName &&
           other.activatedUnit == this.activatedUnit &&
           other.createdAt == this.createdAt);
@@ -245,42 +221,36 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
 
 class TimerTableCompanion extends UpdateCompanion<TimerTableData> {
   final Value<int> id;
-  final Value<DateTime> startTime;
-  final Value<DateTime> endTime;
+  final Value<String> bookingTime;
   final Value<String> timerName;
   final Value<String> activatedUnit;
   final Value<DateTime> createdAt;
   const TimerTableCompanion({
     this.id = const Value.absent(),
-    this.startTime = const Value.absent(),
-    this.endTime = const Value.absent(),
+    this.bookingTime = const Value.absent(),
     this.timerName = const Value.absent(),
     this.activatedUnit = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   TimerTableCompanion.insert({
     this.id = const Value.absent(),
-    required DateTime startTime,
-    required DateTime endTime,
+    required String bookingTime,
     required String timerName,
     required String activatedUnit,
     this.createdAt = const Value.absent(),
-  })  : startTime = Value(startTime),
-        endTime = Value(endTime),
+  })  : bookingTime = Value(bookingTime),
         timerName = Value(timerName),
         activatedUnit = Value(activatedUnit);
   static Insertable<TimerTableData> custom({
     Expression<int>? id,
-    Expression<DateTime>? startTime,
-    Expression<DateTime>? endTime,
+    Expression<String>? bookingTime,
     Expression<String>? timerName,
     Expression<String>? activatedUnit,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (startTime != null) 'start_time': startTime,
-      if (endTime != null) 'end_time': endTime,
+      if (bookingTime != null) 'booking_time': bookingTime,
       if (timerName != null) 'timer_name': timerName,
       if (activatedUnit != null) 'activated_unit': activatedUnit,
       if (createdAt != null) 'created_at': createdAt,
@@ -289,15 +259,13 @@ class TimerTableCompanion extends UpdateCompanion<TimerTableData> {
 
   TimerTableCompanion copyWith(
       {Value<int>? id,
-      Value<DateTime>? startTime,
-      Value<DateTime>? endTime,
+      Value<String>? bookingTime,
       Value<String>? timerName,
       Value<String>? activatedUnit,
       Value<DateTime>? createdAt}) {
     return TimerTableCompanion(
       id: id ?? this.id,
-      startTime: startTime ?? this.startTime,
-      endTime: endTime ?? this.endTime,
+      bookingTime: bookingTime ?? this.bookingTime,
       timerName: timerName ?? this.timerName,
       activatedUnit: activatedUnit ?? this.activatedUnit,
       createdAt: createdAt ?? this.createdAt,
@@ -310,11 +278,8 @@ class TimerTableCompanion extends UpdateCompanion<TimerTableData> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (startTime.present) {
-      map['start_time'] = Variable<DateTime>(startTime.value);
-    }
-    if (endTime.present) {
-      map['end_time'] = Variable<DateTime>(endTime.value);
+    if (bookingTime.present) {
+      map['booking_time'] = Variable<String>(bookingTime.value);
     }
     if (timerName.present) {
       map['timer_name'] = Variable<String>(timerName.value);
@@ -332,8 +297,7 @@ class TimerTableCompanion extends UpdateCompanion<TimerTableData> {
   String toString() {
     return (StringBuffer('TimerTableCompanion(')
           ..write('id: $id, ')
-          ..write('startTime: $startTime, ')
-          ..write('endTime: $endTime, ')
+          ..write('bookingTime: $bookingTime, ')
           ..write('timerName: $timerName, ')
           ..write('activatedUnit: $activatedUnit, ')
           ..write('createdAt: $createdAt')
@@ -355,16 +319,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $$TimerTableTableInsertCompanionBuilder = TimerTableCompanion Function({
   Value<int> id,
-  required DateTime startTime,
-  required DateTime endTime,
+  required String bookingTime,
   required String timerName,
   required String activatedUnit,
   Value<DateTime> createdAt,
 });
 typedef $$TimerTableTableUpdateCompanionBuilder = TimerTableCompanion Function({
   Value<int> id,
-  Value<DateTime> startTime,
-  Value<DateTime> endTime,
+  Value<String> bookingTime,
   Value<String> timerName,
   Value<String> activatedUnit,
   Value<DateTime> createdAt,
@@ -391,32 +353,28 @@ class $$TimerTableTableTableManager extends RootTableManager<
               $$TimerTableTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
             Value<int> id = const Value.absent(),
-            Value<DateTime> startTime = const Value.absent(),
-            Value<DateTime> endTime = const Value.absent(),
+            Value<String> bookingTime = const Value.absent(),
             Value<String> timerName = const Value.absent(),
             Value<String> activatedUnit = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               TimerTableCompanion(
             id: id,
-            startTime: startTime,
-            endTime: endTime,
+            bookingTime: bookingTime,
             timerName: timerName,
             activatedUnit: activatedUnit,
             createdAt: createdAt,
           ),
           getInsertCompanionBuilder: ({
             Value<int> id = const Value.absent(),
-            required DateTime startTime,
-            required DateTime endTime,
+            required String bookingTime,
             required String timerName,
             required String activatedUnit,
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               TimerTableCompanion.insert(
             id: id,
-            startTime: startTime,
-            endTime: endTime,
+            bookingTime: bookingTime,
             timerName: timerName,
             activatedUnit: activatedUnit,
             createdAt: createdAt,
@@ -444,13 +402,8 @@ class $$TimerTableTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<DateTime> get startTime => $state.composableBuilder(
-      column: $state.table.startTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get endTime => $state.composableBuilder(
-      column: $state.table.endTime,
+  ColumnFilters<String> get bookingTime => $state.composableBuilder(
+      column: $state.table.bookingTime,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -478,13 +431,8 @@ class $$TimerTableTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<DateTime> get startTime => $state.composableBuilder(
-      column: $state.table.startTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get endTime => $state.composableBuilder(
-      column: $state.table.endTime,
+  ColumnOrderings<String> get bookingTime => $state.composableBuilder(
+      column: $state.table.bookingTime,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 

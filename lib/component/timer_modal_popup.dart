@@ -21,8 +21,8 @@ class TimerModalPopup extends StatefulWidget {
     this.initEndTime,
     this.initName,
     this.id,
-  })  : startTime = initStartTime,
-        endTime = initEndTime;
+  })  : startTime = DateTime.now(),
+        endTime = DateTime.now();
 
   @override
   State<TimerModalPopup> createState() => _TimerModalPopupState();
@@ -32,6 +32,8 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
   final GlobalKey<FormState> formKey = GlobalKey();
 
   String? timerName;
+  String timerValue = "";
+  List<List<DateTime>> timerList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -85,12 +87,23 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
                             },
                             initialTime: widget.initEndTime,
                           ),
+
+                          /// 현재 위치에 추가된 타이머 리스트와 삭제 버튼 필요
+
+                          /// 버튼 컬럼
                           Column(
                             children: [
                               OutlinedButton(
+                                onPressed: addTime,
+                                style: OutlinedButton.styleFrom(
+                                    minimumSize: const Size(100, 50)),
+                                child: const Text('시간 추가'),
+                              ),
+                              const SizedBox(height: 30),
+                              OutlinedButton(
                                 onPressed: () => onFinishPressed(context),
                                 style: OutlinedButton.styleFrom(
-                                    minimumSize: const Size(200, 50)),
+                                    minimumSize: const Size(100, 50)),
                                 child: const Text('완료'),
                               ),
                               const SizedBox(height: 30),
@@ -99,7 +112,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
                                   Navigator.of(context).pop();
                                 },
                                 style: OutlinedButton.styleFrom(
-                                    minimumSize: const Size(200, 50)),
+                                    minimumSize: const Size(100, 50)),
                                 child: const Text('취소'),
                               )
                             ],
@@ -113,6 +126,28 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
             ),
           );
         });
+  }
+
+  addTime() {
+    /// 타이머 값 초기화
+    timerValue = "";
+    for (int i = 0; i < 1440; i++) {
+      timerValue = "${timerValue}0";
+    }
+
+    List<DateTime> subTimer = [widget.startTime!, widget.endTime!];
+    timerList.add(subTimer);
+
+    for(List<DateTime> tempTimer in timerList){
+      int startMin = tempTimer[0].hour * 60 + tempTimer[0].minute;
+      int endMin = tempTimer[1].hour * 60 + tempTimer[1].minute;
+      /// 배열을 돌면서 시작 시간과 종료 시간을 정수로 반환
+      timerValue = timerValue.substring(0, startMin) +
+          "1" * (endMin - startMin) +
+          timerValue.substring(endMin);
+    }
+    print(timerList);
+    print(timerValue);
   }
 
   onNameSaved(String? name) {
@@ -134,8 +169,8 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     if (widget.id == null) {
       await database.createTimer(
         TimerTableCompanion(
-          startTime: Value(widget.startTime!),
-          endTime: Value(widget.endTime!),
+          /// 문자열 리스트 넣기
+          bookingTime: Value(timerValue),
           timerName: Value(timerName!),
           activatedUnit: const Value("0000000000000000"),
         ),
@@ -144,10 +179,9 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
       await database.updateTimerById(
         widget.id!,
         TimerTableCompanion(
-          startTime: Value(widget.startTime!),
-          endTime: Value(widget.endTime!),
+          bookingTime: Value(timerValue),
           timerName: Value(timerName!),
-          activatedUnit:  Value("0000000000000000"),
+          activatedUnit: Value("0000000000000000"),
         ),
       );
     }
