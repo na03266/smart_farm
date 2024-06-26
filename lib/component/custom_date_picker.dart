@@ -28,7 +28,7 @@ class CustomDatePicker extends StatelessWidget {
         ),
         Container(
           color: Colors.white,
-          width: 300,
+          width: 200,
           height: 300,
           child: CupertinoDatePicker(
             mode: CupertinoDatePickerMode.time,
