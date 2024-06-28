@@ -319,7 +319,6 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
           /// 문자열 리스트 넣기
           bookingTime: Value(timerValue),
           timerName: Value(timerName!),
-          activatedUnit: const Value("0000000000000000"),
         ),
       );
     } else {
@@ -329,7 +328,6 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
         TimerTableCompanion(
           bookingTime: Value(timerValue),
           timerName: Value(timerName!),
-          activatedUnit: Value(timer.activatedUnit),
         ),
       );
     }

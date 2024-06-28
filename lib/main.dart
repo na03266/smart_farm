@@ -12,6 +12,9 @@ void main() async {
   /// 전역 상태 관리 가능
   GetIt.I.registerSingleton<AppDatabase>(database);
 
+  // final unitData = GetIt.I<AppDatabase>()
+
+
 
   runApp(
     MaterialApp(

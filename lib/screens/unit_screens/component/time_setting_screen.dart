@@ -461,16 +461,18 @@ class _RightState extends State<_Right> {
   /// 적용하기 버튼
   onEnableTap(List<String>? unitList) async {
     /// List를 문자로 반환
-    final activatedUnit = unitList?.join('');
     final timer =
         await GetIt.I<AppDatabase>().getTimerById(widget.selectedTimerId);
+
     await GetIt.I<AppDatabase>().updateTimerById(
       widget.selectedTimerId,
       TimerTableCompanion(
         bookingTime: Value(timer.bookingTime),
         timerName: Value(timer.timerName),
-        activatedUnit: Value(activatedUnit!),
       ),
     );
   }
 }
+/// 현재는 타이머 마다 유닛 리스트
+/// 하지만, 유닛 리스트 를 별도로 두고, 해당 유닛 에는 타이머 1개의 타이머 만 적용
+/// 현재 조건은 타이머 만 있다. 다른 타이머 에서 해당 유닛을 선택 하면 다른 타이머 에서는 적용할 수 없어야 한다.

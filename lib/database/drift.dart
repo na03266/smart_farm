@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:smart_farm/model/timer_table.dart';
+import 'package:smart_farm/model/unit_table.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
@@ -13,6 +14,7 @@ part 'drift.g.dart';
 @DriftDatabase(
   tables: [
     TimerTable,
+    UnitTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -43,6 +45,24 @@ class AppDatabase extends _$AppDatabase {
   /// 타이머 삭제
   Future<int> removeTimer(int id) =>
       (delete(timerTable)..where((table) => table.id.equals(id))).go();
+
+  /// 유닛 생성
+  Future<int> createUnit(UnitTableCompanion data) =>
+      into(unitTable).insert(data);
+
+  /// 유닛 갱신
+  Future<int> updateUnitById(int id, UnitTableCompanion data) =>
+      (update(unitTable)..where((t) => t.id.equals(id))).write(data);
+
+  /// 유닛 리스트 가져 오기
+  Stream<List<UnitTableData>> getUnits() => (select(unitTable)
+        ..orderBy([
+          (t) => OrderingTerm(
+                expression: t.id,
+                mode: OrderingMode.asc,
+              )
+        ]))
+      .watch();
 
   @override
   int get schemaVersion => 1;

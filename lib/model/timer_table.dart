@@ -10,9 +10,6 @@ class TimerTable extends Table {
   /// 타이머 이름
   TextColumn get timerName => text()();
 
-  /// 할당된 유닛
-  /// 2진수 16자리
-  TextColumn get activatedUnit => text()();
 
   /// 생성 일자
   DateTimeColumn get createdAt => dateTime().clientDefault(
