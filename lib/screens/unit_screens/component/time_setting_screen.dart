@@ -20,7 +20,7 @@ class TimerSettingScreen extends StatefulWidget {
 }
 
 class _TimerSettingScreenState extends State<TimerSettingScreen> {
-  int selectedTimerCardId = 1;
+  int selectedTimerCardId = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +72,7 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                         ),
                       );
                     }
+
                     final timers = snapshot.data!.toList();
 
                     return Row(
@@ -130,32 +131,33 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
       /// 타이머 16개 초과 시
       showDialog(
         context: context,
-        builder: (dialogContext) => Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
-          child: AlertDialog(
-            content: const Text(
-              "타이머는 16개를 초과할 수 없습니다.",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            actions: [
-              TextButton(
-                child: const Text(
-                  "확인",
+        builder: (dialogContext) =>
+            Container(
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+              child: AlertDialog(
+                content: const Text(
+                  "타이머는 16개를 초과할 수 없습니다.",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pop(dialogContext, false);
-                },
+                actions: [
+                  TextButton(
+                    child: const Text(
+                      "확인",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(dialogContext, false);
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
       );
     }
   }
@@ -216,6 +218,7 @@ class _LeftState extends State<_Left> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+
               /// 시간 추가 버튼
               Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -246,7 +249,7 @@ class _LeftState extends State<_Left> {
               Expanded(
                 child: Padding(
                   padding:
-                      const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
+                  const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
                   child: ListView.separated(
                     itemCount: widget.timers.length,
                     itemBuilder: (BuildContext context, int index) {
@@ -316,7 +319,7 @@ class _LeftState extends State<_Left> {
 }
 
 class _Right extends StatefulWidget {
-  final int selectedTimerId;
+  final int? selectedTimerId;
 
   const _Right({
     super.key,
@@ -368,27 +371,27 @@ class _RightState extends State<_Right> {
                 ),
 
                 /// 유닛 목록
+                /// 그럼 처음 에는 값을 받는게 없을 테니 전체 목록을 띄워야 하나?
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: FutureBuilder<TimerTableData?>(
-                        future: GetIt.I<AppDatabase>()
-                            .getTimerById(widget.selectedTimerId),
-                        builder: (context, futureSnapshot) {
-                          if (futureSnapshot.connectionState ==
-                              ConnectionState.waiting) {
+                    child: FutureBuilder<List<UnitTableData>>(
+                        future: GetIt.I<AppDatabase>().getUnits(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting &&
+                              !snapshot.hasData) {
                             return const Center(
                               child: CircularProgressIndicator(
                                 color: Colors.white,
                               ),
                             );
                           }
-
-                          if (futureSnapshot.hasError) {
-                            return const Center(
+                          if (snapshot.hasError) {
+                            return Center(
                               child: Text(
-                                '타이머를 추가하거나 선택해주세요',
-                                style: TextStyle(
+                                '${snapshot.error}',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 40,
                                   fontWeight: FontWeight.w700,
@@ -396,46 +399,44 @@ class _RightState extends State<_Right> {
                               ),
                             );
                           }
-
-                          if (!futureSnapshot.hasData) {
-                            return const Center(
-                              child: Text('선택된 타이머가 없습니다.'),
-                            );
-                          }
-                          final selectedTimer = futureSnapshot.data;
-                          final unitList =
-                              selectedTimer?.activatedUnit.split('');
+                          List<UnitTableData>? units = snapshot.data;
 
                           return GridView.builder(
                             gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4, // 각 항목의 너비를 고정
                               mainAxisSpacing: 8.0, // 세로 간격
                               crossAxisSpacing: 8.0, // 가로 간격
                               childAspectRatio: 16 / 9,
                             ),
-                            itemCount: unitList?.length ?? 0,
+                            itemCount: units!.length,
                             itemBuilder: (context, index) {
                               return GestureDetector(
                                 onTap: () {
-                                  unitList?[index] =
-                                      unitList[index] == '0' ? '1' : '0';
-                                  onEnableTap(unitList);
+                                  onUnitTap(
+                                      units[index], widget.selectedTimerId!);
+
+                                  /// 탭하면 현재 적용된 타이머의 번호를 등록
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    border: unitList?[index] == '1'
+
+                                    /// 타이머의 번호가 현재 할당된 번호와 같으면
+                                    border: units[index].timerId ==
+                                        widget.selectedTimerId
                                         ? Border.all(
-                                            width: 2, color: Colors.white)
+                                        width: 2, color: Colors.white)
                                         : null,
-                                    color: unitList?[index] == '1'
+                                    color: units[index].timerId ==
+                                        widget.selectedTimerId
                                         ? colors[3]
                                         : colors[1],
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Units ${index + 1}',
+                                      '${units[index].unitName} ${units[index]
+                                          .unitNumber}',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700,
@@ -459,20 +460,23 @@ class _RightState extends State<_Right> {
   }
 
   /// 적용하기 버튼
-  onEnableTap(List<String>? unitList) async {
-    /// List를 문자로 반환
-    final timer =
-        await GetIt.I<AppDatabase>().getTimerById(widget.selectedTimerId);
-
-    await GetIt.I<AppDatabase>().updateTimerById(
-      widget.selectedTimerId,
-      TimerTableCompanion(
-        bookingTime: Value(timer.bookingTime),
-        timerName: Value(timer.timerName),
+  onUnitTap(UnitTableData? unit, int selectedTimerId) async {
+    final tempUnit = unit!;
+    await GetIt.I<AppDatabase>().updateUnitById(
+      tempUnit.id,
+      UnitTableCompanion(
+        unitName: Value(tempUnit.unitName),
+        unitNumber: Value(tempUnit.unitNumber),
+        timerId: Value(tempUnit.timerId != selectedTimerId ? selectedTimerId: null),
+        updatedAt: Value(DateTime.now()),
+        isOn: Value(!tempUnit.isOn),
+        isAuto: Value(tempUnit.isAuto),
       ),
     );
+    setState(() {});
   }
 }
+
 /// 현재는 타이머 마다 유닛 리스트
 /// 하지만, 유닛 리스트 를 별도로 두고, 해당 유닛 에는 타이머 1개의 타이머 만 적용
 /// 현재 조건은 타이머 만 있다. 다른 타이머 에서 해당 유닛을 선택 하면 다른 타이머 에서는 적용할 수 없어야 한다.

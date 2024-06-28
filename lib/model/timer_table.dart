@@ -10,7 +10,6 @@ class TimerTable extends Table {
   /// 타이머 이름
   TextColumn get timerName => text()();
 
-
   /// 생성 일자
   DateTimeColumn get createdAt => dateTime().clientDefault(
         () => DateTime.now().toUtc(),

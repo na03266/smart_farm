@@ -19,7 +19,22 @@ part 'drift.g.dart';
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
-
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+      // UnitTable 초기 데이터 삽입
+      await into(unitTable).insert(const UnitTableCompanion(
+        unitName: Value('LED'),
+        unitNumber: Value(1),
+      ));
+      await into(unitTable).insert(const UnitTableCompanion(
+        unitName: Value('차광막'),
+        unitNumber: Value(1),
+        isAuto: Value(false)
+      ));
+    },
+  );
   /// 타이머 생성
   Future<int> createTimer(TimerTableCompanion data) =>
       into(timerTable).insert(data);
@@ -55,14 +70,14 @@ class AppDatabase extends _$AppDatabase {
       (update(unitTable)..where((t) => t.id.equals(id))).write(data);
 
   /// 유닛 리스트 가져 오기
-  Stream<List<UnitTableData>> getUnits() => (select(unitTable)
+  Future<List<UnitTableData>> getUnits() => (select(unitTable)
         ..orderBy([
           (t) => OrderingTerm(
                 expression: t.id,
                 mode: OrderingMode.asc,
               )
         ]))
-      .watch();
+      .get();
 
   @override
   int get schemaVersion => 1;
