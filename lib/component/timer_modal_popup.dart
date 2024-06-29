@@ -282,7 +282,8 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     for (int i = 0; i < tempTimerList.length; i++) {
       tempTimerList[i] = '0';
     }
-    for (List<DateTime> tempTimer in List.from(timerList)) {
+
+    for (List<DateTime> tempTimer in timerList) {
       int tempStartMin = tempTimer[0].hour * 60 + tempTimer[0].minute;
       int tempEndMin = tempTimer[1].hour * 60 + tempTimer[1].minute;
 
@@ -304,7 +305,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
         }
       }
     }
-    timerValue = tempTimerList.join('');
+    final tempTimerValue = tempTimerList.join('');
 
     /// 텍스트 저장 하기
     formKey.currentState!.save();
@@ -317,7 +318,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
       await database.createTimer(
         TimerTableCompanion(
           /// 문자열 리스트 넣기
-          bookingTime: Value(timerValue),
+          bookingTime: Value(tempTimerValue),
           timerName: Value(timerName!),
         ),
       );
@@ -326,7 +327,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
       await database.updateTimerById(
         timer.id,
         TimerTableCompanion(
-          bookingTime: Value(timerValue),
+          bookingTime: Value(tempTimerValue),
           timerName: Value(timerName!),
         ),
       );

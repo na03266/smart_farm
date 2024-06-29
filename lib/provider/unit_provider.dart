@@ -60,6 +60,5 @@ class UnitProvider extends ChangeNotifier {
         .where((unit) => unit.label == inputLabel)
         .map((unit) => unit.status = !unit.status).toList();
     notifyListeners();
-
   }
 }
