@@ -1,12 +1,19 @@
+import 'package:drift/drift.dart' hide Column;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
+import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/consts/temp.dart';
+import 'package:smart_farm/database/drift.dart';
 
 class TemperatureSettingScreen extends StatefulWidget {
-  const TemperatureSettingScreen({
+  List<FlSpot> highData;
+  List<FlSpot> lowData;
+
+  TemperatureSettingScreen({
     super.key,
+    required this.highData,
+    required this.lowData,
   });
 
   @override
@@ -54,7 +61,7 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
               style: ButtonStyle(
                   elevation: WidgetStateProperty.all(10), // 그림자 높이 설정
                   backgroundColor: WidgetStateProperty.all(colors[7])),
-              onPressed: () {},
+              onPressed: onFinishPressed,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -71,7 +78,8 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.only(bottom: 24.0, left: 24.0, right: 24.0, top: 8.0),
+        padding: const EdgeInsets.only(
+            bottom: 24.0, left: 24.0, right: 24.0, top: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -116,6 +124,9 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                                   isShowingMainData: isShowingMainData,
                                   isConfigHighData: isConfigHighData,
                                   isConfigLowData: isConfigLowData,
+                                  highData: widget.highData,
+                                  lowData: widget.lowData,
+                                  onPanUpdate: onChartPanUpdate,
                                 ),
                               ),
                             ),
@@ -195,17 +206,90 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
       ),
     );
   }
+
+  onFinishPressed() async {
+    final oldData = await GetIt.I<AppDatabase>().getTemperatures();
+    for (int i = 0; i < 48; i++) {
+      await GetIt.I<AppDatabase>().updateTempById(
+          i + 1,
+          TemperatureTableCompanion(
+            time: Value(oldData[i].time),
+            highTemp: Value(widget.highData[i].y),
+            lowTemp: Value(widget.lowData[i].y),
+          ));
+    }
+    Navigator.of(context).pop();
+  }
+
+  onChartPanUpdate(DragUpdateDetails details) {
+    List<FlSpot> updatedHighData = List.from(widget.highData);
+    List<FlSpot> updatedLowData = List.from(widget.lowData);
+
+    for (int i = 0; i < 48; i++) {
+      double coordinateX = details.globalPosition.dx;
+      double timeX = 100 + 23.2 * i;
+      double coordinateY = details.globalPosition.dy;
+
+      /// tempY = a*y + b >> 화면 좌표 기준 온도 값 변환식
+      double tempY = (5 * 660 / 51) - (50 / 510 * coordinateY);
+
+      tempY = double.parse(tempY.toStringAsFixed(1));
+
+      /// 그래프 안의 좌표만 허용
+      bool timeCondition =
+          coordinateX <= timeX + 11.6 && coordinateX >= timeX - 11.6;
+      bool tempCondition = coordinateY <= 600 && coordinateY >= 150;
+
+      double roundToNearestHalf(double value) {
+        return (value * 2).round() / 2;
+      }
+
+      /// 표 오른쪽 바깥인 경우 행동안함
+      if (timeCondition && tempCondition) {
+        double roundedTempY = roundToNearestHalf(tempY);
+        if (isConfigHighData) {
+          // 높은 온도를 조절할 때
+          updatedHighData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
+
+          // 만약 새로운 높은 온도가 현재 낮은 온도보다 낮다면, 낮은 온도도 함께 조정
+          if (roundedTempY < updatedLowData[i].y) {
+            updatedLowData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
+          }
+        }
+        if (isConfigLowData) {
+          // 낮은 온도를 조절할 때
+          updatedLowData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
+
+          // 만약 새로운 낮은 온도가 현재 높은 온도 보다 높다면, 높은 온도도 함께 조정
+          if (roundedTempY > updatedHighData[i].y) {
+            updatedHighData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
+          }
+        }
+      }
+    }
+
+    setState(() {
+      widget.highData = updatedHighData;
+      widget.lowData = updatedLowData;
+    });
+  }
 }
 
 class _LineChart extends StatefulWidget {
   final bool isShowingMainData;
   final bool isConfigHighData;
   final bool isConfigLowData;
+  List<FlSpot> highData;
+  List<FlSpot> lowData;
+  final GestureDragUpdateCallback? onPanUpdate;
 
-  const _LineChart({
+  _LineChart({
     required this.isShowingMainData,
     required this.isConfigHighData,
     required this.isConfigLowData,
+    required this.lowData,
+    required this.highData,
+    required this.onPanUpdate,
   });
 
   @override
@@ -213,24 +297,6 @@ class _LineChart extends StatefulWidget {
 }
 
 class _LineChartState extends State<_LineChart> {
-  List<FlSpot> highData = generateHighTempData()
-      .map(
-        (HighTemperatureInfo e) => FlSpot(
-          e.highTime + 0.1,
-          e.highTemp,
-        ),
-      )
-      .toList();
-
-  List<FlSpot> lowData = generateLowTempData()
-      .map(
-        (LowTemperatureInfo e) => FlSpot(
-          e.lowTime + 0.1,
-          e.lowTemp,
-        ),
-      )
-      .toList();
-
   @override
   Widget build(BuildContext context) {
     /// 차트 전환
@@ -241,42 +307,8 @@ class _LineChartState extends State<_LineChart> {
           )
         : (widget.isConfigHighData || widget.isConfigLowData)
             ? GestureDetector(
-                onPanUpdate: (details) {
-                  List<FlSpot> updatedHighData = List.from(highData);
-                  List<FlSpot> updatedLowData = List.from(lowData);
-
-                  for (int i = 0; i < 49; i++) {
-                    double coordinateX = details.globalPosition.dx;
-                    double timeX = 100 + 23.2 * i;
-                    double coordinateY = details.globalPosition.dy;
-
-                    /// tempY = a*y + b >> 화면 좌표 기준 온도 값 변환식
-                    double tempY = (5 * 660 / 51) - (50 / 510 * coordinateY);
-
-                    tempY = double.parse(tempY.toStringAsFixed(1));
-
-                    /// 그래프 안의 좌표만 허용
-                    bool timeCondition = coordinateX <= timeX + 11.6 &&
-                        coordinateX >= timeX - 11.6;
-                    bool tempCondition =
-                        coordinateY <= 600 && coordinateY >= 150;
-
-                    /// 표 오른쪽 바깥인 경우 행동안함
-                    if (timeCondition && tempCondition) {
-                      if (widget.isConfigHighData) {
-                        updatedHighData[i] = FlSpot(i.toDouble(), tempY);
-                      }
-                      if (widget.isConfigLowData) {
-                        updatedLowData[i] = FlSpot(i.toDouble(), tempY);
-                      }
-                    }
-                  }
-
-                  setState(() {
-                    if (widget.isConfigHighData) highData = updatedHighData;
-                    if (widget.isConfigLowData) lowData = updatedLowData;
-                  });
-                },
+                /// 만약 높은 온도와 낮은온도가 교차하면?
+                onPanUpdate: widget.onPanUpdate,
                 child: LineChart(
                   settingChart,
                   duration: const Duration(milliseconds: 0),
@@ -342,7 +374,7 @@ class _LineChartState extends State<_LineChart> {
 
   /// 설정 차트
   LineTouchData get settingLineTouchData => LineTouchData(
-        handleBuiltInTouches: true,
+        handleBuiltInTouches: false,
         touchTooltipData: LineTouchTooltipData(
           getTooltipColor: (touchedSpot) => colors[1],
         ),
@@ -472,7 +504,7 @@ class _LineChartState extends State<_LineChart> {
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(show: false),
-        spots: highData,
+        spots: widget.highData,
       );
 
   LineChartBarData get mainLowLineChartBarData => LineChartBarData(
@@ -482,7 +514,7 @@ class _LineChartState extends State<_LineChart> {
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(show: false),
-        spots: lowData,
+        spots: widget.lowData,
       );
 
   ///꺽은선
@@ -491,13 +523,13 @@ class _LineChartState extends State<_LineChart> {
         curveSmoothness: 0,
         color: Colors.blueAccent.withOpacity(0.5),
         barWidth: 4,
-        isStrokeCapRound: true,
+        isStrokeCapRound: false,
         dotData: const FlDotData(show: false),
         aboveBarData: BarAreaData(
           show: true,
           color: Colors.blueAccent.withOpacity(0.2),
         ),
-        spots: highData,
+        spots: widget.highData,
       );
 
   LineChartBarData get settingLowLineChartBarData => LineChartBarData(
@@ -510,6 +542,6 @@ class _LineChartState extends State<_LineChart> {
           show: true,
           color: Colors.redAccent.withOpacity(0.2),
         ),
-        spots: lowData,
+        spots: widget.lowData,
       );
 }

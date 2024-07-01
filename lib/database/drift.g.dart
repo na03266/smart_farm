@@ -646,16 +646,319 @@ class UnitTableCompanion extends UpdateCompanion<UnitTableData> {
   }
 }
 
+class $TemperatureTableTable extends TemperatureTable
+    with TableInfo<$TemperatureTableTable, TemperatureTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TemperatureTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _timeMeta = const VerificationMeta('time');
+  @override
+  late final GeneratedColumn<String> time = GeneratedColumn<String>(
+      'time', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _highTempMeta =
+      const VerificationMeta('highTemp');
+  @override
+  late final GeneratedColumn<double> highTemp = GeneratedColumn<double>(
+      'high_temp', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _lowTempMeta =
+      const VerificationMeta('lowTemp');
+  @override
+  late final GeneratedColumn<double> lowTemp = GeneratedColumn<double>(
+      'low_temp', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, time, highTemp, lowTemp, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'temperature_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<TemperatureTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('time')) {
+      context.handle(
+          _timeMeta, time.isAcceptableOrUnknown(data['time']!, _timeMeta));
+    } else if (isInserting) {
+      context.missing(_timeMeta);
+    }
+    if (data.containsKey('high_temp')) {
+      context.handle(_highTempMeta,
+          highTemp.isAcceptableOrUnknown(data['high_temp']!, _highTempMeta));
+    } else if (isInserting) {
+      context.missing(_highTempMeta);
+    }
+    if (data.containsKey('low_temp')) {
+      context.handle(_lowTempMeta,
+          lowTemp.isAcceptableOrUnknown(data['low_temp']!, _lowTempMeta));
+    } else if (isInserting) {
+      context.missing(_lowTempMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TemperatureTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TemperatureTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      time: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}time'])!,
+      highTemp: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}high_temp'])!,
+      lowTemp: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}low_temp'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+    );
+  }
+
+  @override
+  $TemperatureTableTable createAlias(String alias) {
+    return $TemperatureTableTable(attachedDatabase, alias);
+  }
+}
+
+class TemperatureTableData extends DataClass
+    implements Insertable<TemperatureTableData> {
+  /// 식별 가능한 아이디
+  final int id;
+
+  /// 시간
+  final String time;
+
+  /// 최고 온도
+  final double highTemp;
+
+  /// 최저 온도
+  final double lowTemp;
+
+  /// 업데이트 시간
+  final DateTime? updatedAt;
+  const TemperatureTableData(
+      {required this.id,
+      required this.time,
+      required this.highTemp,
+      required this.lowTemp,
+      this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['time'] = Variable<String>(time);
+    map['high_temp'] = Variable<double>(highTemp);
+    map['low_temp'] = Variable<double>(lowTemp);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  TemperatureTableCompanion toCompanion(bool nullToAbsent) {
+    return TemperatureTableCompanion(
+      id: Value(id),
+      time: Value(time),
+      highTemp: Value(highTemp),
+      lowTemp: Value(lowTemp),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory TemperatureTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TemperatureTableData(
+      id: serializer.fromJson<int>(json['id']),
+      time: serializer.fromJson<String>(json['time']),
+      highTemp: serializer.fromJson<double>(json['highTemp']),
+      lowTemp: serializer.fromJson<double>(json['lowTemp']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'time': serializer.toJson<String>(time),
+      'highTemp': serializer.toJson<double>(highTemp),
+      'lowTemp': serializer.toJson<double>(lowTemp),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  TemperatureTableData copyWith(
+          {int? id,
+          String? time,
+          double? highTemp,
+          double? lowTemp,
+          Value<DateTime?> updatedAt = const Value.absent()}) =>
+      TemperatureTableData(
+        id: id ?? this.id,
+        time: time ?? this.time,
+        highTemp: highTemp ?? this.highTemp,
+        lowTemp: lowTemp ?? this.lowTemp,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('TemperatureTableData(')
+          ..write('id: $id, ')
+          ..write('time: $time, ')
+          ..write('highTemp: $highTemp, ')
+          ..write('lowTemp: $lowTemp, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, time, highTemp, lowTemp, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TemperatureTableData &&
+          other.id == this.id &&
+          other.time == this.time &&
+          other.highTemp == this.highTemp &&
+          other.lowTemp == this.lowTemp &&
+          other.updatedAt == this.updatedAt);
+}
+
+class TemperatureTableCompanion extends UpdateCompanion<TemperatureTableData> {
+  final Value<int> id;
+  final Value<String> time;
+  final Value<double> highTemp;
+  final Value<double> lowTemp;
+  final Value<DateTime?> updatedAt;
+  const TemperatureTableCompanion({
+    this.id = const Value.absent(),
+    this.time = const Value.absent(),
+    this.highTemp = const Value.absent(),
+    this.lowTemp = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  TemperatureTableCompanion.insert({
+    this.id = const Value.absent(),
+    required String time,
+    required double highTemp,
+    required double lowTemp,
+    this.updatedAt = const Value.absent(),
+  })  : time = Value(time),
+        highTemp = Value(highTemp),
+        lowTemp = Value(lowTemp);
+  static Insertable<TemperatureTableData> custom({
+    Expression<int>? id,
+    Expression<String>? time,
+    Expression<double>? highTemp,
+    Expression<double>? lowTemp,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (time != null) 'time': time,
+      if (highTemp != null) 'high_temp': highTemp,
+      if (lowTemp != null) 'low_temp': lowTemp,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  TemperatureTableCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? time,
+      Value<double>? highTemp,
+      Value<double>? lowTemp,
+      Value<DateTime?>? updatedAt}) {
+    return TemperatureTableCompanion(
+      id: id ?? this.id,
+      time: time ?? this.time,
+      highTemp: highTemp ?? this.highTemp,
+      lowTemp: lowTemp ?? this.lowTemp,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (time.present) {
+      map['time'] = Variable<String>(time.value);
+    }
+    if (highTemp.present) {
+      map['high_temp'] = Variable<double>(highTemp.value);
+    }
+    if (lowTemp.present) {
+      map['low_temp'] = Variable<double>(lowTemp.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TemperatureTableCompanion(')
+          ..write('id: $id, ')
+          ..write('time: $time, ')
+          ..write('highTemp: $highTemp, ')
+          ..write('lowTemp: $lowTemp, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
   late final $TimerTableTable timerTable = $TimerTableTable(this);
   late final $UnitTableTable unitTable = $UnitTableTable(this);
+  late final $TemperatureTableTable temperatureTable =
+      $TemperatureTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [timerTable, unitTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [timerTable, unitTable, temperatureTable];
 }
 
 typedef $$TimerTableTableInsertCompanionBuilder = TimerTableCompanion Function({
@@ -944,6 +1247,145 @@ class $$UnitTableTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
+typedef $$TemperatureTableTableInsertCompanionBuilder
+    = TemperatureTableCompanion Function({
+  Value<int> id,
+  required String time,
+  required double highTemp,
+  required double lowTemp,
+  Value<DateTime?> updatedAt,
+});
+typedef $$TemperatureTableTableUpdateCompanionBuilder
+    = TemperatureTableCompanion Function({
+  Value<int> id,
+  Value<String> time,
+  Value<double> highTemp,
+  Value<double> lowTemp,
+  Value<DateTime?> updatedAt,
+});
+
+class $$TemperatureTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TemperatureTableTable,
+    TemperatureTableData,
+    $$TemperatureTableTableFilterComposer,
+    $$TemperatureTableTableOrderingComposer,
+    $$TemperatureTableTableProcessedTableManager,
+    $$TemperatureTableTableInsertCompanionBuilder,
+    $$TemperatureTableTableUpdateCompanionBuilder> {
+  $$TemperatureTableTableTableManager(
+      _$AppDatabase db, $TemperatureTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$TemperatureTableTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TemperatureTableTableOrderingComposer(ComposerState(db, table)),
+          getChildManagerBuilder: (p) =>
+              $$TemperatureTableTableProcessedTableManager(p),
+          getUpdateCompanionBuilder: ({
+            Value<int> id = const Value.absent(),
+            Value<String> time = const Value.absent(),
+            Value<double> highTemp = const Value.absent(),
+            Value<double> lowTemp = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+          }) =>
+              TemperatureTableCompanion(
+            id: id,
+            time: time,
+            highTemp: highTemp,
+            lowTemp: lowTemp,
+            updatedAt: updatedAt,
+          ),
+          getInsertCompanionBuilder: ({
+            Value<int> id = const Value.absent(),
+            required String time,
+            required double highTemp,
+            required double lowTemp,
+            Value<DateTime?> updatedAt = const Value.absent(),
+          }) =>
+              TemperatureTableCompanion.insert(
+            id: id,
+            time: time,
+            highTemp: highTemp,
+            lowTemp: lowTemp,
+            updatedAt: updatedAt,
+          ),
+        ));
+}
+
+class $$TemperatureTableTableProcessedTableManager
+    extends ProcessedTableManager<
+        _$AppDatabase,
+        $TemperatureTableTable,
+        TemperatureTableData,
+        $$TemperatureTableTableFilterComposer,
+        $$TemperatureTableTableOrderingComposer,
+        $$TemperatureTableTableProcessedTableManager,
+        $$TemperatureTableTableInsertCompanionBuilder,
+        $$TemperatureTableTableUpdateCompanionBuilder> {
+  $$TemperatureTableTableProcessedTableManager(super.$state);
+}
+
+class $$TemperatureTableTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $TemperatureTableTable> {
+  $$TemperatureTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get time => $state.composableBuilder(
+      column: $state.table.time,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get highTemp => $state.composableBuilder(
+      column: $state.table.highTemp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get lowTemp => $state.composableBuilder(
+      column: $state.table.lowTemp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$TemperatureTableTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $TemperatureTableTable> {
+  $$TemperatureTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get time => $state.composableBuilder(
+      column: $state.table.time,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get highTemp => $state.composableBuilder(
+      column: $state.table.highTemp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get lowTemp => $state.composableBuilder(
+      column: $state.table.lowTemp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
 class _$AppDatabaseManager {
   final _$AppDatabase _db;
   _$AppDatabaseManager(this._db);
@@ -951,4 +1393,6 @@ class _$AppDatabaseManager {
       $$TimerTableTableTableManager(_db, _db.timerTable);
   $$UnitTableTableTableManager get unitTable =>
       $$UnitTableTableTableManager(_db, _db.unitTable);
+  $$TemperatureTableTableTableManager get temperatureTable =>
+      $$TemperatureTableTableTableManager(_db, _db.temperatureTable);
 }

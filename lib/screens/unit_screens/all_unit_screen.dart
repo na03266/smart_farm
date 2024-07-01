@@ -1,7 +1,10 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/consts/units.dart';
+import 'package:smart_farm/database/drift.dart';
 import 'package:smart_farm/provider/unit_provider.dart';
 import 'package:smart_farm/screens/unit_screens/component/temperature_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/time_setting_screen.dart';
@@ -276,11 +279,33 @@ class _SettingButtons extends StatelessWidget {
 
         /// 온도 제어 화면 전환 버튼
         FloatingActionButton.large(
-          onPressed: () {
+          onPressed: () async {
+            final data = await GetIt.I<AppDatabase>().getTemperatures();
+
+            List<FlSpot> highData = data
+                .map(
+                  (e) => FlSpot(
+                    e.id.toDouble() - 0.5,
+                    e.highTemp,
+                  ),
+                )
+                .toList();
+
+            List<FlSpot> lowData = data
+                .map(
+                  (e) => FlSpot(
+                    e.id.toDouble() - 0.5,
+                    e.lowTemp,
+                  ),
+                )
+                .toList();
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (BuildContext context) {
-                  return const TemperatureSettingScreen();
+                  return TemperatureSettingScreen(
+                    highData: highData,
+                    lowData: lowData,
+                  );
                 },
               ),
             );

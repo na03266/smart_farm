@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:smart_farm/model/temperature_table.dart';
 import 'package:smart_farm/model/timer_table.dart';
 import 'package:smart_farm/model/unit_table.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -15,31 +16,40 @@ part 'drift.g.dart';
   tables: [
     TimerTable,
     UnitTable,
+    TemperatureTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (Migrator m) async {
-      await m.createAll();
-      // UnitTable 초기 데이터 삽입
-      await into(unitTable).insert(const UnitTableCompanion(
-        unitName: Value('LED'),
-        unitNumber: Value(1),
-      ));
-      await into(unitTable).insert(const UnitTableCompanion(
-        unitName: Value('차광막'),
-        unitNumber: Value(1),
-        isAuto: Value(false)
-      ));
-    },
-  );
-  /// 타이머 생성
+        onCreate: (Migrator m) async {
+          await m.createAll();
+          // UnitTable 초기 데이터 삽입
+          await into(unitTable).insert(const UnitTableCompanion(
+            unitName: Value('LED'),
+            unitNumber: Value(1),
+          ));
+          await into(unitTable).insert(const UnitTableCompanion(
+              unitName: Value('차광막'),
+              unitNumber: Value(1),
+              isAuto: Value(false)));
+          for (int i = 0; i < 48; i++) {
+            await into(temperatureTable).insert(TemperatureTableCompanion(
+              time: Value("${i ~/ 2}:${i % 2 == 1 ? 30 : 00}"),
+              highTemp: Value(15.0 + i / 2),
+              lowTemp: Value(10.0 + i / 2),
+              updatedAt: Value(DateTime.now()),
+            ));
+          }
+        },
+      );
+
+  /// 타이머
   Future<int> createTimer(TimerTableCompanion data) =>
       into(timerTable).insert(data);
 
-  /// 타이머 목록 가져 오기
   Stream<List<TimerTableData>> getTimers() => (select(timerTable)
         ..orderBy([
           (t) => OrderingTerm(
@@ -49,27 +59,22 @@ class AppDatabase extends _$AppDatabase {
         ]))
       .watch();
 
-  /// 타이머 하나만 가져 오기
   Future<TimerTableData> getTimerById(int id) =>
       (select(timerTable)..where((table) => table.id.equals(id))).getSingle();
 
-  /// 타이머 갱신
   Future<int> updateTimerById(int id, TimerTableCompanion data) =>
       (update(timerTable)..where((t) => t.id.equals(id))).write(data);
 
-  /// 타이머 삭제
   Future<int> removeTimer(int id) =>
       (delete(timerTable)..where((table) => table.id.equals(id))).go();
 
-  /// 유닛 생성
+  /// 유닛
   Future<int> createUnit(UnitTableCompanion data) =>
       into(unitTable).insert(data);
 
-  /// 유닛 갱신
   Future<int> updateUnitById(int id, UnitTableCompanion data) =>
       (update(unitTable)..where((t) => t.id.equals(id))).write(data);
 
-  /// 유닛 리스트 가져 오기
   Future<List<UnitTableData>> getUnits() => (select(unitTable)
         ..orderBy([
           (t) => OrderingTerm(
@@ -78,6 +83,19 @@ class AppDatabase extends _$AppDatabase {
               )
         ]))
       .get();
+
+  /// 온도
+  Future<List<TemperatureTableData>> getTemperatures() => (select(temperatureTable)
+    ..orderBy([
+          (t) => OrderingTerm(
+        expression: t.id,
+        mode: OrderingMode.asc,
+      )
+    ]))
+      .get();
+
+  Future<int> updateTempById(int id, TemperatureTableCompanion data) =>
+      (update(temperatureTable)..where((t) => t.id.equals(id))).write(data);
 
   @override
   int get schemaVersion => 1;
