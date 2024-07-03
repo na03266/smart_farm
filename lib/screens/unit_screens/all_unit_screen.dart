@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/consts/units.dart';
 import 'package:smart_farm/database/drift.dart';
 import 'package:smart_farm/provider/unit_provider.dart';
 import 'package:smart_farm/screens/unit_screens/component/temperature_setting_screen.dart';
@@ -26,29 +25,70 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: Scaffold(
-        body: Column(
-          children: [
-            _TopBar(
-              onToggle: allUnitOnToggle,
-              selectedIndex: unitsStatus,
-            ),
-
-            /// 토글 까지는 완료 이제 아래 유닛 카드에 값을 적용시켜야함.
-            Expanded(
-              child: _UnitCard(
-                /// 여기에도 유닛리스트를 넣어서 각각의 레이블에 반환하도록 할것
-                units: units,
-                onPressed: isOnOffButtonOnPressed,
+    return FutureBuilder(
+        future: GetIt.I<AppDatabase>().getUnits(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
               ),
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                '${snapshot.error}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 40,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            );
+          }
+
+          ///groupBy 함수
+          Map<K, List<T>> groupBy<T, K>(Iterable<T> items, K Function(T) key) {
+            var map = <K, List<T>>{};
+            for (var item in items) {
+              (map[key(item)] ??= []).add(item);
+            }
+            return map;
+          }
+
+          List<UnitTableData>? units = snapshot.data;
+          Map<String?, List<UnitTableData>> groupedUnits =
+              groupBy(units!, (UnitTableData unit) => unit.unitName);
+
+          print(groupedUnits);
+
+          return SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Scaffold(
+              body: Column(
+                children: [
+                  _TopBar(
+                    onToggle: allUnitOnToggle,
+                    selectedIndex: unitsStatus,
+                  ),
+
+                  /// 토글 까지는 완료 이제 아래 유닛 카드에 값을 적용시켜야함.
+                  Expanded(
+                    child: _UnitCard(
+                      /// 여기에도 유닛리스트를 넣어서 각각의 레이블에 반환하도록 할것
+                      units: groupedUnits,
+                      onPressed: onOnOffButtonPressed,
+                      onToggle: onAutoToggle,
+                    ),
+                  ),
+                ],
+              ),
+              floatingActionButton: const _SettingButtons(),
             ),
-          ],
-        ),
-        floatingActionButton: _SettingButtons(),
-      ),
-    );
+          );
+        });
   }
 
   ///버튼 전체 통합 제어
@@ -62,14 +102,14 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
     });
   }
 
-  /// 카드 온오프 유닛별 제어
-  isOnOffButtonOnPressed(UnitInfo selectedUnit) {
-    setState(() {
-      selectedUnit.status = !selectedUnit.status;
+  onAutoToggle(int? index, String? selectedUnitId){
+    print(selectedUnitId);
+  }
 
-      /// 하나라도 켜지면 전체 전원은 올라간 걸로 친다.
-      unitsStatus = 1;
-    });
+  /// 카드 온오프 유닛별 제어
+  onOnOffButtonPressed(String? selectedUnit) {
+    print(selectedUnit);
+    setState(() {});
   }
 
   /// 개별 제어 모달
@@ -202,20 +242,49 @@ class _TopBarState extends State<_TopBar> {
   }
 }
 
-typedef OnOffUnitButtonPressed = void Function(UnitInfo selectedUnit);
+typedef OnOffUnitButtonPressed = void Function(String? selectedUnitId);
+typedef OnAutoUnitButtonToggled = void Function(
+    int? index, String? seletedUnitId);
 
 class _UnitCard extends StatelessWidget {
-  final List<UnitInfo> units;
+  final Map<String?, List<UnitTableData>> units;
   final OnOffUnitButtonPressed onPressed;
+  final OnAutoUnitButtonToggled onToggle;
 
   const _UnitCard({
     super.key,
     required this.units,
     required this.onPressed,
+    required this.onToggle,
   });
 
   @override
   Widget build(BuildContext context) {
+    List<UnitTableData> mergedUnits = units.entries.map((entry) {
+      String? unitName = entry.key;
+      List<UnitTableData> units = entry.value;
+
+      // 그룹의 첫 번째 항목을 기준으로 새로운 UnitTableData 생성
+      UnitTableData representative = units.first;
+
+      // boolean 필드들에 대해 OR 연산 수행
+      bool isOn = units.any((unit) => unit.isOn);
+      bool isAuto = units.any((unit) => unit.isAuto);
+
+      // 새로운 UnitTableData 생성 (id는 그룹의 첫 번째 항목의 id 사용)
+      return UnitTableData(
+        id: representative.id,
+        unitName: unitName,
+        unitNumber: representative.unitNumber,
+        // 또는 다른 로직으로 결정
+        timerId: representative.timerId,
+        // 또는 다른 로직으로 결정
+        isOn: isOn,
+        isAuto: isAuto,
+        updatedAt: DateTime.now(),
+      );
+    }).toList();
+
     return Container(
       color: colors[2],
       child: CustomScrollView(
@@ -228,14 +297,20 @@ class _UnitCard extends StatelessWidget {
               mainAxisSpacing: 10,
               crossAxisCount: 5,
               children: <Widget>[
-                ...units.map(
+                ...mergedUnits.map(
                   (e) => UnitCard(
-                    condition: e.status,
-                    label: e.label,
-                    icon: e.icon,
-                    selectedTheme: e.status ? CARDS[0] : CARDS[1],
+                    condition: e.isOn,
+                    label: e.unitName!,
+                    icon: UnitProvider()
+                        .UNITS
+                        .firstWhere((el) => el.label == e.unitName)
+                        .icon,
+                    selectedTheme: e.isOn ? CARDS[0] : CARDS[1],
                     onPressed: () {
-                      onPressed(e);
+                      onPressed(e.unitName);
+                    },
+                    onToggle: (int? index) {
+                      onToggle(index, e.unitName);
                     },
                   ),
                 ),

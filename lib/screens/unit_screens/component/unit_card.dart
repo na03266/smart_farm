@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-
 class UnitCard extends StatefulWidget {
   final String label;
   final IconData icon;
   final bool condition;
   final UnitCardColor selectedTheme;
   final VoidCallback onPressed;
+  final OnToggle? onToggle;
 
   const UnitCard({
     super.key,
@@ -16,7 +16,7 @@ class UnitCard extends StatefulWidget {
     required this.icon,
     required this.condition,
     required this.selectedTheme,
-    required this.onPressed,
+    required this.onPressed, required this.onToggle,
   });
 
   @override
@@ -59,7 +59,10 @@ class _UnitCardState extends State<UnitCard> {
           _EachControlButton(isOnTheme: widget.selectedTheme),
 
           /// 자동 수동 버튼
-          _IsAutoButton(isOnTheme: widget.selectedTheme),
+          _IsAutoButton(
+            isOnTheme: widget.selectedTheme,
+            onToggle: widget.onToggle,
+          ),
         ],
       ),
     );
@@ -187,12 +190,15 @@ class _EachControlButton extends StatelessWidget {
   }
 }
 
+
 class _IsAutoButton extends StatelessWidget {
   final UnitCardColor isOnTheme;
+  final OnToggle? onToggle;
 
   const _IsAutoButton({
     super.key,
     required this.isOnTheme,
+    required this.onToggle,
   });
 
   @override
@@ -217,11 +223,9 @@ class _IsAutoButton extends StatelessWidget {
           inactiveFgColor: isOnTheme.autoFont,
           initialLabelIndex: 1,
           totalSwitches: 2,
-          labels: const ['자동', '수동'],
+          labels: const ['수동', '자동'],
           radiusStyle: true,
-          onToggle: (isAuto) {
-            print(isAuto);
-          },
+          onToggle: onToggle,
         ),
       ],
     );

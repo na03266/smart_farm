@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:smart_farm/database/drift.dart';
 import 'package:smart_farm/screens/intro_screen.dart';
+import 'package:smart_farm/service/stream.dart';
 
 void main() async {
   /// 위젯 바인딩 바인딩 초기화
@@ -12,9 +13,10 @@ void main() async {
   /// 전역 상태 관리 가능
   GetIt.I.registerSingleton<AppDatabase>(database);
 
-  // final unitData = GetIt.I<AppDatabase>()
+  /// SocketService
 
-
+  GetIt.I.registerLazySingleton<SocketService>(() => SocketService());  /// 서버에 연결
+  await GetIt.I<SocketService>().connectToServer();
 
   runApp(
     MaterialApp(
