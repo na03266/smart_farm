@@ -8,7 +8,7 @@ import 'package:smart_farm/screens/dash_board/dash_board_screen.dart';
 import 'package:smart_farm/screens/setting_screen/setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/all_unit_screen.dart';
 
-import '../service/stream.dart';
+import '../service/socket_service.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         stream: GetIt.I<SocketService>().stream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            print('Received data: ${snapshot.data}');
+            // print('Received data: ${snapshot.data}');
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           }
