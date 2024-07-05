@@ -1,14 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/consts/tabs.dart';
 import 'package:smart_farm/screens/dash_board/dash_board_screen.dart';
 import 'package:smart_farm/screens/setting_screen/setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/all_unit_screen.dart';
-
-import '../service/socket_service.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -42,25 +37,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return SafeArea(
         child: Scaffold(
       appBar: const _AppBar(),
-      body: StreamBuilder(
-        stream: GetIt.I<SocketService>().stream,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            // print('Received data: ${snapshot.data}');
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
-
-          return TabBarView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: tabController,
-              children: [
-                DashBoardScreen(),
-                AllUnitScreen(),
-                SettingScreen(),
-              ]);
-        }
-      ),
+      body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
+          controller: tabController,
+          children: const [
+            DashBoardScreen(),
+            AllUnitScreen(),
+            SettingScreen(),
+          ]),
       bottomNavigationBar: _BottomNavBar(
         tabController: tabController,
       ),

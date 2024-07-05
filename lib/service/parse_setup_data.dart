@@ -1,14 +1,75 @@
 import 'dart:typed_data';
 
 import 'package:smart_farm/model/set_up_data_model.dart';
+import 'package:smart_farm/model/value_model.dart';
 import 'package:smart_farm/service/crc_16.dart';
 
-SetupData? parseSetupData(Uint8List data) {
-  print('전체 데이터 길이: ${data.length}');
+dynamic parseData(Uint8List data) {
+  if (data.length == 124) {
+    return parseValueData(data);
+  } else {
+    return parseSetupData(data);
+  }
+}
+
+ValueData? parseValueData(Uint8List data) {
+  if (data.length != 124) {
+    print('데이터 길이가 124바이트가 아닙니다.');
+    return null;
+  }
 
   if (!CRC16.calculateCRC16s(data, data.length)) {
     print('CRC16 검증 실패');
-    return null;  // CRC16 검증 실패 시 null 반환
+    return null;
+  }
+
+  final ByteData byteData = ByteData.sublistView(data);
+  int offset = 0;
+
+  Uint8List controllerId = data.sublist(offset, offset + 6);
+  offset += 6;
+
+  List<DeviceValue> deviceValues = List.generate(16, (index) {
+    return DeviceValue(
+      unitId: data[offset++],
+      unitMode: data[offset++],
+      unitStatus: data[offset++],
+    );
+  });
+
+  offset += 2; // dummy bytes
+
+  List<SensorValue> sensorValues = List.generate(8, (index) {
+    int sensorId = data[offset++];
+    offset += 3; // 3 bytes reserved
+    double sensorValue = byteData.getFloat32(offset, Endian.little);
+    offset += 4;
+    return SensorValue(
+      sensorId: sensorId,
+      sensorValue: sensorValue,
+    );
+  });
+
+  int dummy1 = data[offset++];
+  int dummy2 = data[offset++];
+  int crcL = data[offset++];
+  int crcH = data[offset];
+
+  return ValueData(
+    controllerId: controllerId,
+    deviceValue: deviceValues,
+    sensorValue: sensorValues,
+    dummy1: dummy1,
+    dummy2: dummy2,
+    crcL: crcL,
+    crcH: crcH,
+  );
+}
+
+SetupData? parseSetupData(Uint8List data) {
+  if (!CRC16.calculateCRC16s(data, data.length)) {
+    print('CRC16 검증 실패');
+    return null; // CRC16 검증 실패 시 null 반환
   }
 
   final ByteData byteData = ByteData.sublistView(data);
@@ -97,14 +158,25 @@ SetupData? parseSetupData(Uint8List data) {
   );
 }
 
+/// 셋업 데이터 요청 함수
+Uint8List cmdDataToBytes(int i) {
+  final buffer = ByteData(4); // 전체 데이터 크기
+  buffer.setUint8(0, 255);
+  buffer.setUint8(1, i);
+  CRC16.calculateCRC16m(buffer.buffer.asUint8List(), 4);
+  print(buffer.buffer.asUint8List());
 
+  return buffer.buffer.asUint8List();
+}
 
 Uint8List setupDataToBytes(SetupData setupData) {
-  final buffer = ByteData(5408);  // 전체 데이터 크기
+  final buffer = ByteData(5408); // 전체 데이터 크기
   int offset = 0;
 
   // controllerId
-  buffer.buffer.asUint8List().setRange(offset, offset + 6, setupData.controllerId);
+  buffer.buffer
+      .asUint8List()
+      .setRange(offset, offset + 6, setupData.controllerId);
   offset += 6;
 
   // setTemp
@@ -171,6 +243,48 @@ Uint8List setupDataToBytes(SetupData setupData) {
   int crc = CRC16.calculateCRC16(dataForCRC, 5406);
   buffer.setUint8(5406, crc & 0xFF);
   buffer.setUint8(5407, (crc >> 8) & 0xFF);
+
+  return buffer.buffer.asUint8List();
+}
+
+Uint8List valueDataToBytes(ValueData valueData) {
+  final buffer = ByteData(124); // 전체 데이터 크기
+  int offset = 0;
+
+  // controllerId
+  buffer.buffer.asUint8List().setRange(offset, offset + 6, valueData.controllerId);
+  offset += 6;
+
+  // deviceValue
+  for (DeviceValue device in valueData.deviceValue) {
+    buffer.setUint8(offset++, device.unitId);
+    buffer.setUint8(offset++, device.unitMode);
+    buffer.setUint8(offset++, device.unitStatus);
+  }
+
+  // dummy bytes
+  buffer.setUint8(offset++, 0);
+  buffer.setUint8(offset++, 0);
+
+  // sensorValue
+  for (SensorValue sensor in valueData.sensorValue) {
+    buffer.setUint8(offset++, sensor.sensorId);
+    buffer.setUint8(offset++, 0); // reserved
+    buffer.setUint8(offset++, 0); // reserved
+    buffer.setUint8(offset++, 0); // reserved
+    buffer.setFloat32(offset, sensor.sensorValue, Endian.little);
+    offset += 4;
+  }
+
+  // dummy1, dummy2
+  buffer.setUint8(offset++, valueData.dummy1);
+  buffer.setUint8(offset++, valueData.dummy2);
+
+  // CRC 계산
+  Uint8List dataForCRC = buffer.buffer.asUint8List(0, 122);
+  int crc = CRC16.calculateCRC16(dataForCRC, 122);
+  buffer.setUint8(122, crc & 0xFF);
+  buffer.setUint8(123, (crc >> 8) & 0xFF);
 
   return buffer.buffer.asUint8List();
 }

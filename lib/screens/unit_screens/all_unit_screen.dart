@@ -2,12 +2,16 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/database/drift.dart';
+import 'package:smart_farm/model/value_model.dart';
+import 'package:smart_farm/provider/data_provider.dart';
 import 'package:smart_farm/provider/unit_provider.dart';
 import 'package:smart_farm/screens/unit_screens/component/temperature_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/time_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/unit_card.dart';
+import 'package:smart_farm/service/socket_service.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class AllUnitScreen extends StatefulWidget {
@@ -18,98 +22,107 @@ class AllUnitScreen extends StatefulWidget {
 }
 
 class _AllUnitScreenState extends State<AllUnitScreen> {
-  final units = UnitProvider().UNITS.toList();
-
   ///UNIT 의 목록중 state 가 하나라도 true 면 1 아니면 0
-  int unitsStatus = UnitProvider().UNITS.any((unit) => unit.status) ? 1 : 0;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: GetIt.I<AppDatabase>().getUnits(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              !snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-              ),
-            );
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                '${snapshot.error}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 40,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            );
-          }
-
-          ///groupBy 함수
-          Map<K, List<T>> groupBy<T, K>(Iterable<T> items, K Function(T) key) {
-            var map = <K, List<T>>{};
-            for (var item in items) {
-              (map[key(item)] ??= []).add(item);
-            }
-            return map;
-          }
-
-          List<UnitTableData>? units = snapshot.data;
-          Map<String?, List<UnitTableData>> groupedUnits =
-              groupBy(units!, (UnitTableData unit) => unit.unitName);
-
-          print(groupedUnits);
-
-          return SizedBox(
+    return Consumer<DataProvider>(
+      builder: (context, dataProvider, child) {
+        if (dataProvider.valueData == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        List<DeviceValue> units = dataProvider.valueData!.deviceValue;
+        print(dataProvider.valueData!.deviceValue
+            .map((device) =>
+                'UnitId: ${device.unitId}, Status: ${device.unitStatus}, Mode: ${device.unitMode}')
+            .toList());
+        return SizedBox(
             height: MediaQuery.of(context).size.height,
             child: Scaffold(
               body: Column(
                 children: [
                   _TopBar(
-                    onToggle: allUnitOnToggle,
-                    selectedIndex: unitsStatus,
+                    onToggle: (int? index) {
+                      onAllUnitToAutoToggle(index, context, dataProvider);
+                    },
+                    selectedIndex: units.any((u) => u.unitMode == 1) ? 1 : 0,
                   ),
-
-                  /// 토글 까지는 완료 이제 아래 유닛 카드에 값을 적용시켜야함.
                   Expanded(
                     child: _UnitCard(
-                      /// 여기에도 유닛리스트를 넣어서 각각의 레이블에 반환하도록 할것
-                      units: groupedUnits,
-                      onPressed: onOnOffButtonPressed,
-                      onToggle: onAutoToggle,
+                      units: units,
+                      onPressed: (int? selectedUnitId) {
+                        onOnOffButtonPressed(
+                            selectedUnitId, context, dataProvider);
+                      },
+                      onToggle: (int? index, int? selectedUnitId) {
+                        onAutoToggle(
+                            index, selectedUnitId, context, dataProvider);
+                      },
                     ),
                   ),
                 ],
               ),
               floatingActionButton: const _SettingButtons(),
-            ),
-          );
-        });
+            ));
+      },
+    );
   }
 
   ///버튼 전체 통합 제어
-  void allUnitOnToggle(int? index) {
-    unitsStatus = index!;
-    setState(() {
-      bool status = unitsStatus == 1;
-      for (var unit in units) {
-        unit.status = status;
-      }
-    });
+  Future<void> onAllUnitToAutoToggle(
+      int? index, BuildContext context, DataProvider dataProvider) async {
+    ValueData valueData = dataProvider.valueData!;
+
+    /// 전체 유닛 루프 돌면서
+    for (DeviceValue value in valueData.deviceValue) {
+      value.unitMode = index!;
+    }
+    context.read<DataProvider>().updateValueData(valueData);
+
+    GetIt.I<SocketService>().sendValueData(dataProvider.valueData!);
   }
 
-  onAutoToggle(int? index, String? selectedUnitId){
-    print(selectedUnitId);
+  onAutoToggle(int? index, int? selectedUnitId, BuildContext context,
+      DataProvider dataProvider) {
+    ValueData valueData = dataProvider.valueData!;
+
+    /// 온 오프 터치시 자동도 수동으로 변경
+    valueData.deviceValue[selectedUnitId!].unitMode = index!;
+
+    /// 되는지 확인 해 봐야함.
+    context.read<DataProvider>().updateValueData(valueData);
+  }
+
+  List<int> unitGenerator(int unitId) {
+    List<int> affectedUnits = [];
+
+    if (unitId < 5) {
+      affectedUnits = [0, 1, 2, 3, 4];
+    } else if (unitId >= 5 && unitId < 10) {
+      affectedUnits = [5, 6, 7, 8, 9];
+    } else if (unitId >= 6 && unitId <= 15) {
+      affectedUnits = [unitId];
+    }
+
+    return affectedUnits;
   }
 
   /// 카드 온오프 유닛별 제어
-  onOnOffButtonPressed(String? selectedUnit) {
-    print(selectedUnit);
-    setState(() {});
+  onOnOffButtonPressed(
+      int? selectedUnitId, BuildContext context, DataProvider dataProvider) {
+    ValueData valueData = dataProvider.valueData!;
+    List<int> affectedUnits = unitGenerator(selectedUnitId!);
+
+    /// 온 오프 터치시 자동도 수동으로 변경
+    /// 1번인 경우와 5번인 경우는 하위도 한번에 변경
+    for (int unitId in affectedUnits) {
+      valueData.deviceValue[unitId].unitStatus = 0;
+    }
+    for (var data in valueData.deviceValue) {
+      data.unitMode = 0;
+    }
+
+    context.read<DataProvider>().updateValueData(valueData);
   }
 
   /// 개별 제어 모달
@@ -201,39 +214,9 @@ class _TopBarState extends State<_TopBar> {
               inactiveFgColor: Colors.white,
               initialLabelIndex: widget.selectedIndex,
               totalSwitches: 2,
-              labels: const ['OFF', 'ON'],
+              labels: const ['수동', '자동'],
               radiusStyle: true,
               onToggle: widget.onToggle,
-              cancelToggle: (index) async {
-                String selection = index == 0 ? '전체 끄기' : '전체 켜기';
-                return await showDialog(
-                  context: context,
-                  builder: (dialogContext) => Container(
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(4)),
-                    child: AlertDialog(
-                      content: Text(
-                        " $selection",
-                        style: dialogTextStyle,
-                      ),
-                      actions: [
-                        TextButton(
-                            child: Text("Yes", style: dialogTextStyle),
-                            onPressed: () {
-                              Navigator.pop(dialogContext, false);
-                            }),
-                        TextButton(
-                            child: Text("No",
-                                style: dialogTextStyle.copyWith(
-                                    color: Colors.red)),
-                            onPressed: () {
-                              Navigator.pop(dialogContext, true);
-                            }),
-                      ],
-                    ),
-                  ),
-                );
-              },
             ),
           ],
         ),
@@ -242,12 +225,11 @@ class _TopBarState extends State<_TopBar> {
   }
 }
 
-typedef OnOffUnitButtonPressed = void Function(String? selectedUnitId);
-typedef OnAutoUnitButtonToggled = void Function(
-    int? index, String? seletedUnitId);
+typedef OnOffUnitButtonPressed = void Function(int? selectedUnitId);
+typedef OnAutoUnitButtonToggled = void Function(int? index, int? seletedUnitId);
 
 class _UnitCard extends StatelessWidget {
-  final Map<String?, List<UnitTableData>> units;
+  final List<DeviceValue> units;
   final OnOffUnitButtonPressed onPressed;
   final OnAutoUnitButtonToggled onToggle;
 
@@ -260,31 +242,16 @@ class _UnitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<UnitTableData> mergedUnits = units.entries.map((entry) {
-      String? unitName = entry.key;
-      List<UnitTableData> units = entry.value;
-
-      // 그룹의 첫 번째 항목을 기준으로 새로운 UnitTableData 생성
-      UnitTableData representative = units.first;
-
-      // boolean 필드들에 대해 OR 연산 수행
-      bool isOn = units.any((unit) => unit.isOn);
-      bool isAuto = units.any((unit) => unit.isAuto);
-
-      // 새로운 UnitTableData 생성 (id는 그룹의 첫 번째 항목의 id 사용)
-      return UnitTableData(
-        id: representative.id,
-        unitName: unitName,
-        unitNumber: representative.unitNumber,
-        // 또는 다른 로직으로 결정
-        timerId: representative.timerId,
-        // 또는 다른 로직으로 결정
-        isOn: isOn,
-        isAuto: isAuto,
-        updatedAt: DateTime.now(),
-      );
-    }).toList();
-
+    List<DeviceValue> tempUnits = [];
+    for (int i = 10; i < 15; i++) {
+      tempUnits = [...tempUnits, units[i]];
+    }
+    final mergedUnits = [
+      units[0],
+      units[5],
+      ...tempUnits,
+    ];
+    print(units[3].unitId);
     return Container(
       color: colors[2],
       child: CustomScrollView(
@@ -299,18 +266,15 @@ class _UnitCard extends StatelessWidget {
               children: <Widget>[
                 ...mergedUnits.map(
                   (e) => UnitCard(
-                    condition: e.isOn,
-                    label: e.unitName!,
-                    icon: UnitProvider()
-                        .UNITS
-                        .firstWhere((el) => el.label == e.unitName)
-                        .icon,
-                    selectedTheme: e.isOn ? CARDS[0] : CARDS[1],
+                    condition: e.unitStatus == 1,
+                    label: unitToLabel(e.unitId)!.label,
+                    icon: unitToLabel(e.unitId)!.icon,
+                    selectedTheme: e.unitStatus == 1 ? CARDS[0] : CARDS[1],
                     onPressed: () {
-                      onPressed(e.unitName);
+                      onPressed(e.unitId);
                     },
                     onToggle: (int? index) {
-                      onToggle(index, e.unitName);
+                      onToggle(index, e.unitId);
                     },
                   ),
                 ),
@@ -320,6 +284,23 @@ class _UnitCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  UnitInfo? unitToLabel(int unitId) {
+    UnitInfo unitInfo;
+
+    if (unitId == 0) {
+      unitInfo = UNITS[0];
+      return unitInfo;
+    } else if (unitId == 5) {
+      unitInfo = UNITS[1];
+      return unitInfo;
+    } else if (unitId >= 10 && unitId < 15) {
+      ///앤트리가 가진 Id - 10 한 값.
+      unitInfo = UNITS[unitId - 8];
+      return unitInfo;
+    }
+    return null;
   }
 }
 
