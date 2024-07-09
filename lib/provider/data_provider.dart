@@ -54,8 +54,8 @@ class DataProvider extends ChangeNotifier {
   }
 
   /// UnitInfo
-  void updateUnitInfo(int index, UnitInfo unitInfo) {
-    _units![index] = unitInfo;
+  void updateUnitInfo(List<UnitInfo> unitInfo) {
+    _units = unitInfo;
     notifyListeners();
   }
 
@@ -94,5 +94,10 @@ class DataProvider extends ChangeNotifier {
 
   TimerInfo? getTimerInfoById(int id) {
     return _timers!.firstWhere((timer) => timer.id == id);
+  }
+
+  Future<void> saveAllData() async {
+    await saveUnits(_units!);
+    await saveTimers(_timers!);
   }
 }

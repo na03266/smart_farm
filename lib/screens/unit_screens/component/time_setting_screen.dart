@@ -107,7 +107,6 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
           return TimerModalPopup(
             initStartTime: DateTime.now(),
             initEndTime: DateTime.now(),
-            initName: savedUnits.length + 1,
           );
         },
       );
@@ -178,19 +177,6 @@ class _LeftState extends State<_Left> {
   List<TimerInfo> loadedTimer = [];
 
   @override
-  void initState() {
-    super.initState();
-    loadSavedUnits();
-  }
-
-  void loadSavedUnits() async {
-    final savedTimers = await loadTimers();
-    setState(() {
-      loadedTimer = savedTimers.isEmpty ? [] : savedTimers;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -248,71 +234,71 @@ class _LeftState extends State<_Left> {
                 child: Padding(
                   padding:
                       const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
-                  child: StreamBuilder<List<TimerInfo>>(
-                      stream: Stream.periodic(Duration(seconds: 1))
-                          .asyncMap((_) => loadTimers()),
-                      builder: (context, snapshot) {
-                        loadedTimer = snapshot.data ?? loadedTimer;
-                        return ListView.separated(
-                          itemCount: loadedTimer.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final timer = loadedTimer[index];
-
-                            return Dismissible(
-                              key: ObjectKey(timer.id),
-                              direction: DismissDirection.endToStart,
-                              confirmDismiss:
-                                  (DismissDirection direction) async {
-                                bool? shouldDelete = await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      content: const Text('삭제 하시겠습니까?'),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text(
-                                            "Yes",
-                                          ),
-                                          onPressed: () {
-                                            Navigator.of(context).pop(true);
-                                          },
+                  child: Consumer<DataProvider>(
+                      builder: (context, dataProvider, child) {
+                        loadedTimer = dataProvider.timers!;
+                      return ListView.separated(
+                        itemCount: loadedTimer.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          var timer = loadedTimer[index];
+                          print(timer.timerName);
+                          print(timer.id);
+                          return Dismissible(
+                            key: ObjectKey(timer.id),
+                            direction: DismissDirection.endToStart,
+                            confirmDismiss:
+                                (DismissDirection direction) async {
+                              bool? shouldDelete = await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: const Text('삭제 하시겠습니까?'),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text(
+                                          "Yes",
                                         ),
-                                        TextButton(
-                                          child: const Text(
-                                            "No",
-                                          ),
-                                          onPressed: () {
-                                            Navigator.of(context).pop(false);
-                                          },
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: const Text(
+                                          "No",
                                         ),
-                                      ],
-                                    );
-                                  },
-                                );
-                                if (shouldDelete == true) {
-                                  loadedTimer.removeAt(index);
-                                  saveTimers(loadedTimer);
-                                  return true;
-                                } else {
-                                  setState(() {});
-                                  return false;
-                                }
-                              },
-                              child: TimerCard(
-                                timerId: timer.id,
-                                timerName: timer.timerName,
-                                selectedCard: widget.selectedCard == timer.id,
-                                onTap: () {
-                                  widget.onTap(timer.id);
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                      ),
+                                    ],
+                                  );
                                 },
-                              ),
-                            );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return const SizedBox(height: 8.0);
-                          },
-                        );
-                      }),
+                              );
+                              if (shouldDelete == true) {
+                                loadedTimer.removeAt(index);
+                                saveTimers(loadedTimer);
+                                return true;
+                              } else {
+                                setState(() {});
+                                return false;
+                              }
+                            },
+                            child: TimerCard(
+                              timerId: timer.id,
+                              timerName: timer.timerName,
+                              selectedCard: widget.selectedCard == timer.id,
+                              onTap: () {
+                                widget.onTap(timer.id);
+                              },
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(height: 8.0);
+                        },
+                      );
+                    }
+                  ),
                 ),
               ),
             ],

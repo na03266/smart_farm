@@ -250,78 +250,68 @@ class _UnitCardState extends State<_UnitCard> {
   List<UnitInfo> mergedUnits = [];
 
   @override
-  void initState() {
-    super.initState();
-    loadSavedUnits();
-  }
-
-  void loadSavedUnits() async {
-    final savedUnits = await loadUnits();
-    setState(() {
-      mergedUnits = savedUnits.isEmpty ? UNITS : savedUnits;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    for (UnitInfo unit in mergedUnits) {
-      List<DeviceValue> tempUnits = [];
 
-      /// status, isAuto를 모두 들고 있음.
-      for (int i in unit.setChannel) {
-        tempUnits.add(widget.units[i]);
-      }
-
-      /// 채널 목록 안의 개채의 아이디 중 하나라도 1이면
-      if (unit.unitName == '차광막') {
-        unit.status = tempUnits.any((e) => e.unitStatus == 1);
-      } else {
-        unit.status = tempUnits.any((e) => e.unitStatus == 0);
-      }
-      unit.isAuto = !tempUnits.any((e) => e.unitMode == 1);
-    }
 
     return Container(
       color: colors[2],
-      child: CustomScrollView(
-        primary: false,
-        slivers: <Widget>[
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: SliverGrid.count(
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              crossAxisCount: 5,
-              children: <Widget>[
-                ...mergedUnits.map(
-                  (e) => UnitCard(
-                    /// 차라리 자료형을 미리 만들어서 사용하는게 편하지 않을까?
-                    ///
-                    ///e.settedChannel의 각 채널 ID 에서
-                    /// widget.units 리스트에서 해당 채널에 포함된 ID와 일치하는 id를 가진 유닛들을 찾습니다.
-                    /// 그 유닛들 중 하나라도 status가 true인지 확인합니다.
-                    /// 위 조건을 만족하는 채널이 하나라도 있으면 전체 조건이 true가 됩니다.
-                    condition:
-                        _isAnyRelatedUnitActive(e.setChannel, widget.units),
-                    label: e.unitName,
-                    icon: e.icon,
-                    selectedTheme:
-                        _isAnyRelatedUnitActive(e.setChannel, widget.units)
-                            ? CARDS[0]
-                            : CARDS[1],
-                    isAuto: e.isAuto ? 0 : 1,
-                    onPressed: () {
-                      widget.onPressed(e.setChannel);
-                    },
-                    onToggle: (int? index) {
-                      widget.onToggle(index, e.setChannel);
-                    },
-                  ),
+      child: Consumer<DataProvider>(
+        builder: (context, dataProvider, child) {
+          mergedUnits = GetIt.I<DataProvider>().units!;
+
+          for (UnitInfo unit in mergedUnits) {
+            List<DeviceValue> tempUnits = [];
+
+            /// status, isAuto를 모두 들고 있음.
+            for (int i in unit.setChannel) {
+              tempUnits.add(widget.units[i]);
+            }
+
+            /// 채널 목록 안의 개채의 아이디 중 하나라도 1이면
+            if (unit.unitName == '차광막') {
+              unit.status = tempUnits.any((e) => e.unitStatus == 1);
+            } else {
+              unit.status = tempUnits.any((e) => e.unitStatus == 0);
+            }
+            unit.isAuto = !tempUnits.any((e) => e.unitMode == 1);
+          }
+
+          return CustomScrollView(
+            primary: false,
+            slivers: <Widget>[
+              SliverPadding(
+                padding: const EdgeInsets.all(20),
+                sliver: SliverGrid.count(
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 5,
+                  children: <Widget>[
+                    ...mergedUnits.map(
+                      (e) => UnitCard(
+                        condition:
+                            _isAnyRelatedUnitActive(e.setChannel, dataProvider.deviceValueData!.deviceValue),
+                        label: e.unitName,
+                        icon: e.icon,
+                        selectedTheme:
+                            _isAnyRelatedUnitActive(e.setChannel, widget.units)
+                                ? CARDS[0]
+                                : CARDS[1],
+                        isAuto: e.isAuto ? 0 : 1,
+                        onPressed: () {
+                          widget.onPressed(e.setChannel);
+                        },
+                        onToggle: (int? index) {
+                          widget.onToggle(index, e.setChannel);
+
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        }
       ),
     );
   }

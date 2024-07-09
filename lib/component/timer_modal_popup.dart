@@ -17,7 +17,6 @@ class TimerModalPopup extends StatefulWidget {
   final int? timerId;
   final DateTime? initStartTime;
   final DateTime? initEndTime;
-  final int? initName;
 
   /// 시작 종료 시간 초기값 설정
   const TimerModalPopup({
@@ -25,7 +24,6 @@ class TimerModalPopup extends StatefulWidget {
     this.timerId,
     this.initStartTime,
     this.initEndTime,
-    this.initName,
   });
 
   @override
@@ -47,7 +45,6 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     super.initState();
     if (widget.timerId != null) {
       updateTimerListFromValue();
-      loadSavedUnits();
     }
   }
 
@@ -105,17 +102,12 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     }
   }
 
-  void loadSavedUnits() async {
-    final savedTimers = await loadTimers();
-    setState(() {
-      loadedTimer = savedTimers.isEmpty ? [] : savedTimers;
-      timerName =
-          savedTimers.isEmpty ? "" : loadedTimer[widget.timerId!].timerName;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    if(widget.timerId != null){
+    timerName = GetIt.I<DataProvider>().timers![widget.timerId!].timerName;
+    }
     return Padding(
       padding: const EdgeInsets.all(100.0),
       child: Form(
@@ -134,7 +126,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
                   child: CustomTextField(
                     label: '타이머 이름',
                     onSaved: onNameSaved,
-                    initialValue: widget.timerId != null ? timerName : "",
+                    initialValue: timerName,
                   ),
                 ),
                 Row(
@@ -337,10 +329,8 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
 
     /// Timer List 추가
     if (widget.timerId == null) {
-      loadedTimer.add(TimerInfo(id: loadedTimer.length, timerName: timerName!));
 
-      ///파일로 저장
-      await saveTimers(loadedTimer);
+      GetIt.I<DataProvider>().addTimerInfo(TimerInfo(id: loadedTimer.length, timerName: timerName!));
 
       setupData.unitTimer[loadedTimer.length] = changedTimerUintValue;
 
