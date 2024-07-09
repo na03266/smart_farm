@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:smart_farm/model/device_value_data_model.dart';
 import 'package:smart_farm/model/set_up_data_model.dart';
-import 'package:smart_farm/model/value_model.dart';
+import 'package:smart_farm/model/sensor_value_data_model.dart';
 import 'package:smart_farm/provider/data_provider.dart';
-import 'package:smart_farm/service/parse_setup_data.dart';
+import 'package:smart_farm/service/received_data_parse.dart';
+import 'package:smart_farm/service/send_data_parse.dart';
 
 class SocketService {
   Socket? _socket;
@@ -32,8 +34,12 @@ class SocketService {
 
           if (changedData is SetupData) {
             _dataProvider.updateSetupData(changedData);
-          } else if (changedData is ValueData) {
-            _dataProvider.updateValueData(changedData);
+            print('set');
+          } else if (changedData is DeviceValueData) {
+            _dataProvider.updateDeviceValueData(changedData);
+            print('dev');
+          } else if (changedData is SensorValueData){
+            _dataProvider.updateSensorValueData(changedData);
           }
 
           _streamController.add(changedData);
@@ -70,7 +76,7 @@ class SocketService {
   void sendSetupData2() {
     if (_socket != null) {
       try {
-        Uint8List bytes = cmdDataToBytes(1);
+        Uint8List bytes = cmdDataToBytes();
         _socket!.add(bytes);
 
         print('SetupData sent successfully');
@@ -97,10 +103,11 @@ class SocketService {
       print('Socket is not connected');
     }
   }
-  void sendValueData(ValueData valueData) {
+
+  void sendDeviceValueData(DeviceValueData valueData) {
     if (_socket != null) {
       try {
-        Uint8List bytes = valueDataToBytes(valueData);
+        Uint8List bytes = deviceValueDataToBytes(valueData);
         _socket!.add(bytes);
         print('SetupData sent successfully');
       } catch (e) {
@@ -111,6 +118,7 @@ class SocketService {
       print('Socket is not connected');
     }
   }
+
   void dispose() {
     _socket?.destroy();
     _streamController.close();

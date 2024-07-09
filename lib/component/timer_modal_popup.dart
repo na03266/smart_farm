@@ -1,14 +1,20 @@
+import 'dart:typed_data';
+
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:smart_farm/component/custom_timer_list.dart';
-import 'package:smart_farm/database/drift.dart';
+import 'package:smart_farm/model/set_up_data_model.dart';
+import 'package:smart_farm/provider/data_provider.dart';
+import 'package:smart_farm/provider/timer_serve_data.dart';
+import 'package:smart_farm/service/service_save_and_load.dart';
+import 'package:smart_farm/service/socket_service.dart';
 
 import 'custom_date_picker.dart';
 import 'custom_text_field.dart';
 
 class TimerModalPopup extends StatefulWidget {
-  final TimerTableData? data;
+  final int? timerId;
   final DateTime? initStartTime;
   final DateTime? initEndTime;
   final int? initName;
@@ -16,10 +22,10 @@ class TimerModalPopup extends StatefulWidget {
   /// 시작 종료 시간 초기값 설정
   const TimerModalPopup({
     super.key,
+    this.timerId,
     this.initStartTime,
     this.initEndTime,
     this.initName,
-    this.data,
   });
 
   @override
@@ -29,6 +35,7 @@ class TimerModalPopup extends StatefulWidget {
 class _TimerModalPopupState extends State<TimerModalPopup> {
   final GlobalKey<FormState> formKey = GlobalKey();
 
+  List<TimerInfo> loadedTimer = [];
   String? timerName;
   String timerValue = "";
   List<List<DateTime>> timerList = [];
@@ -38,14 +45,20 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
   @override
   initState() {
     super.initState();
-    if (widget.data != null) {
+    if (widget.timerId != null) {
       updateTimerListFromValue();
+      loadSavedUnits();
     }
   }
 
   /// 처음 ID 값이 있다면 초기 값들을 세팅 하는 함수
   updateTimerListFromValue() {
-    timerValue = widget.data!.bookingTime;
+    final tempData =
+        GetIt.I<DataProvider>().setupData!.unitTimer[widget.timerId!];
+
+    /// Uint8List를 2진수 문자열로 변환
+    timerValue =
+        tempData.map((byte) => byte.toRadixString(2).padLeft(8, '0')).join();
 
     DateTime now = DateTime.now();
     List<String> tempTimerList = timerValue.split("");
@@ -92,6 +105,15 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     }
   }
 
+  void loadSavedUnits() async {
+    final savedTimers = await loadTimers();
+    setState(() {
+      loadedTimer = savedTimers.isEmpty ? [] : savedTimers;
+      timerName =
+          savedTimers.isEmpty ? "" : loadedTimer[widget.timerId!].timerName;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -112,7 +134,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
                   child: CustomTextField(
                     label: '타이머 이름',
                     onSaved: onNameSaved,
-                    initialValue: widget.data?.timerName.toString(),
+                    initialValue: widget.timerId != null ? timerName : "",
                   ),
                 ),
                 Row(
@@ -202,7 +224,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
   updateTimerList() {
     /// 타이머 값 초기화
     timerValue = "";
-    for (int i = 0; i < 1441; i++) {
+    for (int i = 0; i < 1440; i++) {
       timerValue = "${timerValue}0";
     }
 
@@ -252,6 +274,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
             return;
           }
         }
+
         /// 종료 시간 앞부분 1로 채우기
         for (int i = 0; i < tempEndMin; i++) {
           if (tempTimerList[i] != '1') {
@@ -270,7 +293,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
 
   onNameSaved(String? name) {
     if (name == '') {
-      timerName = '${widget.initName! + 1}번';
+      timerName = '${loadedTimer.length + 1}번';
     } else {
       timerName = name;
     }
@@ -306,39 +329,44 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
       }
     }
     final tempTimerValue = tempTimerList.join('');
+    final changedTimerUintValue = binaryStringToUint8List(tempTimerValue);
 
     /// 텍스트 저장 하기
     formKey.currentState!.save();
+    SetupData setupData = GetIt.I<DataProvider>().setupData!;
 
-    /// DB 가져 오기
-    final database = GetIt.I<AppDatabase>();
+    /// Timer List 추가
+    if (widget.timerId == null) {
+      loadedTimer.add(TimerInfo(id: loadedTimer.length, timerName: timerName!));
 
-    /// DB에 Timer 생성
-    if (widget.data == null) {
-      await database.createTimer(
-        TimerTableCompanion(
-          /// 문자열 리스트 넣기
-          bookingTime: Value(tempTimerValue),
-          timerName: Value(timerName!),
-        ),
-      );
+      ///파일로 저장
+      await saveTimers(loadedTimer);
+
+      setupData.unitTimer[loadedTimer.length] = changedTimerUintValue;
+
     } else {
-      final timer = await database.getTimerById(widget.data!.id);
-      await database.updateTimerById(
-        timer.id,
-        TimerTableCompanion(
-          bookingTime: Value(tempTimerValue),
-          timerName: Value(timerName!),
-        ),
-      );
-    }
+      loadedTimer[widget.timerId!].timerName = timerName!;
 
+      ///파일로 저장
+      await saveTimers(loadedTimer);
+      setupData.unitTimer[widget.timerId!] = changedTimerUintValue;
+    }
+    GetIt.I<DataProvider>().updateSetupData(setupData);
+    GetIt.I<SocketService>().sendSetupData(setupData);
     Navigator.of(context).pop();
+  }
+
+  Uint8List binaryStringToUint8List(String binaryString) {
+    List<int> bytes = [];
+    for (int i = 0; i < binaryString.length; i += 8) {
+      String byte = binaryString.substring(i, i + 8);
+      bytes.add(int.parse(byte, radix: 2));
+    }
+    return Uint8List.fromList(bytes);
   }
 
   void removeTimer(int index) {
     timerList.removeAt(index);
-    print(timerList);
     setState(() {});
   }
 }

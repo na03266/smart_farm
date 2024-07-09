@@ -33,6 +33,7 @@ class CRC16 {
 
   static bool calculateCRC16s(Uint8List frame, int bufferSize) {
     int temp = calculateCRC16(frame, bufferSize - 2);
+
     return frame[bufferSize - 2] == ((temp >> 8) & 0xFF) &&
         frame[bufferSize - 1] == (temp & 0xFF);
   }

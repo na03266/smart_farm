@@ -9,6 +9,7 @@ class UnitCard extends StatefulWidget {
   final UnitCardColor selectedTheme;
   final VoidCallback onPressed;
   final OnToggle? onToggle;
+  final int isAuto;
 
   const UnitCard({
     super.key,
@@ -16,7 +17,9 @@ class UnitCard extends StatefulWidget {
     required this.icon,
     required this.condition,
     required this.selectedTheme,
-    required this.onPressed, required this.onToggle,
+    required this.onPressed,
+    required this.onToggle,
+    required this.isAuto,
   });
 
   @override
@@ -46,6 +49,7 @@ class _UnitCardState extends State<UnitCard> {
               isOnTheme: widget.selectedTheme,
               condition: widget.condition,
               onPressed: widget.onPressed,
+              label: widget.label,
             ),
           ),
 
@@ -61,6 +65,7 @@ class _UnitCardState extends State<UnitCard> {
           /// 자동 수동 버튼
           _IsAutoButton(
             isOnTheme: widget.selectedTheme,
+            isAuto: widget.isAuto,
             onToggle: widget.onToggle,
           ),
         ],
@@ -70,6 +75,7 @@ class _UnitCardState extends State<UnitCard> {
 }
 
 class _CardTop extends StatefulWidget {
+  final String label;
   final IconData icon;
   final UnitCardColor isOnTheme;
   final bool condition;
@@ -81,6 +87,7 @@ class _CardTop extends StatefulWidget {
     required this.isOnTheme,
     required this.condition,
     required this.onPressed,
+    required this.label,
   });
 
   @override
@@ -106,7 +113,13 @@ class _CardTopState extends State<_CardTop> {
               shape: const CircleBorder(),
               backgroundColor: widget.isOnTheme.onOff),
           child: Text(
-            widget.condition ? 'ON' : 'OFF',
+            widget.label == '차광막'
+                ? widget.condition
+                    ? '열림'
+                    : '닫힘'
+                : widget.condition
+                    ? '켜짐'
+                    : '꺼짐',
             style: TextStyle(
               color: widget.isOnTheme.onOffFont,
               fontWeight: FontWeight.w500,
@@ -190,15 +203,16 @@ class _EachControlButton extends StatelessWidget {
   }
 }
 
-
 class _IsAutoButton extends StatelessWidget {
   final UnitCardColor isOnTheme;
   final OnToggle? onToggle;
+  final int isAuto;
 
   const _IsAutoButton({
     super.key,
     required this.isOnTheme,
     required this.onToggle,
+    required this.isAuto,
   });
 
   @override
@@ -221,7 +235,7 @@ class _IsAutoButton extends StatelessWidget {
           activeFgColor: Colors.white,
           inactiveBgColor: isOnTheme.auto,
           inactiveFgColor: isOnTheme.autoFont,
-          initialLabelIndex: 1,
+          initialLabelIndex: isAuto,
           totalSwitches: 2,
           labels: const ['수동', '자동'],
           radiusStyle: true,

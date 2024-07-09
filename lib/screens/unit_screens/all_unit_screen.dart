@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/database/drift.dart';
-import 'package:smart_farm/model/value_model.dart';
+import 'package:smart_farm/model/device_value_data_model.dart';
 import 'package:smart_farm/provider/data_provider.dart';
-import 'package:smart_farm/provider/unit_provider.dart';
+import 'package:smart_farm/provider/unit_serve_data.dart';
 import 'package:smart_farm/screens/unit_screens/component/temperature_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/time_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/unit_card.dart';
 import 'package:smart_farm/service/socket_service.dart';
+import 'package:smart_farm/service/service_save_and_load.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class AllUnitScreen extends StatefulWidget {
@@ -23,19 +23,24 @@ class AllUnitScreen extends StatefulWidget {
 
 class _AllUnitScreenState extends State<AllUnitScreen> {
   ///UNIT 의 목록중 state 가 하나라도 true 면 1 아니면 0
+  @override
+  void initState() {
+    super.initState();
+    GetIt.I<SocketService>().sendSetupData2();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<DataProvider>(
       builder: (context, dataProvider, child) {
-        if (dataProvider.valueData == null) {
+        if (dataProvider.deviceValueData == null) {
           return const Center(child: CircularProgressIndicator());
         }
-        List<DeviceValue> units = dataProvider.valueData!.deviceValue;
-        print(dataProvider.valueData!.deviceValue
-            .map((device) =>
-                'UnitId: ${device.unitId}, Status: ${device.unitStatus}, Mode: ${device.unitMode}')
-            .toList());
+        List<DeviceValue> units = dataProvider.deviceValueData!.deviceValue;
+        List<int> tempL = dataProvider.setupData!.setTempL;
+        List<int> tempH = dataProvider.setupData!.setTempH;
+
+
         return SizedBox(
             height: MediaQuery.of(context).size.height,
             child: Scaffold(
@@ -45,24 +50,30 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
                     onToggle: (int? index) {
                       onAllUnitToAutoToggle(index, context, dataProvider);
                     },
-                    selectedIndex: units.any((u) => u.unitMode == 1) ? 1 : 0,
+
+                    /// 장치중 하나라도 수동이면 전체버튼 수동 표시
+                    selectedIndex: units.any((u) => u.unitMode == 0) ? 0 : 1,
                   ),
                   Expanded(
                     child: _UnitCard(
                       units: units,
-                      onPressed: (int? selectedUnitId) {
+                      onPressed: (List<int> selectedUnits) {
                         onOnOffButtonPressed(
-                            selectedUnitId, context, dataProvider);
+                            selectedUnits, context, dataProvider);
                       },
-                      onToggle: (int? index, int? selectedUnitId) {
+                      onToggle: (int? index, List<int> selectedUnits) {
                         onAutoToggle(
-                            index, selectedUnitId, context, dataProvider);
+                            index, selectedUnits, context, dataProvider);
                       },
                     ),
                   ),
                 ],
               ),
-              floatingActionButton: const _SettingButtons(),
+              floatingActionButton: _SettingButtons(
+                dataProvider: dataProvider,
+                tempL: tempL,
+                tempH: tempH,
+              ),
             ));
       },
     );
@@ -71,58 +82,48 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
   ///버튼 전체 통합 제어
   Future<void> onAllUnitToAutoToggle(
       int? index, BuildContext context, DataProvider dataProvider) async {
-    ValueData valueData = dataProvider.valueData!;
+    DeviceValueData valueData = dataProvider.deviceValueData!;
 
     /// 전체 유닛 루프 돌면서
     for (DeviceValue value in valueData.deviceValue) {
       value.unitMode = index!;
     }
-    context.read<DataProvider>().updateValueData(valueData);
+    context.read<DataProvider>().updateDeviceValueData(valueData);
 
-    GetIt.I<SocketService>().sendValueData(dataProvider.valueData!);
+    /// 장치 값 전송
+    GetIt.I<SocketService>().sendDeviceValueData(dataProvider.deviceValueData!);
   }
 
-  onAutoToggle(int? index, int? selectedUnitId, BuildContext context,
+  onAutoToggle(int? index, List<int> selectedUnits, BuildContext context,
       DataProvider dataProvider) {
-    ValueData valueData = dataProvider.valueData!;
+    DeviceValueData valueData = dataProvider.deviceValueData!;
 
-    /// 온 오프 터치시 자동도 수동으로 변경
-    valueData.deviceValue[selectedUnitId!].unitMode = index!;
-
-    /// 되는지 확인 해 봐야함.
-    context.read<DataProvider>().updateValueData(valueData);
-  }
-
-  List<int> unitGenerator(int unitId) {
-    List<int> affectedUnits = [];
-
-    if (unitId < 5) {
-      affectedUnits = [0, 1, 2, 3, 4];
-    } else if (unitId >= 5 && unitId < 10) {
-      affectedUnits = [5, 6, 7, 8, 9];
-    } else if (unitId >= 6 && unitId <= 15) {
-      affectedUnits = [unitId];
+    for(int i in selectedUnits){
+      valueData.deviceValue[i].unitMode = index!;
     }
 
-    return affectedUnits;
+
+    context.read<DataProvider>().updateDeviceValueData(valueData);
+
+    GetIt.I<SocketService>().sendDeviceValueData(dataProvider.deviceValueData!);
   }
+
 
   /// 카드 온오프 유닛별 제어
   onOnOffButtonPressed(
-      int? selectedUnitId, BuildContext context, DataProvider dataProvider) {
-    ValueData valueData = dataProvider.valueData!;
-    List<int> affectedUnits = unitGenerator(selectedUnitId!);
+      List<int> selectedUnits, BuildContext context, DataProvider dataProvider) {
+    DeviceValueData valueData = dataProvider.deviceValueData!;
 
-    /// 온 오프 터치시 자동도 수동으로 변경
     /// 1번인 경우와 5번인 경우는 하위도 한번에 변경
-    for (int unitId in affectedUnits) {
-      valueData.deviceValue[unitId].unitStatus = 0;
-    }
-    for (var data in valueData.deviceValue) {
-      data.unitMode = 0;
+    for (int unitId in selectedUnits) {
+      valueData.deviceValue[unitId].unitStatus =
+          valueData.deviceValue[unitId].unitStatus == 0 ? 1 : 0;
+      valueData.deviceValue[unitId].unitMode = 0;
     }
 
-    context.read<DataProvider>().updateValueData(valueData);
+    context.read<DataProvider>().updateDeviceValueData(valueData);
+
+    GetIt.I<SocketService>().sendDeviceValueData(dataProvider.deviceValueData!);
   }
 
   /// 개별 제어 모달
@@ -225,10 +226,11 @@ class _TopBarState extends State<_TopBar> {
   }
 }
 
-typedef OnOffUnitButtonPressed = void Function(int? selectedUnitId);
-typedef OnAutoUnitButtonToggled = void Function(int? index, int? seletedUnitId);
+typedef OnOffUnitButtonPressed = void Function(List<int> selectedUnitId);
+typedef OnAutoUnitButtonToggled = void Function(
+    int? index, List<int> seletedUnitId);
 
-class _UnitCard extends StatelessWidget {
+class _UnitCard extends StatefulWidget {
   final List<DeviceValue> units;
   final OnOffUnitButtonPressed onPressed;
   final OnAutoUnitButtonToggled onToggle;
@@ -241,17 +243,44 @@ class _UnitCard extends StatelessWidget {
   });
 
   @override
+  State<_UnitCard> createState() => _UnitCardState();
+}
+
+class _UnitCardState extends State<_UnitCard> {
+  List<UnitInfo> mergedUnits = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadSavedUnits();
+  }
+
+  void loadSavedUnits() async {
+    final savedUnits = await loadUnits();
+    setState(() {
+      mergedUnits = savedUnits.isEmpty ? UNITS : savedUnits;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<DeviceValue> tempUnits = [];
-    for (int i = 10; i < 15; i++) {
-      tempUnits = [...tempUnits, units[i]];
+    for (UnitInfo unit in mergedUnits) {
+      List<DeviceValue> tempUnits = [];
+
+      /// status, isAuto를 모두 들고 있음.
+      for (int i in unit.setChannel) {
+        tempUnits.add(widget.units[i]);
+      }
+
+      /// 채널 목록 안의 개채의 아이디 중 하나라도 1이면
+      if (unit.unitName == '차광막') {
+        unit.status = tempUnits.any((e) => e.unitStatus == 1);
+      } else {
+        unit.status = tempUnits.any((e) => e.unitStatus == 0);
+      }
+      unit.isAuto = !tempUnits.any((e) => e.unitMode == 1);
     }
-    final mergedUnits = [
-      units[0],
-      units[5],
-      ...tempUnits,
-    ];
-    print(units[3].unitId);
+
     return Container(
       color: colors[2],
       child: CustomScrollView(
@@ -266,15 +295,26 @@ class _UnitCard extends StatelessWidget {
               children: <Widget>[
                 ...mergedUnits.map(
                   (e) => UnitCard(
-                    condition: e.unitStatus == 1,
-                    label: unitToLabel(e.unitId)!.label,
-                    icon: unitToLabel(e.unitId)!.icon,
-                    selectedTheme: e.unitStatus == 1 ? CARDS[0] : CARDS[1],
+                    /// 차라리 자료형을 미리 만들어서 사용하는게 편하지 않을까?
+                    ///
+                    ///e.settedChannel의 각 채널 ID 에서
+                    /// widget.units 리스트에서 해당 채널에 포함된 ID와 일치하는 id를 가진 유닛들을 찾습니다.
+                    /// 그 유닛들 중 하나라도 status가 true인지 확인합니다.
+                    /// 위 조건을 만족하는 채널이 하나라도 있으면 전체 조건이 true가 됩니다.
+                    condition:
+                        _isAnyRelatedUnitActive(e.setChannel, widget.units),
+                    label: e.unitName,
+                    icon: e.icon,
+                    selectedTheme:
+                        _isAnyRelatedUnitActive(e.setChannel, widget.units)
+                            ? CARDS[0]
+                            : CARDS[1],
+                    isAuto: e.isAuto ? 0 : 1,
                     onPressed: () {
-                      onPressed(e.unitId);
+                      widget.onPressed(e.setChannel);
                     },
                     onToggle: (int? index) {
-                      onToggle(index, e.unitId);
+                      widget.onToggle(index, e.setChannel);
                     },
                   ),
                 ),
@@ -286,26 +326,25 @@ class _UnitCard extends StatelessWidget {
     );
   }
 
-  UnitInfo? unitToLabel(int unitId) {
-    UnitInfo unitInfo;
-
-    if (unitId == 0) {
-      unitInfo = UNITS[0];
-      return unitInfo;
-    } else if (unitId == 5) {
-      unitInfo = UNITS[1];
-      return unitInfo;
-    } else if (unitId >= 10 && unitId < 15) {
-      ///앤트리가 가진 Id - 10 한 값.
-      unitInfo = UNITS[unitId - 8];
-      return unitInfo;
-    }
-    return null;
+  bool _isAnyRelatedUnitActive(
+      List<int> channelIds, List<DeviceValue> allUnits) {
+    return channelIds.any((channelId) => allUnits
+        .where((unit) => unit.unitId == channelId)
+        .any((unit) => unit.unitStatus == 1));
   }
 }
 
 class _SettingButtons extends StatelessWidget {
-  const _SettingButtons({super.key});
+  final DataProvider dataProvider;
+  final List<int> tempL;
+  final List<int> tempH;
+
+  const _SettingButtons({
+    super.key,
+    required this.tempL,
+    required this.tempH,
+    required this.dataProvider,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -336,26 +375,28 @@ class _SettingButtons extends StatelessWidget {
         /// 온도 제어 화면 전환 버튼
         FloatingActionButton.large(
           onPressed: () async {
-            final data = await GetIt.I<AppDatabase>().getTemperatures();
-
-            List<FlSpot> highData = data
+            List<FlSpot> highData = tempH
+                .asMap()
+                .entries
                 .map(
                   (e) => FlSpot(
-                    e.id.toDouble() - 0.5,
-                    e.highTemp,
+                    e.key.toDouble() + 0.5,
+                    e.value.toDouble(),
                   ),
                 )
                 .toList();
 
-            List<FlSpot> lowData = data
+            List<FlSpot> lowData = tempL
+                .asMap()
+                .entries
                 .map(
                   (e) => FlSpot(
-                    e.id.toDouble() - 0.5,
-                    e.lowTemp,
+                    e.key.toDouble() + 0.5,
+                    e.value.toDouble(),
                   ),
                 )
                 .toList();
-            Navigator.of(context).push(
+            final resp = await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (BuildContext context) {
                   return TemperatureSettingScreen(
@@ -365,6 +406,14 @@ class _SettingButtons extends StatelessWidget {
                 },
               ),
             );
+            dataProvider.setupData!.setTempL = resp[0];
+            dataProvider.setupData!.setTempH = resp[1];
+
+            context
+                .read<DataProvider>()
+                .updateSetupData(dataProvider.setupData!);
+
+            GetIt.I<SocketService>().sendSetupData(dataProvider.setupData!);
           },
           heroTag: "tempButton",
           backgroundColor: colors[10],

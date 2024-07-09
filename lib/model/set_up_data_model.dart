@@ -79,7 +79,8 @@ class SetupSensor {
 
 class SetupData {
   Uint8List controllerId; // 컨트롤러 맥주소
-  List<int> setTemp; // 온도 설정(24시간-30분간격)
+  List<int> setTempL; // 온도 설정(24시간-30분간격)
+  List<int> setTempH; // 온도 설정(24시간-30분간격)
   int tempGap; // 냉동기 및 제상히터 온도 편차
   int heatTemp; // 제상히터 온도 설정
   int iceType; // 에어컨 또는 냉동기의 타입 정의 (냉동기 0, 에어컨 1 ~ 3)
@@ -98,7 +99,8 @@ class SetupData {
 
   SetupData({
     required this.controllerId,
-    required this.setTemp,
+    required this.setTempL,
+    required this.setTempH,
     required this.tempGap,
     required this.heatTemp,
     required this.iceType,
@@ -119,7 +121,8 @@ class SetupData {
   factory SetupData.initialValue() {
     return SetupData(
       controllerId: Uint8List(6),
-      setTemp: List.filled(48, 0),
+      setTempL: List.filled(48, 0),
+      setTempH: List.filled(48, 0),
       tempGap: 0,
       heatTemp: 0,
       iceType: 0,

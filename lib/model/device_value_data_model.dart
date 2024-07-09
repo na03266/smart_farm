@@ -12,48 +12,30 @@ class DeviceValue {
   });
 }
 
-class SensorValue {
-  int sensorId;     // 센서 고유 아이디
-  double sensorValue; // 센서 값
 
-  SensorValue({
-    required this.sensorId,
-    required this.sensorValue,
-  });
-}
 
-class ValueData {
+
+
+class DeviceValueData {
   /// crc 포함 124 바이트
   Uint8List controllerId;  // 컨트롤러 고유 아이디
   List<DeviceValue> deviceValue;
-  List<SensorValue> sensorValue;
-  int dummy1;
-  int dummy2;
   int crcL;
   int crcH;
 
-  ValueData({
+  DeviceValueData({
     required this.controllerId,
     required this.deviceValue,
-    required this.sensorValue,
-    required this.dummy1,
-    required this.dummy2,
     required this.crcL,
     required this.crcH,
   });
 
-  factory ValueData.initialValue() {
-    return ValueData(
+  factory DeviceValueData.initialValue() {
+    return DeviceValueData(
       controllerId: Uint8List(6),
-      deviceValue: List.generate(16, (_) => DeviceValue(unitId: 0, unitMode: 0, unitStatus: 0)),
-      sensorValue: List.generate(8, (_) => SensorValue(sensorId: 0, sensorValue: 0.0)),
-      dummy1: 0,
-      dummy2: 0,
+      deviceValue: List.generate(16, (index) => DeviceValue(unitId: index, unitMode: 0, unitStatus: 0)),
       crcL: 0,
       crcH: 0,
     );
   }
 }
-
-
-

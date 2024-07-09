@@ -1,10 +1,7 @@
-import 'package:drift/drift.dart' hide Column;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
-import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/database/drift.dart';
 
 class TemperatureSettingScreen extends StatefulWidget {
   List<FlSpot> highData;
@@ -208,17 +205,11 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
   }
 
   onFinishPressed() async {
-    final oldData = await GetIt.I<AppDatabase>().getTemperatures();
-    for (int i = 0; i < 48; i++) {
-      await GetIt.I<AppDatabase>().updateTempById(
-          i + 1,
-          TemperatureTableCompanion(
-            time: Value(oldData[i].time),
-            highTemp: Value(widget.highData[i].y),
-            lowTemp: Value(widget.lowData[i].y),
-          ));
-    }
-    Navigator.of(context).pop();
+    final tempL = List.generate(48, (index) => (widget.lowData[index].y.toInt()));
+    final tempH = List.generate(48, (index) => (widget.highData[index].y.toInt()));
+
+    /// 높은 값과 낮은 값 리스트로 반환
+    Navigator.of(context).pop([tempL, tempH]);
   }
 
   onChartPanUpdate(DragUpdateDetails details) {
@@ -241,7 +232,7 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
       bool tempCondition = coordinateY <= 600 && coordinateY >= 150;
 
       double roundToNearestHalf(double value) {
-        return (value * 2).round() / 2;
+        return value.toInt().toDouble();
       }
 
       /// 표 오른쪽 바깥인 경우 행동안함

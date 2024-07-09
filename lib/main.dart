@@ -16,6 +16,8 @@ void main() async {
 
   /// SocketService
   final dataProvider = DataProvider();
+  GetIt.I.registerSingleton<DataProvider>(dataProvider);
+
 
   final socketService = SocketService(dataProvider);
   GetIt.I.registerSingleton<SocketService>(socketService);

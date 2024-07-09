@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:smart_farm/component/timer_modal_popup.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/database/drift.dart';
 import 'package:smart_farm/model/timer_table.dart';
 
 class TimerCard extends StatelessWidget {
-  final int id;
+  final int timerId;
   final String timerName;
   final bool selectedCard;
   final VoidCallback onTap;
@@ -17,7 +15,7 @@ class TimerCard extends StatelessWidget {
     required this.timerName,
     this.selectedCard = false,
     required this.onTap,
-    required this.id,
+    required this.timerId,
   });
 
   @override
@@ -51,15 +49,13 @@ class TimerCard extends StatelessWidget {
                 const SizedBox(width: 24),
                 IconButton(
                     onPressed: () async {
-                      final data = await GetIt.I<AppDatabase>().getTimerById(id);
-
                       await showCupertinoModalPopup<TimerTable>(
                         barrierDismissible: false,
                         context: context,
                         builder: (_) {
 
                           return TimerModalPopup(
-                            data: data,
+                            timerId: timerId,
                           );
                         },
                       );
