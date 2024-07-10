@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_farm/component/each_unit_control_modal_popup.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -10,6 +12,7 @@ class UnitCard extends StatefulWidget {
   final VoidCallback onPressed;
   final OnToggle? onToggle;
   final int isAuto;
+  final List<int> setChannel;
 
   const UnitCard({
     super.key,
@@ -20,6 +23,7 @@ class UnitCard extends StatefulWidget {
     required this.onPressed,
     required this.onToggle,
     required this.isAuto,
+    required this.setChannel,
   });
 
   @override
@@ -60,7 +64,12 @@ class _UnitCardState extends State<UnitCard> {
           const SizedBox(height: 8),
 
           /// 개별 제어 버튼
-          _EachControlButton(isOnTheme: widget.selectedTheme),
+          widget.setChannel.length > 1
+              ? _EachControlButton(
+                  isOnTheme: widget.selectedTheme,
+                  setChannel: widget.setChannel,
+                )
+              : const SizedBox(height: 50),
 
           /// 자동 수동 버튼
           _IsAutoButton(
@@ -159,10 +168,12 @@ class _CardLabel extends StatelessWidget {
 
 class _EachControlButton extends StatelessWidget {
   final UnitCardColor isOnTheme;
+  final List<int> setChannel;
 
   const _EachControlButton({
     super.key,
     required this.isOnTheme,
+    required this.setChannel,
   });
 
   @override
@@ -175,7 +186,15 @@ class _EachControlButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: isOnTheme.timeControl,
           ),
-          onPressed: () {},
+          onPressed: () async {
+            await showCupertinoModalPopup(
+              barrierDismissible: true,
+              context: context,
+              builder: (_) {
+                return EachUnitControlModalPopup(setChannel: setChannel);
+              },
+            );
+          },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

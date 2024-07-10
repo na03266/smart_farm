@@ -23,16 +23,18 @@ void main() async {
   GetIt.I.registerSingleton<SocketService>(socketService);
   try {
     await GetIt.I<SocketService>().connectToServer();
+     GetIt.I<SocketService>().sendSetupData2();
     print('서버에 연결되었습니다.');
   } catch (e) {
     print('서버 연결 실패: $e');
+  }finally{
   }
 
   runApp(
     ///Provider 등록
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => dataProvider),
+        ChangeNotifierProvider(create: (_) => GetIt.I<DataProvider>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

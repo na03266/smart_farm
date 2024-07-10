@@ -61,6 +61,7 @@ Uint8List setupDataToBytes(SetupData setupData) {
     buffer.setUint8(offset++, device.unitCH);
     buffer.setUint8(offset++, device.unitOpenCH);
     buffer.setUint8(offset++, device.unitCloseCH);
+    buffer.setUint8(offset++, 0);
     buffer.setUint16(offset, device.unitMoveTime, Endian.big);
     offset += 2;
     buffer.setUint16(offset, device.unitStopTime, Endian.big);
@@ -72,12 +73,15 @@ Uint8List setupDataToBytes(SetupData setupData) {
     buffer.setUint8(offset++, device.unitOPTime);
     buffer.setUint8(offset++, device.unitTimerSet);
   }
+  buffer.setUint8(offset++, 0);
+  buffer.setUint8(offset++, 0);
 
   // setSensor
   for (SetupSensor sensor in setupData.setSensor) {
     buffer.setUint8(offset++, sensor.sensorID);
     buffer.setUint8(offset++, sensor.sensorCH);
     buffer.setUint8(offset++, sensor.sensorReserved);
+    buffer.setUint8(offset++, 0);
     buffer.setFloat32(offset, sensor.sensorMULT, Endian.big);
     offset += 4;
     buffer.setFloat32(offset, sensor.sensorOffSet, Endian.big);

@@ -46,6 +46,7 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     if (widget.timerId != null) {
       updateTimerListFromValue();
     }
+      loadedTimer = GetIt.I<DataProvider>().timers!;
   }
 
   /// 처음 ID 값이 있다면 초기 값들을 세팅 하는 함수
@@ -337,10 +338,10 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     } else {
       loadedTimer[widget.timerId!].timerName = timerName!;
 
-      ///파일로 저장
-      await saveTimers(loadedTimer);
       setupData.unitTimer[widget.timerId!] = changedTimerUintValue;
     }
+
+    GetIt.I<DataProvider>().saveAllData();
     GetIt.I<DataProvider>().updateSetupData(setupData);
     GetIt.I<SocketService>().sendSetupData(setupData);
     Navigator.of(context).pop();

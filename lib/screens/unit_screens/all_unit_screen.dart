@@ -11,7 +11,6 @@ import 'package:smart_farm/screens/unit_screens/component/temperature_setting_sc
 import 'package:smart_farm/screens/unit_screens/component/time_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/unit_card.dart';
 import 'package:smart_farm/service/socket_service.dart';
-import 'package:smart_farm/service/service_save_and_load.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class AllUnitScreen extends StatefulWidget {
@@ -39,7 +38,6 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
         List<DeviceValue> units = dataProvider.deviceValueData!.deviceValue;
         List<int> tempL = dataProvider.setupData!.setTempL;
         List<int> tempH = dataProvider.setupData!.setTempH;
-
 
         return SizedBox(
             height: MediaQuery.of(context).size.height,
@@ -98,32 +96,42 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
       DataProvider dataProvider) {
     DeviceValueData valueData = dataProvider.deviceValueData!;
 
-    for(int i in selectedUnits){
+    for (int i in selectedUnits) {
       valueData.deviceValue[i].unitMode = index!;
     }
-
 
     context.read<DataProvider>().updateDeviceValueData(valueData);
 
     GetIt.I<SocketService>().sendDeviceValueData(dataProvider.deviceValueData!);
   }
 
-
   /// 카드 온오프 유닛별 제어
-  onOnOffButtonPressed(
-      List<int> selectedUnits, BuildContext context, DataProvider dataProvider) {
+  onOnOffButtonPressed(List<int> selectedUnits, BuildContext context,
+      DataProvider dataProvider) {
     DeviceValueData valueData = dataProvider.deviceValueData!;
 
     /// 1번인 경우와 5번인 경우는 하위도 한번에 변경
     for (int unitId in selectedUnits) {
-      valueData.deviceValue[unitId].unitStatus =
-          valueData.deviceValue[unitId].unitStatus == 0 ? 1 : 0;
-      valueData.deviceValue[unitId].unitMode = 0;
+      int index = valueData.deviceValue[unitId].unitId;
+      ///해당 장치의 타입
+      int temp = dataProvider.setupData!.setDevice[index].unitType;
+
+      if (temp == 1) {
+        valueData.deviceValue[unitId].unitStatus =
+            valueData.deviceValue[unitId].unitStatus == 1 ? 2 : 1;
+        /// 이러면 서로 반대로 열리지 않나?
+        valueData.deviceValue[unitId].unitMode = 0;
+print(valueData.deviceValue[unitId].unitStatus);
+      } else {
+        valueData.deviceValue[unitId].unitStatus =
+        valueData.deviceValue[unitId].unitStatus == 1 ? 0 : 1;
+        valueData.deviceValue[unitId].unitMode = 0;
+      }
     }
+    DeviceValueData newDeviceValueData = GetIt.I<DataProvider>().deviceValueData!;
+    dataProvider.updateDeviceValueData(newDeviceValueData);
 
-    context.read<DataProvider>().updateDeviceValueData(valueData);
-
-    GetIt.I<SocketService>().sendDeviceValueData(dataProvider.deviceValueData!);
+    GetIt.I<SocketService>().sendDeviceValueData(newDeviceValueData);
   }
 
   /// 개별 제어 모달
@@ -251,76 +259,63 @@ class _UnitCardState extends State<_UnitCard> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Container(
       color: colors[2],
-      child: Consumer<DataProvider>(
-        builder: (context, dataProvider, child) {
-          mergedUnits = GetIt.I<DataProvider>().units!;
+      child: Consumer<DataProvider>(builder: (context, dataProvider, child) {
+        mergedUnits = dataProvider.units!;
 
-          for (UnitInfo unit in mergedUnits) {
-            List<DeviceValue> tempUnits = [];
+        for (UnitInfo unit in mergedUnits) {
+          List<DeviceValue> tempUnits = [];
 
-            /// status, isAuto를 모두 들고 있음.
-            for (int i in unit.setChannel) {
-              tempUnits.add(widget.units[i]);
-            }
-
-            /// 채널 목록 안의 개채의 아이디 중 하나라도 1이면
-            if (unit.unitName == '차광막') {
-              unit.status = tempUnits.any((e) => e.unitStatus == 1);
-            } else {
-              unit.status = tempUnits.any((e) => e.unitStatus == 0);
-            }
-            unit.isAuto = !tempUnits.any((e) => e.unitMode == 1);
+          /// status, isAuto를 모두 들고 있음.
+          for (int i in unit.setChannel) {
+            tempUnits.add(widget.units[i]);
           }
-
-          return CustomScrollView(
-            primary: false,
-            slivers: <Widget>[
-              SliverPadding(
-                padding: const EdgeInsets.all(20),
-                sliver: SliverGrid.count(
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  crossAxisCount: 5,
-                  children: <Widget>[
-                    ...mergedUnits.map(
-                      (e) => UnitCard(
-                        condition:
-                            _isAnyRelatedUnitActive(e.setChannel, dataProvider.deviceValueData!.deviceValue),
-                        label: e.unitName,
-                        icon: e.icon,
-                        selectedTheme:
-                            _isAnyRelatedUnitActive(e.setChannel, widget.units)
-                                ? CARDS[0]
-                                : CARDS[1],
-                        isAuto: e.isAuto ? 0 : 1,
-                        onPressed: () {
-                          widget.onPressed(e.setChannel);
-                        },
-                        onToggle: (int? index) {
-                          widget.onToggle(index, e.setChannel);
-
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
+          /// 채널 목록 안의 개채의 아이디 중 하나라도 1이면
+          if (unit.unitName == '차광막') {
+            unit.status = tempUnits.any((e) => e.unitStatus == 2);
+          } else {
+            unit.status = tempUnits.any((e) => e.unitStatus == 1);
+          }
+          unit.isAuto = !tempUnits.any((e) => e.unitMode == 1);
         }
-      ),
-    );
-  }
 
-  bool _isAnyRelatedUnitActive(
-      List<int> channelIds, List<DeviceValue> allUnits) {
-    return channelIds.any((channelId) => allUnits
-        .where((unit) => unit.unitId == channelId)
-        .any((unit) => unit.unitStatus == 1));
+        return CustomScrollView(
+          primary: false,
+          slivers: <Widget>[
+            SliverPadding(
+              padding: const EdgeInsets.all(20),
+              sliver: SliverGrid.count(
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                crossAxisCount: 5,
+                children: <Widget>[
+                  ...mergedUnits.map(
+                    (e) => UnitCard(
+                      condition: e.status,
+                      label: e.unitName,
+                      icon: e.icon,
+                      selectedTheme:
+                          e.status
+                              ? CARDS[0]
+                              : CARDS[1],
+                      isAuto: e.isAuto ? 0 : 1,
+                      onPressed: () {
+                        widget.onPressed(e.setChannel);
+                      },
+                      onToggle: (int? index) {
+                        widget.onToggle(index, e.setChannel);
+                      },
+                      setChannel: e.setChannel,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
+    );
   }
 }
 

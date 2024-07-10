@@ -13,7 +13,7 @@ dynamic parseData(Uint8List data) {
   } else if (data.length == 5504) {
     return parseSetupData(data);
   } else {
-    print('데이터 길이가 틀렸습니다.');
+    print('데이터 길이가 틀렸습니다.${data.length}');
     return null;
   }
 }
@@ -92,13 +92,9 @@ SensorValueData? parseSensorValueData(Uint8List data) {
 SetupData? parseSetupData(Uint8List data) {
   print(CRC16.calculateCRC16s(data, data.length));
   if (!CRC16.calculateCRC16s(data, data.length)) {
-    print(data.length);
-
     print('CRC 검증 실패 setup');
-
     return null; // CRC16 검증 실패 시 null 반환
   }
-
   final ByteData byteData = ByteData.sublistView(data);
   int offset = 0;
 
@@ -110,7 +106,6 @@ SetupData? parseSetupData(Uint8List data) {
     offset += 2;
     return temp;
   });
-
   List<int> setTempH = List.generate(48, (index) {
     int temp = byteData.getInt16(offset, Endian.big);
     offset += 2;
@@ -123,10 +118,8 @@ SetupData? parseSetupData(Uint8List data) {
   int alarmType = data[offset++];
   int alarmTempH = data[offset++];
   int alarmTempL = data[offset++];
-
   Uint8List tel = data.sublist(offset, offset + 13);
   offset += 13;
-
   int awsBit = data[offset++];
 
   List<Uint8List> unitTimer = List.generate(16, (index) {
@@ -136,33 +129,37 @@ SetupData? parseSetupData(Uint8List data) {
   });
 
   List<SetupDevice> setDevice = List.generate(16, (index) {
-    return SetupDevice(
+    SetupDevice temp = SetupDevice(
       unitId: data[offset++],
       unitType: data[offset++],
       unitCH: data[offset++],
       unitOpenCH: data[offset++],
       unitCloseCH: data[offset++],
-      unitMoveTime: byteData.getUint16(offset, Endian.big),
-      unitStopTime: byteData.getUint16(offset + 2, Endian.big),
-      unitOpenTime: byteData.getUint16(offset + 4, Endian.big),
-      unitCloseTime: byteData.getUint16(offset + 6, Endian.big),
-      unitOPTime: data[offset + 8],
-      unitTimerSet: data[offset + 9],
+      unitMoveTime: byteData.getUint16(offset+1, Endian.big),
+      unitStopTime: byteData.getUint16(offset + 3, Endian.big),
+      unitOpenTime: byteData.getUint16(offset + 5, Endian.big),
+      unitCloseTime: byteData.getUint16(offset + 7, Endian.big),
+      unitOPTime: data[offset + 9],
+      unitTimerSet: data[offset + 10],
     );
-    offset += 10;
+    offset += 11;
+    return temp;
   });
 
+  offset+=2;
+
   List<SetupSensor> setSensor = List.generate(8, (index) {
-    SetupSensor sensor = SetupSensor(
+
+    SetupSensor temp = SetupSensor(
       sensorID: data[offset++],
       sensorCH: data[offset++],
       sensorReserved: data[offset++],
-      sensorMULT: byteData.getFloat32(offset, Endian.big),
-      sensorOffSet: byteData.getFloat32(offset + 4, Endian.big),
-      sensorEQ: data.sublist(offset + 8, offset + 264),
+      sensorMULT: byteData.getFloat32(offset+1, Endian.big),
+      sensorOffSet: byteData.getFloat32(offset + 5, Endian.big),
+      sensorEQ: data.sublist(offset + 9, offset + 265),
     );
-    offset += 264;
-    return sensor;
+    offset += 265;
+    return temp;
   });
 
   int dummy1 = data[offset++];

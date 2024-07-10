@@ -4,17 +4,14 @@ import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_farm/component/timer_modal_popup.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/model/set_up_data_model.dart';
-import 'package:smart_farm/model/timer_table.dart';
 import 'package:smart_farm/provider/data_provider.dart';
 import 'package:smart_farm/provider/timer_serve_data.dart';
 import 'package:smart_farm/provider/unit_serve_data.dart';
 import 'package:smart_farm/screens/unit_screens/component/timer_card.dart';
-import 'package:smart_farm/service/service_save_and_load.dart';
 import 'package:smart_farm/service/socket_service.dart';
-
-import '../../../component/timer_modal_popup.dart';
 
 class TimerSettingScreen extends StatefulWidget {
   const TimerSettingScreen({
@@ -87,9 +84,7 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
       ),
     );
   }
-  void refreshTimerList() {
-    setState(() {});
-  }
+
   String uint8ListToBinaryString(Uint8List uint8List) {
     return uint8List
         .map((byte) => byte.toRadixString(2).padLeft(8, '0'))
@@ -97,10 +92,9 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
   }
 
   onTimerPlusTap(BuildContext context, DataProvider dataProvider) async {
-    List<TimerInfo> savedUnits = await loadTimers();
-
-    if (16 > savedUnits.length) {
-      await showCupertinoModalPopup<TimerTable>(
+    List<TimerInfo> savedTimers = GetIt.I<DataProvider>().timers!;
+    if (16 > savedTimers.length) {
+      await showCupertinoModalPopup(
         barrierDismissible: false,
         context: context,
         builder: (_) {
@@ -110,7 +104,6 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
           );
         },
       );
-      refreshTimerList();
     } else {
       /// 타이머 16개 초과 시
       showDialog(
@@ -177,6 +170,12 @@ class _LeftState extends State<_Left> {
   List<TimerInfo> loadedTimer = [];
 
   @override
+  void initState() {
+    super.initState();
+    loadedTimer = GetIt.I<DataProvider>().timers!;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -229,76 +228,71 @@ class _LeftState extends State<_Left> {
               ),
 
               /// 타이머 목록
-              /// 스트림 빌더로 전환
               Expanded(
                 child: Padding(
                   padding:
                       const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
                   child: Consumer<DataProvider>(
                       builder: (context, dataProvider, child) {
-                        loadedTimer = dataProvider.timers!;
-                      return ListView.separated(
-                        itemCount: loadedTimer.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          var timer = loadedTimer[index];
-                          print(timer.timerName);
-                          print(timer.id);
-                          return Dismissible(
-                            key: ObjectKey(timer.id),
-                            direction: DismissDirection.endToStart,
-                            confirmDismiss:
-                                (DismissDirection direction) async {
-                              bool? shouldDelete = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    content: const Text('삭제 하시겠습니까?'),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text(
-                                          "Yes",
-                                        ),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(true);
-                                        },
+                    loadedTimer = dataProvider.timers!;
+                    return ListView.separated(
+                      itemCount: loadedTimer.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        var timer = loadedTimer[index];
+                        return Dismissible(
+                          key: ObjectKey(timer.id),
+                          direction: DismissDirection.endToStart,
+                          confirmDismiss: (DismissDirection direction) async {
+                            bool? shouldDelete = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: const Text('삭제 하시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      child: const Text(
+                                        "Yes",
                                       ),
-                                      TextButton(
-                                        child: const Text(
-                                          "No",
-                                        ),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
+                                      onPressed: () {
+                                        Navigator.of(context).pop(true);
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: const Text(
+                                        "No",
                                       ),
-                                    ],
-                                  );
-                                },
-                              );
-                              if (shouldDelete == true) {
-                                loadedTimer.removeAt(index);
-                                saveTimers(loadedTimer);
-                                return true;
-                              } else {
-                                setState(() {});
-                                return false;
-                              }
-                            },
-                            child: TimerCard(
-                              timerId: timer.id,
-                              timerName: timer.timerName,
-                              selectedCard: widget.selectedCard == timer.id,
-                              onTap: () {
-                                widget.onTap(timer.id);
+                                      onPressed: () {
+                                        Navigator.of(context).pop(false);
+                                      },
+                                    ),
+                                  ],
+                                );
                               },
-                            ),
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return const SizedBox(height: 8.0);
-                        },
-                      );
-                    }
-                  ),
+                            );
+                            if (shouldDelete == true) {
+                              dataProvider.removeTimerInfo(index);
+                              await dataProvider.saveAllData();
+                              return true;
+                            } else {
+                              setState(() {});
+                              return false;
+                            }
+                          },
+                          child: TimerCard(
+                            timerId: timer.id,
+                            timerName: timer.timerName,
+                            selectedCard: widget.selectedCard == timer.id,
+                            onTap: () {
+                              widget.onTap(timer.id);
+                            },
+                          ),
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return const SizedBox(height: 8.0);
+                      },
+                    );
+                  }),
                 ),
               ),
             ],
@@ -329,14 +323,7 @@ class _RightState extends State<_Right> {
   @override
   void initState() {
     super.initState();
-    loadSavedUnits();
-  }
-
-  void loadSavedUnits() async {
-    final savedUnits = await loadUnits();
-    setState(() {
-      mergedUnits = savedUnits.isEmpty ? UNITS : savedUnits;
-    });
+    mergedUnits = GetIt.I<DataProvider>().units!;
   }
 
   @override
@@ -347,9 +334,9 @@ class _RightState extends State<_Right> {
     for (UnitInfo unit in mergedUnits) {
       for (int i = 0; i < unit.setChannel.length; i++) {
         if (unit.setChannel.length == 1) {
-          labelList.add(unit.unitName);
+          labelList.insert(unit.setChannel[i], unit.unitName);
         } else {
-          labelList.add("${unit.unitName} ${i + 1}");
+          labelList.insert(unit.setChannel[i], "${unit.unitName} ${i + 1}");
         }
       }
     }
@@ -411,8 +398,7 @@ class _RightState extends State<_Right> {
                         return GestureDetector(
                           onTap: () {
                             /// 전송 쿼리
-                            onUnitTap(index, context, widget.data,
-                                widget.selectedTimerId!);
+                            onUnitTap(index, widget.selectedTimerId!);
 
                             /// 탭하면 현재 적용된 타이머의 번호를 등록
                           },
@@ -455,9 +441,9 @@ class _RightState extends State<_Right> {
   }
 
   /// 적용하기 버튼
-  onUnitTap(int index, BuildContext context, DataProvider dataProvider,
-      int selectedTimerId) {
-    SetupData setupData = dataProvider.setupData!;
+  onUnitTap(int index, int selectedTimerId) {
+    SetupData setupData = GetIt.I<DataProvider>().setupData!;
+
     int oldTimer = setupData.setDevice[index].unitTimerSet;
 
     /// 채널의 갯수가 적용된 타이머 가 없다 뜻.
@@ -468,7 +454,8 @@ class _RightState extends State<_Right> {
     }
 
     context.read<DataProvider>().updateSetupData(setupData);
-
-    GetIt.I<SocketService>().sendSetupData(dataProvider.setupData!);
+    print(oldTimer);
+    GetIt.I<SocketService>().sendSetupData(GetIt.I<DataProvider>().setupData!);
+    print(GetIt.I<DataProvider>().setupData!.setDevice[index].unitTimerSet);
   }
 }
