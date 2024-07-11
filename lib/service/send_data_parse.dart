@@ -17,7 +17,7 @@ Uint8List cmdDataToBytes() {
 
 ///셋업데이터 바이트 전환
 Uint8List setupDataToBytes(SetupData setupData) {
-  final buffer = ByteData(5504); // 전체 데이터 크기
+  final buffer = ByteData(5772); // 전체 데이터 크기
   int offset = 0;
 
   // controllerId
@@ -93,7 +93,7 @@ Uint8List setupDataToBytes(SetupData setupData) {
   buffer.setUint8(offset++, setupData.dummy1);
   buffer.setUint8(offset++, setupData.dummy2);
 
-  CRC16.calculateCRC16m(buffer.buffer.asUint8List(), 5504);
+  CRC16.calculateCRC16m(buffer.buffer.asUint8List(), 5772);
 
   return buffer.buffer.asUint8List();
 }

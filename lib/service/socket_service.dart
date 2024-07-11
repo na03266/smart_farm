@@ -34,12 +34,13 @@ class SocketService {
 
           if (changedData is SetupData) {
             _dataProvider.updateSetupData(changedData);
-            print('set');
+            print('setup');
           } else if (changedData is DeviceValueData) {
             _dataProvider.updateDeviceValueData(changedData);
-            print('dev');
+            print('device');
           } else if (changedData is SensorValueData){
             _dataProvider.updateSensorValueData(changedData);
+            print('sensor');
           }
 
           _streamController.add(changedData);
@@ -60,20 +61,7 @@ class SocketService {
     }
   }
 
-  void sendMessage(List<int> message) {
-    if (_socket != null) {
-      try {
-        _socket!.add(message);
-      } catch (e) {
-        print('메시지 전송 실패: $e');
-        _streamController.addError(e);
-      }
-    } else {
-      print('소켓이 연결되지 않았습니다.');
-    }
-  }
-
-  void sendSetupData2() {
+  void requestData() {
     if (_socket != null) {
       try {
         Uint8List bytes = cmdDataToBytes();

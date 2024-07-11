@@ -6,12 +6,12 @@ import 'package:get_it/get_it.dart';
 import 'package:smart_farm/component/custom_timer_list.dart';
 import 'package:smart_farm/model/set_up_data_model.dart';
 import 'package:smart_farm/provider/data_provider.dart';
-import 'package:smart_farm/provider/timer_serve_data.dart';
+import 'package:smart_farm/provider/timer_info.dart';
 import 'package:smart_farm/service/service_save_and_load.dart';
 import 'package:smart_farm/service/socket_service.dart';
 
-import 'custom_date_picker.dart';
-import 'custom_text_field.dart';
+import '../../../component/custom_date_picker.dart';
+import '../../../component/custom_text_field.dart';
 
 class TimerModalPopup extends StatefulWidget {
   final int? timerId;

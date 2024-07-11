@@ -4,13 +4,13 @@ import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:smart_farm/component/timer_modal_popup.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/model/set_up_data_model.dart';
 import 'package:smart_farm/provider/data_provider.dart';
-import 'package:smart_farm/provider/timer_serve_data.dart';
-import 'package:smart_farm/provider/unit_serve_data.dart';
+import 'package:smart_farm/provider/timer_info.dart';
+import 'package:smart_farm/provider/unit_info.dart';
 import 'package:smart_farm/screens/unit_screens/component/timer_card.dart';
+import 'package:smart_farm/screens/unit_screens/component/timer_modal_popup.dart';
 import 'package:smart_farm/service/socket_service.dart';
 
 class TimerSettingScreen extends StatefulWidget {
@@ -372,14 +372,7 @@ class _RightState extends State<_Right> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  '',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                const SizedBox(height: 30),
 
                 /// 유닛 목록
                 Expanded(

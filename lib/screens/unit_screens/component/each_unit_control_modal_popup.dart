@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/model/device_value_data_model.dart';
 import 'package:smart_farm/provider/data_provider.dart';
-import 'package:smart_farm/provider/unit_serve_data.dart';
+import 'package:smart_farm/provider/unit_info.dart';
 import 'package:smart_farm/service/socket_service.dart';
 
 class EachUnitControlModalPopup extends StatefulWidget {

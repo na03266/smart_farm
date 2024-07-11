@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_farm/component/each_unit_control_modal_popup.dart';
+import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
+import 'package:smart_farm/provider/data_provider.dart';
+import 'package:smart_farm/screens/unit_screens/component/each_unit_control_modal_popup.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class UnitCard extends StatefulWidget {
@@ -54,6 +56,7 @@ class _UnitCardState extends State<UnitCard> {
               condition: widget.condition,
               onPressed: widget.onPressed,
               label: widget.label,
+              setChannels: widget.setChannel,
             ),
           ),
 
@@ -89,6 +92,7 @@ class _CardTop extends StatefulWidget {
   final UnitCardColor isOnTheme;
   final bool condition;
   final VoidCallback? onPressed; // 변경된 상태를 상위 위젯으로 전달할 콜백 함수
+  final List<int> setChannels;
 
   const _CardTop({
     super.key,
@@ -97,6 +101,7 @@ class _CardTop extends StatefulWidget {
     required this.condition,
     required this.onPressed,
     required this.label,
+    required this.setChannels,
   });
 
   @override
@@ -106,6 +111,10 @@ class _CardTop extends StatefulWidget {
 class _CardTopState extends State<_CardTop> {
   @override
   Widget build(BuildContext context) {
+    int type = GetIt.I<DataProvider>()
+        .setupData!
+        .setDevice[widget.setChannels[0]]
+        .unitType;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +131,7 @@ class _CardTopState extends State<_CardTop> {
               shape: const CircleBorder(),
               backgroundColor: widget.isOnTheme.onOff),
           child: Text(
-            widget.label == '차광막'
+            type == 1
                 ? widget.condition
                     ? '열림'
                     : '닫힘'

@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_farm/component/timer_modal_popup.dart';
+import 'package:smart_farm/screens/unit_screens/component/timer_modal_popup.dart';
 import 'package:smart_farm/consts/colors.dart';
-import 'package:smart_farm/model/timer_table.dart';
 
 class TimerCard extends StatelessWidget {
   final int timerId;
@@ -49,7 +48,7 @@ class TimerCard extends StatelessWidget {
                 const SizedBox(width: 24),
                 IconButton(
                     onPressed: () async {
-                      await showCupertinoModalPopup<TimerTable>(
+                      await showCupertinoModalPopup(
                         barrierDismissible: false,
                         context: context,
                         builder: (_) {

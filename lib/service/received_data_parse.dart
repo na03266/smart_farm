@@ -8,9 +8,9 @@ import 'package:smart_farm/service/crc_16.dart';
 dynamic parseData(Uint8List data) {
   if (data.length == 56) {
     return parseDeviceValueData(data);
-  } else if (data.length == 76) {
+  } else if (data.length == 84) {
     return parseSensorValueData(data);
-  } else if (data.length == 5504) {
+  } else if (data.length == 5772) {
     return parseSetupData(data);
   } else {
     print('데이터 길이가 틀렸습니다.${data.length}');
@@ -63,7 +63,7 @@ SensorValueData? parseSensorValueData(Uint8List data) {
 
   offset += 2; // dummy bytes
 
-  List<SensorValue> sensorValues = List.generate(8, (index) {
+  List<SensorValue> sensorValues = List.generate(9, (index) {
     int sensorId = data[offset++];
     offset += 3; // 3 bytes reserved
     double sensorValue = byteData.getFloat32(offset, Endian.big);
@@ -148,7 +148,7 @@ SetupData? parseSetupData(Uint8List data) {
 
   offset+=2;
 
-  List<SetupSensor> setSensor = List.generate(8, (index) {
+  List<SetupSensor> setSensor = List.generate(9, (index) {
 
     SetupSensor temp = SetupSensor(
       sensorID: data[offset++],

@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/model/device_value_data_model.dart';
 import 'package:smart_farm/provider/data_provider.dart';
-import 'package:smart_farm/provider/unit_serve_data.dart';
+import 'package:smart_farm/provider/unit_info.dart';
 import 'package:smart_farm/screens/unit_screens/component/temperature_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/time_setting_screen.dart';
 import 'package:smart_farm/screens/unit_screens/component/unit_card.dart';
@@ -25,7 +25,7 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
   @override
   void initState() {
     super.initState();
-    GetIt.I<SocketService>().sendSetupData2();
+    GetIt.I<SocketService>().requestData();
   }
 
   @override
@@ -113,22 +113,23 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
     /// 1번인 경우와 5번인 경우는 하위도 한번에 변경
     for (int unitId in selectedUnits) {
       int index = valueData.deviceValue[unitId].unitId;
+
       ///해당 장치의 타입
       int temp = dataProvider.setupData!.setDevice[index].unitType;
 
       if (temp == 1) {
         valueData.deviceValue[unitId].unitStatus =
             valueData.deviceValue[unitId].unitStatus == 1 ? 2 : 1;
-        /// 이러면 서로 반대로 열리지 않나?
         valueData.deviceValue[unitId].unitMode = 0;
-print(valueData.deviceValue[unitId].unitStatus);
+        print(valueData.deviceValue[unitId].unitStatus);
       } else {
         valueData.deviceValue[unitId].unitStatus =
-        valueData.deviceValue[unitId].unitStatus == 1 ? 0 : 1;
+            valueData.deviceValue[unitId].unitStatus == 1 ? 0 : 1;
         valueData.deviceValue[unitId].unitMode = 0;
       }
     }
-    DeviceValueData newDeviceValueData = GetIt.I<DataProvider>().deviceValueData!;
+    DeviceValueData newDeviceValueData =
+        GetIt.I<DataProvider>().deviceValueData!;
     dataProvider.updateDeviceValueData(newDeviceValueData);
 
     GetIt.I<SocketService>().sendDeviceValueData(newDeviceValueData);
@@ -271,6 +272,7 @@ class _UnitCardState extends State<_UnitCard> {
           for (int i in unit.setChannel) {
             tempUnits.add(widget.units[i]);
           }
+
           /// 채널 목록 안의 개채의 아이디 중 하나라도 1이면
           if (unit.unitName == '차광막') {
             unit.status = tempUnits.any((e) => e.unitStatus == 2);
@@ -295,10 +297,7 @@ class _UnitCardState extends State<_UnitCard> {
                       condition: e.status,
                       label: e.unitName,
                       icon: e.icon,
-                      selectedTheme:
-                          e.status
-                              ? CARDS[0]
-                              : CARDS[1],
+                      selectedTheme: e.status ? CARDS[0] : CARDS[1],
                       isAuto: e.isAuto ? 0 : 1,
                       onPressed: () {
                         widget.onPressed(e.setChannel);
