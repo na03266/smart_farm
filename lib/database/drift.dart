@@ -74,11 +74,16 @@ class AppDatabase extends _$AppDatabase {
       into(sensorDataTable).insert(data);
 
   // Read: 특정 기간 동안의 센서 데이터 가져오기
-  // Future<List<SensorDataTableData>> getSensorDataBetween(DateTime start, DateTime end) =>
-  //     (select(sensorDataTable)
-  //       ..where((tbl) => tbl.createdAt.isBetween(start, end))
-  //       ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]))
-  //         .get();
+  Future<List<SensorDataTableData>> getSensorDataFromLastDay() {
+    final now = DateTime.now();
+    final oneDayAgo = now.subtract(const Duration(days: 1));
+
+    final query = select(sensorDataTable)
+      ..where((tbl) => tbl.createdAt.isBetweenValues(oneDayAgo, now))
+      ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]);
+
+    return query.get();
+  }
 
   // Read: 가장 최근 센서 데이터 가져오기
   Future<SensorDataTableData?> getLatestSensorData() =>

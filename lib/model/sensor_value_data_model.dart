@@ -32,7 +32,7 @@ class SensorValueData {
   factory SensorValueData.initialValue() {
     return SensorValueData(
       controllerId: Uint8List(6),
-      sensorValue: List.generate(8, (index) => SensorValue(sensorId: index, sensorValue: 0.0)),
+      sensorValue: List.generate(9, (index) => SensorValue(sensorId: index, sensorValue: 0.0)),
       dummy1: 0,
       dummy2: 0,
       crcL: 0,

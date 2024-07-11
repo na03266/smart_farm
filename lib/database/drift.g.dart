@@ -3,12 +3,12 @@
 part of 'drift.dart';
 
 // ignore_for_file: type=lint
-class $TimerTableTable extends TimerTable
-    with TableInfo<$TimerTableTable, TimerTableData> {
+class $SensorDataTableTable extends SensorDataTable
+    with TableInfo<$SensorDataTableTable, SensorDataTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TimerTableTable(this.attachedDatabase, [this._alias]);
+  $SensorDataTableTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -18,18 +18,58 @@ class $TimerTableTable extends TimerTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _bookingTimeMeta =
-      const VerificationMeta('bookingTime');
+  static const VerificationMeta _temperatureMeta =
+      const VerificationMeta('temperature');
   @override
-  late final GeneratedColumn<String> bookingTime = GeneratedColumn<String>(
-      'booking_time', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _timerNameMeta =
-      const VerificationMeta('timerName');
+  late final GeneratedColumn<double> temperature = GeneratedColumn<double>(
+      'temperature', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _humidityMeta =
+      const VerificationMeta('humidity');
   @override
-  late final GeneratedColumn<String> timerName = GeneratedColumn<String>(
-      'timer_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<double> humidity = GeneratedColumn<double>(
+      'humidity', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _pressureMeta =
+      const VerificationMeta('pressure');
+  @override
+  late final GeneratedColumn<double> pressure = GeneratedColumn<double>(
+      'pressure', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _lightIntensityMeta =
+      const VerificationMeta('lightIntensity');
+  @override
+  late final GeneratedColumn<double> lightIntensity = GeneratedColumn<double>(
+      'light_intensity', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _co2Meta = const VerificationMeta('co2');
+  @override
+  late final GeneratedColumn<double> co2 = GeneratedColumn<double>(
+      'co2', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _phMeta = const VerificationMeta('ph');
+  @override
+  late final GeneratedColumn<double> ph = GeneratedColumn<double>(
+      'ph', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _soilTemperatureMeta =
+      const VerificationMeta('soilTemperature');
+  @override
+  late final GeneratedColumn<double> soilTemperature = GeneratedColumn<double>(
+      'soil_temperature', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _soilMoistureMeta =
+      const VerificationMeta('soilMoisture');
+  @override
+  late final GeneratedColumn<double> soilMoisture = GeneratedColumn<double>(
+      'soil_moisture', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _electricalConductivityMeta =
+      const VerificationMeta('electricalConductivity');
+  @override
+  late final GeneratedColumn<double> electricalConductivity =
+      GeneratedColumn<double>('electrical_conductivity', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -39,33 +79,95 @@ class $TimerTableTable extends TimerTable
       requiredDuringInsert: false,
       clientDefault: () => DateTime.now().toUtc());
   @override
-  List<GeneratedColumn> get $columns => [id, bookingTime, timerName, createdAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        temperature,
+        humidity,
+        pressure,
+        lightIntensity,
+        co2,
+        ph,
+        soilTemperature,
+        soilMoisture,
+        electricalConductivity,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'timer_table';
+  static const String $name = 'sensor_data_table';
   @override
-  VerificationContext validateIntegrity(Insertable<TimerTableData> instance,
+  VerificationContext validateIntegrity(
+      Insertable<SensorDataTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('booking_time')) {
+    if (data.containsKey('temperature')) {
       context.handle(
-          _bookingTimeMeta,
-          bookingTime.isAcceptableOrUnknown(
-              data['booking_time']!, _bookingTimeMeta));
+          _temperatureMeta,
+          temperature.isAcceptableOrUnknown(
+              data['temperature']!, _temperatureMeta));
     } else if (isInserting) {
-      context.missing(_bookingTimeMeta);
+      context.missing(_temperatureMeta);
     }
-    if (data.containsKey('timer_name')) {
-      context.handle(_timerNameMeta,
-          timerName.isAcceptableOrUnknown(data['timer_name']!, _timerNameMeta));
+    if (data.containsKey('humidity')) {
+      context.handle(_humidityMeta,
+          humidity.isAcceptableOrUnknown(data['humidity']!, _humidityMeta));
     } else if (isInserting) {
-      context.missing(_timerNameMeta);
+      context.missing(_humidityMeta);
+    }
+    if (data.containsKey('pressure')) {
+      context.handle(_pressureMeta,
+          pressure.isAcceptableOrUnknown(data['pressure']!, _pressureMeta));
+    } else if (isInserting) {
+      context.missing(_pressureMeta);
+    }
+    if (data.containsKey('light_intensity')) {
+      context.handle(
+          _lightIntensityMeta,
+          lightIntensity.isAcceptableOrUnknown(
+              data['light_intensity']!, _lightIntensityMeta));
+    } else if (isInserting) {
+      context.missing(_lightIntensityMeta);
+    }
+    if (data.containsKey('co2')) {
+      context.handle(
+          _co2Meta, co2.isAcceptableOrUnknown(data['co2']!, _co2Meta));
+    } else if (isInserting) {
+      context.missing(_co2Meta);
+    }
+    if (data.containsKey('ph')) {
+      context.handle(_phMeta, ph.isAcceptableOrUnknown(data['ph']!, _phMeta));
+    } else if (isInserting) {
+      context.missing(_phMeta);
+    }
+    if (data.containsKey('soil_temperature')) {
+      context.handle(
+          _soilTemperatureMeta,
+          soilTemperature.isAcceptableOrUnknown(
+              data['soil_temperature']!, _soilTemperatureMeta));
+    } else if (isInserting) {
+      context.missing(_soilTemperatureMeta);
+    }
+    if (data.containsKey('soil_moisture')) {
+      context.handle(
+          _soilMoistureMeta,
+          soilMoisture.isAcceptableOrUnknown(
+              data['soil_moisture']!, _soilMoistureMeta));
+    } else if (isInserting) {
+      context.missing(_soilMoistureMeta);
+    }
+    if (data.containsKey('electrical_conductivity')) {
+      context.handle(
+          _electricalConductivityMeta,
+          electricalConductivity.isAcceptableOrUnknown(
+              data['electrical_conductivity']!, _electricalConductivityMeta));
+    } else if (isInserting) {
+      context.missing(_electricalConductivityMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -77,69 +179,135 @@ class $TimerTableTable extends TimerTable
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  TimerTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  SensorDataTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TimerTableData(
+    return SensorDataTableData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      bookingTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}booking_time'])!,
-      timerName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}timer_name'])!,
+      temperature: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}temperature'])!,
+      humidity: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}humidity'])!,
+      pressure: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}pressure'])!,
+      lightIntensity: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}light_intensity'])!,
+      co2: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}co2'])!,
+      ph: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}ph'])!,
+      soilTemperature: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}soil_temperature'])!,
+      soilMoisture: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}soil_moisture'])!,
+      electricalConductivity: attachedDatabase.typeMapping.read(
+          DriftSqlType.double,
+          data['${effectivePrefix}electrical_conductivity'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
   @override
-  $TimerTableTable createAlias(String alias) {
-    return $TimerTableTable(attachedDatabase, alias);
+  $SensorDataTableTable createAlias(String alias) {
+    return $SensorDataTableTable(attachedDatabase, alias);
   }
 }
 
-class TimerTableData extends DataClass implements Insertable<TimerTableData> {
+class SensorDataTableData extends DataClass
+    implements Insertable<SensorDataTableData> {
   /// 식별 가능한 ID
   final int id;
 
-  /// 예약 시간
-  final String bookingTime;
+  /// 온도
+  final double temperature;
 
-  /// 타이머 이름
-  final String timerName;
+  /// 습도
+  final double humidity;
+
+  /// 대기압
+  final double pressure;
+
+  /// 조도
+  final double lightIntensity;
+
+  /// 이산화탄소
+  final double co2;
+
+  /// ph 산성도
+  final double ph;
+
+  /// 토양 온도
+  final double soilTemperature;
+
+  /// 토양 습도
+  final double soilMoisture;
+
+  /// 전기 전도도 ec
+  final double electricalConductivity;
 
   /// 생성 일자
   final DateTime createdAt;
-  const TimerTableData(
+  const SensorDataTableData(
       {required this.id,
-      required this.bookingTime,
-      required this.timerName,
+      required this.temperature,
+      required this.humidity,
+      required this.pressure,
+      required this.lightIntensity,
+      required this.co2,
+      required this.ph,
+      required this.soilTemperature,
+      required this.soilMoisture,
+      required this.electricalConductivity,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['booking_time'] = Variable<String>(bookingTime);
-    map['timer_name'] = Variable<String>(timerName);
+    map['temperature'] = Variable<double>(temperature);
+    map['humidity'] = Variable<double>(humidity);
+    map['pressure'] = Variable<double>(pressure);
+    map['light_intensity'] = Variable<double>(lightIntensity);
+    map['co2'] = Variable<double>(co2);
+    map['ph'] = Variable<double>(ph);
+    map['soil_temperature'] = Variable<double>(soilTemperature);
+    map['soil_moisture'] = Variable<double>(soilMoisture);
+    map['electrical_conductivity'] = Variable<double>(electricalConductivity);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
 
-  TimerTableCompanion toCompanion(bool nullToAbsent) {
-    return TimerTableCompanion(
+  SensorDataTableCompanion toCompanion(bool nullToAbsent) {
+    return SensorDataTableCompanion(
       id: Value(id),
-      bookingTime: Value(bookingTime),
-      timerName: Value(timerName),
+      temperature: Value(temperature),
+      humidity: Value(humidity),
+      pressure: Value(pressure),
+      lightIntensity: Value(lightIntensity),
+      co2: Value(co2),
+      ph: Value(ph),
+      soilTemperature: Value(soilTemperature),
+      soilMoisture: Value(soilMoisture),
+      electricalConductivity: Value(electricalConductivity),
       createdAt: Value(createdAt),
     );
   }
 
-  factory TimerTableData.fromJson(Map<String, dynamic> json,
+  factory SensorDataTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TimerTableData(
+    return SensorDataTableData(
       id: serializer.fromJson<int>(json['id']),
-      bookingTime: serializer.fromJson<String>(json['bookingTime']),
-      timerName: serializer.fromJson<String>(json['timerName']),
+      temperature: serializer.fromJson<double>(json['temperature']),
+      humidity: serializer.fromJson<double>(json['humidity']),
+      pressure: serializer.fromJson<double>(json['pressure']),
+      lightIntensity: serializer.fromJson<double>(json['lightIntensity']),
+      co2: serializer.fromJson<double>(json['co2']),
+      ph: serializer.fromJson<double>(json['ph']),
+      soilTemperature: serializer.fromJson<double>(json['soilTemperature']),
+      soilMoisture: serializer.fromJson<double>(json['soilMoisture']),
+      electricalConductivity:
+          serializer.fromJson<double>(json['electricalConductivity']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -148,87 +316,193 @@ class TimerTableData extends DataClass implements Insertable<TimerTableData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'bookingTime': serializer.toJson<String>(bookingTime),
-      'timerName': serializer.toJson<String>(timerName),
+      'temperature': serializer.toJson<double>(temperature),
+      'humidity': serializer.toJson<double>(humidity),
+      'pressure': serializer.toJson<double>(pressure),
+      'lightIntensity': serializer.toJson<double>(lightIntensity),
+      'co2': serializer.toJson<double>(co2),
+      'ph': serializer.toJson<double>(ph),
+      'soilTemperature': serializer.toJson<double>(soilTemperature),
+      'soilMoisture': serializer.toJson<double>(soilMoisture),
+      'electricalConductivity':
+          serializer.toJson<double>(electricalConductivity),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  TimerTableData copyWith(
+  SensorDataTableData copyWith(
           {int? id,
-          String? bookingTime,
-          String? timerName,
+          double? temperature,
+          double? humidity,
+          double? pressure,
+          double? lightIntensity,
+          double? co2,
+          double? ph,
+          double? soilTemperature,
+          double? soilMoisture,
+          double? electricalConductivity,
           DateTime? createdAt}) =>
-      TimerTableData(
+      SensorDataTableData(
         id: id ?? this.id,
-        bookingTime: bookingTime ?? this.bookingTime,
-        timerName: timerName ?? this.timerName,
+        temperature: temperature ?? this.temperature,
+        humidity: humidity ?? this.humidity,
+        pressure: pressure ?? this.pressure,
+        lightIntensity: lightIntensity ?? this.lightIntensity,
+        co2: co2 ?? this.co2,
+        ph: ph ?? this.ph,
+        soilTemperature: soilTemperature ?? this.soilTemperature,
+        soilMoisture: soilMoisture ?? this.soilMoisture,
+        electricalConductivity:
+            electricalConductivity ?? this.electricalConductivity,
         createdAt: createdAt ?? this.createdAt,
       );
   @override
   String toString() {
-    return (StringBuffer('TimerTableData(')
+    return (StringBuffer('SensorDataTableData(')
           ..write('id: $id, ')
-          ..write('bookingTime: $bookingTime, ')
-          ..write('timerName: $timerName, ')
+          ..write('temperature: $temperature, ')
+          ..write('humidity: $humidity, ')
+          ..write('pressure: $pressure, ')
+          ..write('lightIntensity: $lightIntensity, ')
+          ..write('co2: $co2, ')
+          ..write('ph: $ph, ')
+          ..write('soilTemperature: $soilTemperature, ')
+          ..write('soilMoisture: $soilMoisture, ')
+          ..write('electricalConductivity: $electricalConductivity, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, bookingTime, timerName, createdAt);
+  int get hashCode => Object.hash(
+      id,
+      temperature,
+      humidity,
+      pressure,
+      lightIntensity,
+      co2,
+      ph,
+      soilTemperature,
+      soilMoisture,
+      electricalConductivity,
+      createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is TimerTableData &&
+      (other is SensorDataTableData &&
           other.id == this.id &&
-          other.bookingTime == this.bookingTime &&
-          other.timerName == this.timerName &&
+          other.temperature == this.temperature &&
+          other.humidity == this.humidity &&
+          other.pressure == this.pressure &&
+          other.lightIntensity == this.lightIntensity &&
+          other.co2 == this.co2 &&
+          other.ph == this.ph &&
+          other.soilTemperature == this.soilTemperature &&
+          other.soilMoisture == this.soilMoisture &&
+          other.electricalConductivity == this.electricalConductivity &&
           other.createdAt == this.createdAt);
 }
 
-class TimerTableCompanion extends UpdateCompanion<TimerTableData> {
+class SensorDataTableCompanion extends UpdateCompanion<SensorDataTableData> {
   final Value<int> id;
-  final Value<String> bookingTime;
-  final Value<String> timerName;
+  final Value<double> temperature;
+  final Value<double> humidity;
+  final Value<double> pressure;
+  final Value<double> lightIntensity;
+  final Value<double> co2;
+  final Value<double> ph;
+  final Value<double> soilTemperature;
+  final Value<double> soilMoisture;
+  final Value<double> electricalConductivity;
   final Value<DateTime> createdAt;
-  const TimerTableCompanion({
+  const SensorDataTableCompanion({
     this.id = const Value.absent(),
-    this.bookingTime = const Value.absent(),
-    this.timerName = const Value.absent(),
+    this.temperature = const Value.absent(),
+    this.humidity = const Value.absent(),
+    this.pressure = const Value.absent(),
+    this.lightIntensity = const Value.absent(),
+    this.co2 = const Value.absent(),
+    this.ph = const Value.absent(),
+    this.soilTemperature = const Value.absent(),
+    this.soilMoisture = const Value.absent(),
+    this.electricalConductivity = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
-  TimerTableCompanion.insert({
+  SensorDataTableCompanion.insert({
     this.id = const Value.absent(),
-    required String bookingTime,
-    required String timerName,
+    required double temperature,
+    required double humidity,
+    required double pressure,
+    required double lightIntensity,
+    required double co2,
+    required double ph,
+    required double soilTemperature,
+    required double soilMoisture,
+    required double electricalConductivity,
     this.createdAt = const Value.absent(),
-  })  : bookingTime = Value(bookingTime),
-        timerName = Value(timerName);
-  static Insertable<TimerTableData> custom({
+  })  : temperature = Value(temperature),
+        humidity = Value(humidity),
+        pressure = Value(pressure),
+        lightIntensity = Value(lightIntensity),
+        co2 = Value(co2),
+        ph = Value(ph),
+        soilTemperature = Value(soilTemperature),
+        soilMoisture = Value(soilMoisture),
+        electricalConductivity = Value(electricalConductivity);
+  static Insertable<SensorDataTableData> custom({
     Expression<int>? id,
-    Expression<String>? bookingTime,
-    Expression<String>? timerName,
+    Expression<double>? temperature,
+    Expression<double>? humidity,
+    Expression<double>? pressure,
+    Expression<double>? lightIntensity,
+    Expression<double>? co2,
+    Expression<double>? ph,
+    Expression<double>? soilTemperature,
+    Expression<double>? soilMoisture,
+    Expression<double>? electricalConductivity,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (bookingTime != null) 'booking_time': bookingTime,
-      if (timerName != null) 'timer_name': timerName,
+      if (temperature != null) 'temperature': temperature,
+      if (humidity != null) 'humidity': humidity,
+      if (pressure != null) 'pressure': pressure,
+      if (lightIntensity != null) 'light_intensity': lightIntensity,
+      if (co2 != null) 'co2': co2,
+      if (ph != null) 'ph': ph,
+      if (soilTemperature != null) 'soil_temperature': soilTemperature,
+      if (soilMoisture != null) 'soil_moisture': soilMoisture,
+      if (electricalConductivity != null)
+        'electrical_conductivity': electricalConductivity,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
 
-  TimerTableCompanion copyWith(
+  SensorDataTableCompanion copyWith(
       {Value<int>? id,
-      Value<String>? bookingTime,
-      Value<String>? timerName,
+      Value<double>? temperature,
+      Value<double>? humidity,
+      Value<double>? pressure,
+      Value<double>? lightIntensity,
+      Value<double>? co2,
+      Value<double>? ph,
+      Value<double>? soilTemperature,
+      Value<double>? soilMoisture,
+      Value<double>? electricalConductivity,
       Value<DateTime>? createdAt}) {
-    return TimerTableCompanion(
+    return SensorDataTableCompanion(
       id: id ?? this.id,
-      bookingTime: bookingTime ?? this.bookingTime,
-      timerName: timerName ?? this.timerName,
+      temperature: temperature ?? this.temperature,
+      humidity: humidity ?? this.humidity,
+      pressure: pressure ?? this.pressure,
+      lightIntensity: lightIntensity ?? this.lightIntensity,
+      co2: co2 ?? this.co2,
+      ph: ph ?? this.ph,
+      soilTemperature: soilTemperature ?? this.soilTemperature,
+      soilMoisture: soilMoisture ?? this.soilMoisture,
+      electricalConductivity:
+          electricalConductivity ?? this.electricalConductivity,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -239,11 +513,33 @@ class TimerTableCompanion extends UpdateCompanion<TimerTableData> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (bookingTime.present) {
-      map['booking_time'] = Variable<String>(bookingTime.value);
+    if (temperature.present) {
+      map['temperature'] = Variable<double>(temperature.value);
     }
-    if (timerName.present) {
-      map['timer_name'] = Variable<String>(timerName.value);
+    if (humidity.present) {
+      map['humidity'] = Variable<double>(humidity.value);
+    }
+    if (pressure.present) {
+      map['pressure'] = Variable<double>(pressure.value);
+    }
+    if (lightIntensity.present) {
+      map['light_intensity'] = Variable<double>(lightIntensity.value);
+    }
+    if (co2.present) {
+      map['co2'] = Variable<double>(co2.value);
+    }
+    if (ph.present) {
+      map['ph'] = Variable<double>(ph.value);
+    }
+    if (soilTemperature.present) {
+      map['soil_temperature'] = Variable<double>(soilTemperature.value);
+    }
+    if (soilMoisture.present) {
+      map['soil_moisture'] = Variable<double>(soilMoisture.value);
+    }
+    if (electricalConductivity.present) {
+      map['electrical_conductivity'] =
+          Variable<double>(electricalConductivity.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -253,694 +549,18 @@ class TimerTableCompanion extends UpdateCompanion<TimerTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('TimerTableCompanion(')
+    return (StringBuffer('SensorDataTableCompanion(')
           ..write('id: $id, ')
-          ..write('bookingTime: $bookingTime, ')
-          ..write('timerName: $timerName, ')
+          ..write('temperature: $temperature, ')
+          ..write('humidity: $humidity, ')
+          ..write('pressure: $pressure, ')
+          ..write('lightIntensity: $lightIntensity, ')
+          ..write('co2: $co2, ')
+          ..write('ph: $ph, ')
+          ..write('soilTemperature: $soilTemperature, ')
+          ..write('soilMoisture: $soilMoisture, ')
+          ..write('electricalConductivity: $electricalConductivity, ')
           ..write('createdAt: $createdAt')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $UnitTableTable extends UnitTable
-    with TableInfo<$UnitTableTable, UnitTableData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $UnitTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _unitNameMeta =
-      const VerificationMeta('unitName');
-  @override
-  late final GeneratedColumn<String> unitName = GeneratedColumn<String>(
-      'unit_name', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _unitNumberMeta =
-      const VerificationMeta('unitNumber');
-  @override
-  late final GeneratedColumn<int> unitNumber = GeneratedColumn<int>(
-      'unit_number', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _timerIdMeta =
-      const VerificationMeta('timerId');
-  @override
-  late final GeneratedColumn<int> timerId = GeneratedColumn<int>(
-      'timer_id', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _isOnMeta = const VerificationMeta('isOn');
-  @override
-  late final GeneratedColumn<bool> isOn = GeneratedColumn<bool>(
-      'is_on', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_on" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _isAutoMeta = const VerificationMeta('isAuto');
-  @override
-  late final GeneratedColumn<bool> isAuto = GeneratedColumn<bool>(
-      'is_auto', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_auto" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [id, unitName, unitNumber, timerId, isOn, isAuto, updatedAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'unit_table';
-  @override
-  VerificationContext validateIntegrity(Insertable<UnitTableData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('unit_name')) {
-      context.handle(_unitNameMeta,
-          unitName.isAcceptableOrUnknown(data['unit_name']!, _unitNameMeta));
-    }
-    if (data.containsKey('unit_number')) {
-      context.handle(
-          _unitNumberMeta,
-          unitNumber.isAcceptableOrUnknown(
-              data['unit_number']!, _unitNumberMeta));
-    }
-    if (data.containsKey('timer_id')) {
-      context.handle(_timerIdMeta,
-          timerId.isAcceptableOrUnknown(data['timer_id']!, _timerIdMeta));
-    }
-    if (data.containsKey('is_on')) {
-      context.handle(
-          _isOnMeta, isOn.isAcceptableOrUnknown(data['is_on']!, _isOnMeta));
-    }
-    if (data.containsKey('is_auto')) {
-      context.handle(_isAutoMeta,
-          isAuto.isAcceptableOrUnknown(data['is_auto']!, _isAutoMeta));
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  UnitTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return UnitTableData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      unitName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit_name']),
-      unitNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}unit_number']),
-      timerId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}timer_id']),
-      isOn: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_on'])!,
-      isAuto: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_auto'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
-    );
-  }
-
-  @override
-  $UnitTableTable createAlias(String alias) {
-    return $UnitTableTable(attachedDatabase, alias);
-  }
-}
-
-class UnitTableData extends DataClass implements Insertable<UnitTableData> {
-  /// primary
-  final int id;
-
-  /// 유닛 이름
-  final String? unitName;
-
-  /// 유닛 번호
-  final int? unitNumber;
-
-  ///타이머
-  final int? timerId;
-
-  /// 유닛 현재 상태(켜짐 꺼짐)
-  final bool isOn;
-
-  /// 유닛 모드(자동:true 수동:false)
-  /// false 경우만 시간 설정이 적용 되도록.
-  final bool isAuto;
-
-  ///갱신 시간
-  final DateTime? updatedAt;
-  const UnitTableData(
-      {required this.id,
-      this.unitName,
-      this.unitNumber,
-      this.timerId,
-      required this.isOn,
-      required this.isAuto,
-      this.updatedAt});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    if (!nullToAbsent || unitName != null) {
-      map['unit_name'] = Variable<String>(unitName);
-    }
-    if (!nullToAbsent || unitNumber != null) {
-      map['unit_number'] = Variable<int>(unitNumber);
-    }
-    if (!nullToAbsent || timerId != null) {
-      map['timer_id'] = Variable<int>(timerId);
-    }
-    map['is_on'] = Variable<bool>(isOn);
-    map['is_auto'] = Variable<bool>(isAuto);
-    if (!nullToAbsent || updatedAt != null) {
-      map['updated_at'] = Variable<DateTime>(updatedAt);
-    }
-    return map;
-  }
-
-  UnitTableCompanion toCompanion(bool nullToAbsent) {
-    return UnitTableCompanion(
-      id: Value(id),
-      unitName: unitName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(unitName),
-      unitNumber: unitNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(unitNumber),
-      timerId: timerId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timerId),
-      isOn: Value(isOn),
-      isAuto: Value(isAuto),
-      updatedAt: updatedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(updatedAt),
-    );
-  }
-
-  factory UnitTableData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return UnitTableData(
-      id: serializer.fromJson<int>(json['id']),
-      unitName: serializer.fromJson<String?>(json['unitName']),
-      unitNumber: serializer.fromJson<int?>(json['unitNumber']),
-      timerId: serializer.fromJson<int?>(json['timerId']),
-      isOn: serializer.fromJson<bool>(json['isOn']),
-      isAuto: serializer.fromJson<bool>(json['isAuto']),
-      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'unitName': serializer.toJson<String?>(unitName),
-      'unitNumber': serializer.toJson<int?>(unitNumber),
-      'timerId': serializer.toJson<int?>(timerId),
-      'isOn': serializer.toJson<bool>(isOn),
-      'isAuto': serializer.toJson<bool>(isAuto),
-      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
-    };
-  }
-
-  UnitTableData copyWith(
-          {int? id,
-          Value<String?> unitName = const Value.absent(),
-          Value<int?> unitNumber = const Value.absent(),
-          Value<int?> timerId = const Value.absent(),
-          bool? isOn,
-          bool? isAuto,
-          Value<DateTime?> updatedAt = const Value.absent()}) =>
-      UnitTableData(
-        id: id ?? this.id,
-        unitName: unitName.present ? unitName.value : this.unitName,
-        unitNumber: unitNumber.present ? unitNumber.value : this.unitNumber,
-        timerId: timerId.present ? timerId.value : this.timerId,
-        isOn: isOn ?? this.isOn,
-        isAuto: isAuto ?? this.isAuto,
-        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('UnitTableData(')
-          ..write('id: $id, ')
-          ..write('unitName: $unitName, ')
-          ..write('unitNumber: $unitNumber, ')
-          ..write('timerId: $timerId, ')
-          ..write('isOn: $isOn, ')
-          ..write('isAuto: $isAuto, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(id, unitName, unitNumber, timerId, isOn, isAuto, updatedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is UnitTableData &&
-          other.id == this.id &&
-          other.unitName == this.unitName &&
-          other.unitNumber == this.unitNumber &&
-          other.timerId == this.timerId &&
-          other.isOn == this.isOn &&
-          other.isAuto == this.isAuto &&
-          other.updatedAt == this.updatedAt);
-}
-
-class UnitTableCompanion extends UpdateCompanion<UnitTableData> {
-  final Value<int> id;
-  final Value<String?> unitName;
-  final Value<int?> unitNumber;
-  final Value<int?> timerId;
-  final Value<bool> isOn;
-  final Value<bool> isAuto;
-  final Value<DateTime?> updatedAt;
-  const UnitTableCompanion({
-    this.id = const Value.absent(),
-    this.unitName = const Value.absent(),
-    this.unitNumber = const Value.absent(),
-    this.timerId = const Value.absent(),
-    this.isOn = const Value.absent(),
-    this.isAuto = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-  });
-  UnitTableCompanion.insert({
-    this.id = const Value.absent(),
-    this.unitName = const Value.absent(),
-    this.unitNumber = const Value.absent(),
-    this.timerId = const Value.absent(),
-    this.isOn = const Value.absent(),
-    this.isAuto = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-  });
-  static Insertable<UnitTableData> custom({
-    Expression<int>? id,
-    Expression<String>? unitName,
-    Expression<int>? unitNumber,
-    Expression<int>? timerId,
-    Expression<bool>? isOn,
-    Expression<bool>? isAuto,
-    Expression<DateTime>? updatedAt,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (unitName != null) 'unit_name': unitName,
-      if (unitNumber != null) 'unit_number': unitNumber,
-      if (timerId != null) 'timer_id': timerId,
-      if (isOn != null) 'is_on': isOn,
-      if (isAuto != null) 'is_auto': isAuto,
-      if (updatedAt != null) 'updated_at': updatedAt,
-    });
-  }
-
-  UnitTableCompanion copyWith(
-      {Value<int>? id,
-      Value<String?>? unitName,
-      Value<int?>? unitNumber,
-      Value<int?>? timerId,
-      Value<bool>? isOn,
-      Value<bool>? isAuto,
-      Value<DateTime?>? updatedAt}) {
-    return UnitTableCompanion(
-      id: id ?? this.id,
-      unitName: unitName ?? this.unitName,
-      unitNumber: unitNumber ?? this.unitNumber,
-      timerId: timerId ?? this.timerId,
-      isOn: isOn ?? this.isOn,
-      isAuto: isAuto ?? this.isAuto,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (unitName.present) {
-      map['unit_name'] = Variable<String>(unitName.value);
-    }
-    if (unitNumber.present) {
-      map['unit_number'] = Variable<int>(unitNumber.value);
-    }
-    if (timerId.present) {
-      map['timer_id'] = Variable<int>(timerId.value);
-    }
-    if (isOn.present) {
-      map['is_on'] = Variable<bool>(isOn.value);
-    }
-    if (isAuto.present) {
-      map['is_auto'] = Variable<bool>(isAuto.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('UnitTableCompanion(')
-          ..write('id: $id, ')
-          ..write('unitName: $unitName, ')
-          ..write('unitNumber: $unitNumber, ')
-          ..write('timerId: $timerId, ')
-          ..write('isOn: $isOn, ')
-          ..write('isAuto: $isAuto, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $TemperatureTableTable extends TemperatureTable
-    with TableInfo<$TemperatureTableTable, TemperatureTableData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TemperatureTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _timeMeta = const VerificationMeta('time');
-  @override
-  late final GeneratedColumn<String> time = GeneratedColumn<String>(
-      'time', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _highTempMeta =
-      const VerificationMeta('highTemp');
-  @override
-  late final GeneratedColumn<double> highTemp = GeneratedColumn<double>(
-      'high_temp', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _lowTempMeta =
-      const VerificationMeta('lowTemp');
-  @override
-  late final GeneratedColumn<double> lowTemp = GeneratedColumn<double>(
-      'low_temp', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [id, time, highTemp, lowTemp, updatedAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'temperature_table';
-  @override
-  VerificationContext validateIntegrity(
-      Insertable<TemperatureTableData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('time')) {
-      context.handle(
-          _timeMeta, time.isAcceptableOrUnknown(data['time']!, _timeMeta));
-    } else if (isInserting) {
-      context.missing(_timeMeta);
-    }
-    if (data.containsKey('high_temp')) {
-      context.handle(_highTempMeta,
-          highTemp.isAcceptableOrUnknown(data['high_temp']!, _highTempMeta));
-    } else if (isInserting) {
-      context.missing(_highTempMeta);
-    }
-    if (data.containsKey('low_temp')) {
-      context.handle(_lowTempMeta,
-          lowTemp.isAcceptableOrUnknown(data['low_temp']!, _lowTempMeta));
-    } else if (isInserting) {
-      context.missing(_lowTempMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  TemperatureTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TemperatureTableData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      time: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}time'])!,
-      highTemp: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}high_temp'])!,
-      lowTemp: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}low_temp'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
-    );
-  }
-
-  @override
-  $TemperatureTableTable createAlias(String alias) {
-    return $TemperatureTableTable(attachedDatabase, alias);
-  }
-}
-
-class TemperatureTableData extends DataClass
-    implements Insertable<TemperatureTableData> {
-  /// 식별 가능한 아이디
-  final int id;
-
-  /// 시간
-  final String time;
-
-  /// 최고 온도
-  final double highTemp;
-
-  /// 최저 온도
-  final double lowTemp;
-
-  /// 업데이트 시간
-  final DateTime? updatedAt;
-  const TemperatureTableData(
-      {required this.id,
-      required this.time,
-      required this.highTemp,
-      required this.lowTemp,
-      this.updatedAt});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['time'] = Variable<String>(time);
-    map['high_temp'] = Variable<double>(highTemp);
-    map['low_temp'] = Variable<double>(lowTemp);
-    if (!nullToAbsent || updatedAt != null) {
-      map['updated_at'] = Variable<DateTime>(updatedAt);
-    }
-    return map;
-  }
-
-  TemperatureTableCompanion toCompanion(bool nullToAbsent) {
-    return TemperatureTableCompanion(
-      id: Value(id),
-      time: Value(time),
-      highTemp: Value(highTemp),
-      lowTemp: Value(lowTemp),
-      updatedAt: updatedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(updatedAt),
-    );
-  }
-
-  factory TemperatureTableData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TemperatureTableData(
-      id: serializer.fromJson<int>(json['id']),
-      time: serializer.fromJson<String>(json['time']),
-      highTemp: serializer.fromJson<double>(json['highTemp']),
-      lowTemp: serializer.fromJson<double>(json['lowTemp']),
-      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'time': serializer.toJson<String>(time),
-      'highTemp': serializer.toJson<double>(highTemp),
-      'lowTemp': serializer.toJson<double>(lowTemp),
-      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
-    };
-  }
-
-  TemperatureTableData copyWith(
-          {int? id,
-          String? time,
-          double? highTemp,
-          double? lowTemp,
-          Value<DateTime?> updatedAt = const Value.absent()}) =>
-      TemperatureTableData(
-        id: id ?? this.id,
-        time: time ?? this.time,
-        highTemp: highTemp ?? this.highTemp,
-        lowTemp: lowTemp ?? this.lowTemp,
-        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('TemperatureTableData(')
-          ..write('id: $id, ')
-          ..write('time: $time, ')
-          ..write('highTemp: $highTemp, ')
-          ..write('lowTemp: $lowTemp, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, time, highTemp, lowTemp, updatedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TemperatureTableData &&
-          other.id == this.id &&
-          other.time == this.time &&
-          other.highTemp == this.highTemp &&
-          other.lowTemp == this.lowTemp &&
-          other.updatedAt == this.updatedAt);
-}
-
-class TemperatureTableCompanion extends UpdateCompanion<TemperatureTableData> {
-  final Value<int> id;
-  final Value<String> time;
-  final Value<double> highTemp;
-  final Value<double> lowTemp;
-  final Value<DateTime?> updatedAt;
-  const TemperatureTableCompanion({
-    this.id = const Value.absent(),
-    this.time = const Value.absent(),
-    this.highTemp = const Value.absent(),
-    this.lowTemp = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-  });
-  TemperatureTableCompanion.insert({
-    this.id = const Value.absent(),
-    required String time,
-    required double highTemp,
-    required double lowTemp,
-    this.updatedAt = const Value.absent(),
-  })  : time = Value(time),
-        highTemp = Value(highTemp),
-        lowTemp = Value(lowTemp);
-  static Insertable<TemperatureTableData> custom({
-    Expression<int>? id,
-    Expression<String>? time,
-    Expression<double>? highTemp,
-    Expression<double>? lowTemp,
-    Expression<DateTime>? updatedAt,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (time != null) 'time': time,
-      if (highTemp != null) 'high_temp': highTemp,
-      if (lowTemp != null) 'low_temp': lowTemp,
-      if (updatedAt != null) 'updated_at': updatedAt,
-    });
-  }
-
-  TemperatureTableCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? time,
-      Value<double>? highTemp,
-      Value<double>? lowTemp,
-      Value<DateTime?>? updatedAt}) {
-    return TemperatureTableCompanion(
-      id: id ?? this.id,
-      time: time ?? this.time,
-      highTemp: highTemp ?? this.highTemp,
-      lowTemp: lowTemp ?? this.lowTemp,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (time.present) {
-      map['time'] = Variable<String>(time.value);
-    }
-    if (highTemp.present) {
-      map['high_temp'] = Variable<double>(highTemp.value);
-    }
-    if (lowTemp.present) {
-      map['low_temp'] = Variable<double>(lowTemp.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TemperatureTableCompanion(')
-          ..write('id: $id, ')
-          ..write('time: $time, ')
-          ..write('highTemp: $highTemp, ')
-          ..write('lowTemp: $lowTemp, ')
-          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -949,104 +569,181 @@ class TemperatureTableCompanion extends UpdateCompanion<TemperatureTableData> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
-  late final $TimerTableTable timerTable = $TimerTableTable(this);
-  late final $UnitTableTable unitTable = $UnitTableTable(this);
-  late final $TemperatureTableTable temperatureTable =
-      $TemperatureTableTable(this);
+  late final $SensorDataTableTable sensorDataTable =
+      $SensorDataTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [timerTable, unitTable, temperatureTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [sensorDataTable];
 }
 
-typedef $$TimerTableTableInsertCompanionBuilder = TimerTableCompanion Function({
+typedef $$SensorDataTableTableInsertCompanionBuilder = SensorDataTableCompanion
+    Function({
   Value<int> id,
-  required String bookingTime,
-  required String timerName,
+  required double temperature,
+  required double humidity,
+  required double pressure,
+  required double lightIntensity,
+  required double co2,
+  required double ph,
+  required double soilTemperature,
+  required double soilMoisture,
+  required double electricalConductivity,
   Value<DateTime> createdAt,
 });
-typedef $$TimerTableTableUpdateCompanionBuilder = TimerTableCompanion Function({
+typedef $$SensorDataTableTableUpdateCompanionBuilder = SensorDataTableCompanion
+    Function({
   Value<int> id,
-  Value<String> bookingTime,
-  Value<String> timerName,
+  Value<double> temperature,
+  Value<double> humidity,
+  Value<double> pressure,
+  Value<double> lightIntensity,
+  Value<double> co2,
+  Value<double> ph,
+  Value<double> soilTemperature,
+  Value<double> soilMoisture,
+  Value<double> electricalConductivity,
   Value<DateTime> createdAt,
 });
 
-class $$TimerTableTableTableManager extends RootTableManager<
+class $$SensorDataTableTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $TimerTableTable,
-    TimerTableData,
-    $$TimerTableTableFilterComposer,
-    $$TimerTableTableOrderingComposer,
-    $$TimerTableTableProcessedTableManager,
-    $$TimerTableTableInsertCompanionBuilder,
-    $$TimerTableTableUpdateCompanionBuilder> {
-  $$TimerTableTableTableManager(_$AppDatabase db, $TimerTableTable table)
+    $SensorDataTableTable,
+    SensorDataTableData,
+    $$SensorDataTableTableFilterComposer,
+    $$SensorDataTableTableOrderingComposer,
+    $$SensorDataTableTableProcessedTableManager,
+    $$SensorDataTableTableInsertCompanionBuilder,
+    $$SensorDataTableTableUpdateCompanionBuilder> {
+  $$SensorDataTableTableTableManager(
+      _$AppDatabase db, $SensorDataTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           filteringComposer:
-              $$TimerTableTableFilterComposer(ComposerState(db, table)),
+              $$SensorDataTableTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
-              $$TimerTableTableOrderingComposer(ComposerState(db, table)),
+              $$SensorDataTableTableOrderingComposer(ComposerState(db, table)),
           getChildManagerBuilder: (p) =>
-              $$TimerTableTableProcessedTableManager(p),
+              $$SensorDataTableTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
             Value<int> id = const Value.absent(),
-            Value<String> bookingTime = const Value.absent(),
-            Value<String> timerName = const Value.absent(),
+            Value<double> temperature = const Value.absent(),
+            Value<double> humidity = const Value.absent(),
+            Value<double> pressure = const Value.absent(),
+            Value<double> lightIntensity = const Value.absent(),
+            Value<double> co2 = const Value.absent(),
+            Value<double> ph = const Value.absent(),
+            Value<double> soilTemperature = const Value.absent(),
+            Value<double> soilMoisture = const Value.absent(),
+            Value<double> electricalConductivity = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
-              TimerTableCompanion(
+              SensorDataTableCompanion(
             id: id,
-            bookingTime: bookingTime,
-            timerName: timerName,
+            temperature: temperature,
+            humidity: humidity,
+            pressure: pressure,
+            lightIntensity: lightIntensity,
+            co2: co2,
+            ph: ph,
+            soilTemperature: soilTemperature,
+            soilMoisture: soilMoisture,
+            electricalConductivity: electricalConductivity,
             createdAt: createdAt,
           ),
           getInsertCompanionBuilder: ({
             Value<int> id = const Value.absent(),
-            required String bookingTime,
-            required String timerName,
+            required double temperature,
+            required double humidity,
+            required double pressure,
+            required double lightIntensity,
+            required double co2,
+            required double ph,
+            required double soilTemperature,
+            required double soilMoisture,
+            required double electricalConductivity,
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
-              TimerTableCompanion.insert(
+              SensorDataTableCompanion.insert(
             id: id,
-            bookingTime: bookingTime,
-            timerName: timerName,
+            temperature: temperature,
+            humidity: humidity,
+            pressure: pressure,
+            lightIntensity: lightIntensity,
+            co2: co2,
+            ph: ph,
+            soilTemperature: soilTemperature,
+            soilMoisture: soilMoisture,
+            electricalConductivity: electricalConductivity,
             createdAt: createdAt,
           ),
         ));
 }
 
-class $$TimerTableTableProcessedTableManager extends ProcessedTableManager<
+class $$SensorDataTableTableProcessedTableManager extends ProcessedTableManager<
     _$AppDatabase,
-    $TimerTableTable,
-    TimerTableData,
-    $$TimerTableTableFilterComposer,
-    $$TimerTableTableOrderingComposer,
-    $$TimerTableTableProcessedTableManager,
-    $$TimerTableTableInsertCompanionBuilder,
-    $$TimerTableTableUpdateCompanionBuilder> {
-  $$TimerTableTableProcessedTableManager(super.$state);
+    $SensorDataTableTable,
+    SensorDataTableData,
+    $$SensorDataTableTableFilterComposer,
+    $$SensorDataTableTableOrderingComposer,
+    $$SensorDataTableTableProcessedTableManager,
+    $$SensorDataTableTableInsertCompanionBuilder,
+    $$SensorDataTableTableUpdateCompanionBuilder> {
+  $$SensorDataTableTableProcessedTableManager(super.$state);
 }
 
-class $$TimerTableTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $TimerTableTable> {
-  $$TimerTableTableFilterComposer(super.$state);
+class $$SensorDataTableTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $SensorDataTableTable> {
+  $$SensorDataTableTableFilterComposer(super.$state);
   ColumnFilters<int> get id => $state.composableBuilder(
       column: $state.table.id,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<String> get bookingTime => $state.composableBuilder(
-      column: $state.table.bookingTime,
+  ColumnFilters<double> get temperature => $state.composableBuilder(
+      column: $state.table.temperature,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<String> get timerName => $state.composableBuilder(
-      column: $state.table.timerName,
+  ColumnFilters<double> get humidity => $state.composableBuilder(
+      column: $state.table.humidity,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get pressure => $state.composableBuilder(
+      column: $state.table.pressure,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get lightIntensity => $state.composableBuilder(
+      column: $state.table.lightIntensity,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get co2 => $state.composableBuilder(
+      column: $state.table.co2,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get ph => $state.composableBuilder(
+      column: $state.table.ph,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get soilTemperature => $state.composableBuilder(
+      column: $state.table.soilTemperature,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get soilMoisture => $state.composableBuilder(
+      column: $state.table.soilMoisture,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get electricalConductivity => $state.composableBuilder(
+      column: $state.table.electricalConductivity,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -1056,23 +753,59 @@ class $$TimerTableTableFilterComposer
           ColumnFilters(column, joinBuilders: joinBuilders));
 }
 
-class $$TimerTableTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $TimerTableTable> {
-  $$TimerTableTableOrderingComposer(super.$state);
+class $$SensorDataTableTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $SensorDataTableTable> {
+  $$SensorDataTableTableOrderingComposer(super.$state);
   ColumnOrderings<int> get id => $state.composableBuilder(
       column: $state.table.id,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<String> get bookingTime => $state.composableBuilder(
-      column: $state.table.bookingTime,
+  ColumnOrderings<double> get temperature => $state.composableBuilder(
+      column: $state.table.temperature,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<String> get timerName => $state.composableBuilder(
-      column: $state.table.timerName,
+  ColumnOrderings<double> get humidity => $state.composableBuilder(
+      column: $state.table.humidity,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get pressure => $state.composableBuilder(
+      column: $state.table.pressure,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get lightIntensity => $state.composableBuilder(
+      column: $state.table.lightIntensity,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get co2 => $state.composableBuilder(
+      column: $state.table.co2,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get ph => $state.composableBuilder(
+      column: $state.table.ph,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get soilTemperature => $state.composableBuilder(
+      column: $state.table.soilTemperature,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get soilMoisture => $state.composableBuilder(
+      column: $state.table.soilMoisture,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get electricalConductivity =>
+      $state.composableBuilder(
+          column: $state.table.electricalConductivity,
+          builder: (column, joinBuilders) =>
+              ColumnOrderings(column, joinBuilders: joinBuilders));
 
   ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
       column: $state.table.createdAt,
@@ -1080,319 +813,9 @@ class $$TimerTableTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-typedef $$UnitTableTableInsertCompanionBuilder = UnitTableCompanion Function({
-  Value<int> id,
-  Value<String?> unitName,
-  Value<int?> unitNumber,
-  Value<int?> timerId,
-  Value<bool> isOn,
-  Value<bool> isAuto,
-  Value<DateTime?> updatedAt,
-});
-typedef $$UnitTableTableUpdateCompanionBuilder = UnitTableCompanion Function({
-  Value<int> id,
-  Value<String?> unitName,
-  Value<int?> unitNumber,
-  Value<int?> timerId,
-  Value<bool> isOn,
-  Value<bool> isAuto,
-  Value<DateTime?> updatedAt,
-});
-
-class $$UnitTableTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $UnitTableTable,
-    UnitTableData,
-    $$UnitTableTableFilterComposer,
-    $$UnitTableTableOrderingComposer,
-    $$UnitTableTableProcessedTableManager,
-    $$UnitTableTableInsertCompanionBuilder,
-    $$UnitTableTableUpdateCompanionBuilder> {
-  $$UnitTableTableTableManager(_$AppDatabase db, $UnitTableTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$UnitTableTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$UnitTableTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$UnitTableTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
-            Value<String?> unitName = const Value.absent(),
-            Value<int?> unitNumber = const Value.absent(),
-            Value<int?> timerId = const Value.absent(),
-            Value<bool> isOn = const Value.absent(),
-            Value<bool> isAuto = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
-          }) =>
-              UnitTableCompanion(
-            id: id,
-            unitName: unitName,
-            unitNumber: unitNumber,
-            timerId: timerId,
-            isOn: isOn,
-            isAuto: isAuto,
-            updatedAt: updatedAt,
-          ),
-          getInsertCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
-            Value<String?> unitName = const Value.absent(),
-            Value<int?> unitNumber = const Value.absent(),
-            Value<int?> timerId = const Value.absent(),
-            Value<bool> isOn = const Value.absent(),
-            Value<bool> isAuto = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
-          }) =>
-              UnitTableCompanion.insert(
-            id: id,
-            unitName: unitName,
-            unitNumber: unitNumber,
-            timerId: timerId,
-            isOn: isOn,
-            isAuto: isAuto,
-            updatedAt: updatedAt,
-          ),
-        ));
-}
-
-class $$UnitTableTableProcessedTableManager extends ProcessedTableManager<
-    _$AppDatabase,
-    $UnitTableTable,
-    UnitTableData,
-    $$UnitTableTableFilterComposer,
-    $$UnitTableTableOrderingComposer,
-    $$UnitTableTableProcessedTableManager,
-    $$UnitTableTableInsertCompanionBuilder,
-    $$UnitTableTableUpdateCompanionBuilder> {
-  $$UnitTableTableProcessedTableManager(super.$state);
-}
-
-class $$UnitTableTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $UnitTableTable> {
-  $$UnitTableTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get unitName => $state.composableBuilder(
-      column: $state.table.unitName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get unitNumber => $state.composableBuilder(
-      column: $state.table.unitNumber,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get timerId => $state.composableBuilder(
-      column: $state.table.timerId,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get isOn => $state.composableBuilder(
-      column: $state.table.isOn,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get isAuto => $state.composableBuilder(
-      column: $state.table.isAuto,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$UnitTableTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $UnitTableTable> {
-  $$UnitTableTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get unitName => $state.composableBuilder(
-      column: $state.table.unitName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get unitNumber => $state.composableBuilder(
-      column: $state.table.unitNumber,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get timerId => $state.composableBuilder(
-      column: $state.table.timerId,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get isOn => $state.composableBuilder(
-      column: $state.table.isOn,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get isAuto => $state.composableBuilder(
-      column: $state.table.isAuto,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
-typedef $$TemperatureTableTableInsertCompanionBuilder
-    = TemperatureTableCompanion Function({
-  Value<int> id,
-  required String time,
-  required double highTemp,
-  required double lowTemp,
-  Value<DateTime?> updatedAt,
-});
-typedef $$TemperatureTableTableUpdateCompanionBuilder
-    = TemperatureTableCompanion Function({
-  Value<int> id,
-  Value<String> time,
-  Value<double> highTemp,
-  Value<double> lowTemp,
-  Value<DateTime?> updatedAt,
-});
-
-class $$TemperatureTableTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TemperatureTableTable,
-    TemperatureTableData,
-    $$TemperatureTableTableFilterComposer,
-    $$TemperatureTableTableOrderingComposer,
-    $$TemperatureTableTableProcessedTableManager,
-    $$TemperatureTableTableInsertCompanionBuilder,
-    $$TemperatureTableTableUpdateCompanionBuilder> {
-  $$TemperatureTableTableTableManager(
-      _$AppDatabase db, $TemperatureTableTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$TemperatureTableTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TemperatureTableTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$TemperatureTableTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
-            Value<String> time = const Value.absent(),
-            Value<double> highTemp = const Value.absent(),
-            Value<double> lowTemp = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
-          }) =>
-              TemperatureTableCompanion(
-            id: id,
-            time: time,
-            highTemp: highTemp,
-            lowTemp: lowTemp,
-            updatedAt: updatedAt,
-          ),
-          getInsertCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
-            required String time,
-            required double highTemp,
-            required double lowTemp,
-            Value<DateTime?> updatedAt = const Value.absent(),
-          }) =>
-              TemperatureTableCompanion.insert(
-            id: id,
-            time: time,
-            highTemp: highTemp,
-            lowTemp: lowTemp,
-            updatedAt: updatedAt,
-          ),
-        ));
-}
-
-class $$TemperatureTableTableProcessedTableManager
-    extends ProcessedTableManager<
-        _$AppDatabase,
-        $TemperatureTableTable,
-        TemperatureTableData,
-        $$TemperatureTableTableFilterComposer,
-        $$TemperatureTableTableOrderingComposer,
-        $$TemperatureTableTableProcessedTableManager,
-        $$TemperatureTableTableInsertCompanionBuilder,
-        $$TemperatureTableTableUpdateCompanionBuilder> {
-  $$TemperatureTableTableProcessedTableManager(super.$state);
-}
-
-class $$TemperatureTableTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $TemperatureTableTable> {
-  $$TemperatureTableTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get time => $state.composableBuilder(
-      column: $state.table.time,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<double> get highTemp => $state.composableBuilder(
-      column: $state.table.highTemp,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<double> get lowTemp => $state.composableBuilder(
-      column: $state.table.lowTemp,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$TemperatureTableTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $TemperatureTableTable> {
-  $$TemperatureTableTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get time => $state.composableBuilder(
-      column: $state.table.time,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<double> get highTemp => $state.composableBuilder(
-      column: $state.table.highTemp,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<double> get lowTemp => $state.composableBuilder(
-      column: $state.table.lowTemp,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
 class _$AppDatabaseManager {
   final _$AppDatabase _db;
   _$AppDatabaseManager(this._db);
-  $$TimerTableTableTableManager get timerTable =>
-      $$TimerTableTableTableManager(_db, _db.timerTable);
-  $$UnitTableTableTableManager get unitTable =>
-      $$UnitTableTableTableManager(_db, _db.unitTable);
-  $$TemperatureTableTableTableManager get temperatureTable =>
-      $$TemperatureTableTableTableManager(_db, _db.temperatureTable);
+  $$SensorDataTableTableTableManager get sensorDataTable =>
+      $$SensorDataTableTableTableManager(_db, _db.sensorDataTable);
 }
