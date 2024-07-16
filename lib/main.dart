@@ -5,10 +5,13 @@ import 'package:smart_farm/database/drift.dart';
 import 'package:smart_farm/provider/data_provider.dart';
 import 'package:smart_farm/screens/intro_screen.dart';
 import 'package:smart_farm/service/socket_service.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   /// 위젯 바인딩 바인딩 초기화
   WidgetsFlutterBinding.ensureInitialized();
+
+  await initializeDateFormatting();
 
   /// 데이터베이스 초기화 및 등록
   final database = AppDatabase();

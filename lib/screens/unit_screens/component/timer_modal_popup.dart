@@ -7,7 +7,6 @@ import 'package:smart_farm/component/custom_timer_list.dart';
 import 'package:smart_farm/model/set_up_data_model.dart';
 import 'package:smart_farm/provider/data_provider.dart';
 import 'package:smart_farm/provider/timer_info.dart';
-import 'package:smart_farm/service/service_save_and_load.dart';
 import 'package:smart_farm/service/socket_service.dart';
 
 import '../../../component/custom_date_picker.dart';

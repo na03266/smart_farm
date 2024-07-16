@@ -33,9 +33,9 @@ class CustomProgressIndicator extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(width: 5),
+                const SizedBox(width: 5),
                 Text(
-                  '$sensorValue',
+                  sensorValue.toStringAsFixed(1),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,

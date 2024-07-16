@@ -106,19 +106,13 @@ class _CustomFlChartState extends State<CustomFlChart> {
     );
 
     // value 는 인터벌
-    List<int> index = List.generate(20, (int index) => index);
+    List<int> index = List.generate(6, (int index) => index);
 
     int offset = quarter();
 
     // 5의 배수에 offset을 더한 값만 표시
-    /// 0, 6
-    /// 1,7
-    /// 2,4
-    /// 3
-    /// 5,8
-    // 이게 트루?
     for (int i in index) {
-      if (value == widget.max / 100 * 5 * index[i] + offset) {
+      if (value == widget.max / 5 * index[i] + widget.max / 25 * offset) {
         return Center(
           child: Text(
             '${value.toInt()}',
@@ -128,7 +122,6 @@ class _CustomFlChartState extends State<CustomFlChart> {
       }
     }
     return const SizedBox(); // 조건에 맞지 않으면 빈 위젯 반환
-
   }
 
   LineChartData mainData() {
@@ -196,7 +189,7 @@ class _CustomFlChartState extends State<CustomFlChart> {
           sideTitles: SideTitles(
             showTitles: true,
             reservedSize: 50, // 필요하다면 크기 증가
-            interval: (widget.max) / 100,
+            interval: (widget.max) / 25,
             getTitlesWidget: leftTitleWidgets,
           ),
         ),
@@ -214,7 +207,7 @@ class _CustomFlChartState extends State<CustomFlChart> {
       lineBarsData: [
         LineChartBarData(
           spots: widget.data,
-          isCurved: true,
+          isCurved: false,
           color: widget.color,
           barWidth: 5,
           isStrokeCapRound: true,

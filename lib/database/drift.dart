@@ -75,18 +75,17 @@ class AppDatabase extends _$AppDatabase {
   // Read: 특정 기간 동안의 센서 데이터 가져오기
 // Read: 특정 기간 동안의 센서 데이터 가져오기
 // Read: 특정 기간 동안의 센서 데이터 가져오기
-  Future<List<SensorDataTableData>> getSensorDataFromLastDay() async {
-    final now = DateTime.now();
-    final todayMidnight = DateTime(now.year, now.month, now.day);
+  Future<List<SensorDataTableData>> getSensorDataFromLastDay(DateTime date) async {
+    final todayMidnight = DateTime(date.year, date.month, date.day);
     final query = select(sensorDataTable)
-      ..where((tbl) => tbl.createdAt.isBetweenValues(todayMidnight, now))
+      ..where((tbl) => tbl.createdAt.isBetweenValues(todayMidnight, date))
       ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]);
 
     final sensorData = await query.get();
 
     List<SensorDataTableData> averagedData = [];
 
-    for (int i = 0; i < 48; i++) {
+    for (int i = 0; i < 49; i++) {
       // 48 intervals of 30 minutes in a day
       final start = todayMidnight.add(Duration(minutes: i * 30));
       final end = start.add(Duration(minutes: 30));
@@ -142,6 +141,21 @@ class AppDatabase extends _$AppDatabase {
           soilTemperature: averageSoilTemperature,
           soilMoisture: averageSoilMoisture,
           electricalConductivity: averageElectricalConductivity,
+          createdAt: start,
+        ));
+      }else {
+        // 데이터가 없는 경우에도 null 값으로 추가
+        averagedData.add(SensorDataTableData(
+          id: i, // 또는 적절한 기본값
+          temperature: 0,
+          humidity: 0,
+          pressure: 0,
+          lightIntensity: 0,
+          co2: 0,
+          ph: 0,
+          soilTemperature: 0,
+          soilMoisture: 0,
+          electricalConductivity: 0,
           createdAt: start,
         ));
       }

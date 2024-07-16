@@ -189,6 +189,17 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                                   });
                                 },
                               ),
+                              Expanded(child: SizedBox()),
+                              Text(
+                                '선택된 시간:   선택된 온도:',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 24,
+                                ),
+
+                              ),
+                              SizedBox(width: 30,)
                             ],
                           ),
                         ),
@@ -205,8 +216,10 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
   }
 
   onFinishPressed() async {
-    final tempL = List.generate(48, (index) => (widget.lowData[index].y.toInt()));
-    final tempH = List.generate(48, (index) => (widget.highData[index].y.toInt()));
+    final tempL =
+        List.generate(48, (index) => (widget.lowData[index].y.toInt()));
+    final tempH =
+        List.generate(48, (index) => (widget.highData[index].y.toInt()));
 
     /// 높은 값과 낮은 값 리스트로 반환
     Navigator.of(context).pop([tempL, tempH]);
@@ -220,6 +233,7 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
       double coordinateX = details.globalPosition.dx;
       double timeX = 100 + 23.2 * i;
       double coordinateY = details.globalPosition.dy;
+      print('$coordinateX , $coordinateY');
 
       /// tempY = a*y + b >> 화면 좌표 기준 온도 값 변환식
       double tempY = (5 * 660 / 51) - (50 / 510 * coordinateY);
@@ -229,7 +243,7 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
       /// 그래프 안의 좌표만 허용
       bool timeCondition =
           coordinateX <= timeX + 11.6 && coordinateX >= timeX - 11.6;
-      bool tempCondition = coordinateY <= 600 && coordinateY >= 150;
+      bool tempCondition = coordinateY <= 660 && coordinateY >= 140;
 
       double roundToNearestHalf(double value) {
         return value.toInt().toDouble();
