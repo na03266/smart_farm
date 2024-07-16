@@ -76,9 +76,12 @@ class AppDatabase extends _$AppDatabase {
 // Read: 특정 기간 동안의 센서 데이터 가져오기
 // Read: 특정 기간 동안의 센서 데이터 가져오기
   Future<List<SensorDataTableData>> getSensorDataFromLastDay(DateTime date) async {
+
     final todayMidnight = DateTime(date.year, date.month, date.day);
+    final tomorrowMidnight = todayMidnight.add(Duration(days: 1));
+
     final query = select(sensorDataTable)
-      ..where((tbl) => tbl.createdAt.isBetweenValues(todayMidnight, date))
+      ..where((tbl) => tbl.createdAt.isBetweenValues(todayMidnight, tomorrowMidnight))
       ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]);
 
     final sensorData = await query.get();

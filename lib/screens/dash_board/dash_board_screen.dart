@@ -42,6 +42,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
       floatingActionButton: FloatingActionButton.small(
         onPressed: () async {
           DateTime? pickedDate = await showDatePicker(context);
+          setState(() {
+            selectedDate = pickedDate;
+          });
           if (pickedDate != null) {
             print('선택된 날짜: $pickedDate');
             // 여기에서 선택된 날짜를 사용하면 됩니다.
@@ -61,79 +64,89 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
 
   /// 여기 달력에서 데이터 전송하는 것까지.
   Future<DateTime?> showDatePicker(BuildContext context) async {
-    selectedDate = await showCupertinoModalPopup<DateTime>(
+    DateTime tempPickedDate = DateTime.now(); // 여기로 이동
+
+    return await showCupertinoModalPopup<DateTime>(
       barrierDismissible: true,
       context: context,
       builder: (_) {
-        DateTime? tempPickedDate = DateTime.now();
-        final defaultBoxDecoration = BoxDecoration(
-          borderRadius: BorderRadius.circular(6.0),
-          border: Border.all(color: Colors.grey[400]!, width: 1.0),
-        );
-        return Center(
-          child: Container(
-            width: 700,
-            height: 450,
-            color: Colors.white,
-            child: Scaffold(
-              body: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: TableCalendar(
-                        locale: 'ko_KR',
-                        focusedDay: DateTime.now(),
-                        firstDay: DateTime.now()
-                            .subtract(const Duration(days: 365 * 2)),
-                        lastDay: DateTime.now(),
-                        headerStyle: const HeaderStyle(
-                            formatButtonVisible: false,
-                            titleCentered: true,
-                            titleTextStyle: TextStyle(
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            final defaultBoxDecoration = BoxDecoration(
+              borderRadius: BorderRadius.circular(6.0),
+              border: Border.all(color: Colors.grey[400]!, width: 1.0),
+            );
+            return Center(
+              child: Container(
+                width: 700,
+                height: 450,
+                color: Colors.white,
+                child: Scaffold(
+                  body: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: TableCalendar(
+                            locale: 'ko_KR',
+                            focusedDay: tempPickedDate,
+                            firstDay: DateTime.now()
+                                .subtract(const Duration(days: 365 * 2)),
+                            lastDay: DateTime.now(),
+                            headerStyle: const HeaderStyle(
+                              formatButtonVisible: false,
+                              titleCentered: true,
+                              titleTextStyle: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            calendarStyle: CalendarStyle(
+                                isTodayHighlighted: true,
+                                defaultDecoration: defaultBoxDecoration,
+                                weekendDecoration: defaultBoxDecoration,
+                                selectedDecoration:
+                                    defaultBoxDecoration.copyWith(
+                                  border:
+                                      Border.all(color: colors[3], width: 2.0),
+                                ),
+                                todayDecoration: defaultBoxDecoration.copyWith(
+                                  color: colors[3],
+                                  border: Border.all(width: 2.0),
+                                ),
+                                selectedTextStyle: TextStyle(color: colors[2])),
+                            onDaySelected: (selectedDay, focusedDay) {
+                              setModalState(() {
+                                tempPickedDate = selectedDay;
+                              });
+                            },
+                            selectedDayPredicate: (day) {
+                              return isSameDay(tempPickedDate, day);
+                            },
+                          ),
+                        ),
+                        CupertinoButton(
+                          child: const Text(
+                            '확인',
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                            )),
-                        calendarStyle: CalendarStyle(
-                            isTodayHighlighted: true,
-                            defaultDecoration: defaultBoxDecoration,
-                            weekendDecoration: defaultBoxDecoration,
-                            selectedDecoration: defaultBoxDecoration.copyWith(
-                              border: Border.all(
-                                color: colors[2],
-                                width: 2.0
-                              ),),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop(tempPickedDate);
+                          },
                         ),
-                        onDaySelected:
-                            (DateTime selectedDay, DateTime focusedDay) {
-                          print(selectedDay);
-                          tempPickedDate = selectedDay;
-                        },
-                        selectedDayPredicate: (DateTime date) {
-                          if (tempPickedDate != null) {
-                            return false;
-                          }
-                          return date.isAtSameMomentAs(tempPickedDate!.toUtc());
-                        },
-                      ),
+                      ],
                     ),
-                    CupertinoButton(
-                      child: const Text('확인'),
-                      onPressed: () {
-                        Navigator.of(context).pop(tempPickedDate);
-                        setState(() {});
-                      },
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
-
-    return selectedDate;
   }
 }
 
@@ -148,7 +161,7 @@ class _Left extends StatefulWidget {
 
 class _LeftState extends State<_Left> {
   final ValueNotifier<double?> commonXPositionNotifier =
-  ValueNotifier<double?>(null);
+      ValueNotifier<double?>(null);
 
   @override
   void dispose() {
@@ -162,13 +175,13 @@ class _LeftState extends State<_Left> {
       builder: (context, dataProvider, child) {
         List<SensorInfo> sensorsInfo = dataProvider.sensors!;
         List<SensorInfo> reGeneratedList =
-        sensorsInfo.where((e) => e.isSelected == true).toList();
+            sensorsInfo.where((e) => e.isSelected == true).toList();
         return FutureBuilder(
             future: GetIt.I<AppDatabase>()
                 .getSensorDataFromLastDay(widget.selectedDate),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting &&
-                  snapshot.hasError ||
+                      snapshot.hasError ||
                   !snapshot.hasData ||
                   snapshot.data!.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
@@ -233,17 +246,16 @@ class _LeftState extends State<_Left> {
                   Stack(
                     children: <Widget>[
                       ...reGeneratedList.map(
-                            (e) =>
-                            CustomFlChart(
-                              color: e.color,
-                              onTooltipShow: (x) {
-                                commonXPositionNotifier.value = x;
-                              },
-                              max: e.max,
-                              min: e.min,
-                              data: createdData[e.setChannel],
-                              sensorChannel: e.setChannel,
-                            ),
+                        (e) => CustomFlChart(
+                          color: e.color,
+                          onTooltipShow: (x) {
+                            commonXPositionNotifier.value = x;
+                          },
+                          max: e.max,
+                          min: e.min,
+                          data: createdData[e.setChannel],
+                          sensorChannel: e.setChannel,
+                        ),
                       ),
                       ValueListenableBuilder<double?>(
                         valueListenable: commonXPositionNotifier,
@@ -261,14 +273,13 @@ class _LeftState extends State<_Left> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: reGeneratedList.map((e) {
                                   final spot =
-                                  createdData[e.setChannel].firstWhere(
-                                        (spot) => spot.x == commonXPosition,
+                                      createdData[e.setChannel].firstWhere(
+                                    (spot) => spot.x == commonXPosition,
                                     orElse: () =>
-                                    createdData[e.setChannel].last,
+                                        createdData[e.setChannel].last,
                                   );
                                   return Text(
-                                    '${e.sensorName}: ${spot.y.toStringAsFixed(
-                                        1)}',
+                                    '${e.sensorName}: ${spot.y.toStringAsFixed(1)}',
                                     style: TextStyle(
                                         color: e.color,
                                         fontWeight: FontWeight.bold),

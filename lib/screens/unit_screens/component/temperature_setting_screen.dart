@@ -22,6 +22,8 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
   late bool isShowingMainData;
   late bool isConfigHighData;
   late bool isConfigLowData;
+  String selectedTime = '';
+  String selectedTemperature = '';
 
   @override
   void initState() {
@@ -124,6 +126,11 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                                   highData: widget.highData,
                                   lowData: widget.lowData,
                                   onPanUpdate: onChartPanUpdate,
+                                  onTimeSelected: (time) {
+                                    setState(() {
+                                      selectedTime = time;
+                                    });
+                                  },
                                 ),
                               ),
                             ),
@@ -189,17 +196,17 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                                   });
                                 },
                               ),
-                              Expanded(child: SizedBox()),
-                              Text(
-                                '선택된 시간:   선택된 온도:',
+                              const Expanded(child: SizedBox()),
+                              Text(   isShowingMainData
+                                  ? '선택된 시간: $selectedTime'
+                                  : '선택된 시간: $selectedTime   선택된 온도: $selectedTemperature°C',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 24,
                                 ),
-
                               ),
-                              SizedBox(width: 30,)
+                              const SizedBox(width: 30)
                             ],
                           ),
                         ),
@@ -252,6 +259,10 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
       /// 표 오른쪽 바깥인 경우 행동안함
       if (timeCondition && tempCondition) {
         double roundedTempY = roundToNearestHalf(tempY);
+        setState(() {
+          selectedTime = '${(i ~/ 2).toString().padLeft(2, '0')}:${(i % 2 * 30).toString().padLeft(2, '0')}';
+          selectedTemperature = roundedTempY.toStringAsFixed(1);
+        });
         if (isConfigHighData) {
           // 높은 온도를 조절할 때
           updatedHighData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
@@ -271,6 +282,7 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
           }
         }
       }
+
     }
 
     setState(() {
@@ -287,6 +299,8 @@ class _LineChart extends StatefulWidget {
   List<FlSpot> highData;
   List<FlSpot> lowData;
   final GestureDragUpdateCallback? onPanUpdate;
+  final Function(String) onTimeSelected;
+
 
   _LineChart({
     required this.isShowingMainData,
@@ -295,6 +309,8 @@ class _LineChart extends StatefulWidget {
     required this.lowData,
     required this.highData,
     required this.onPanUpdate,
+    required this.onTimeSelected,
+
   });
 
   @override
@@ -304,27 +320,36 @@ class _LineChart extends StatefulWidget {
 class _LineChartState extends State<_LineChart> {
   @override
   Widget build(BuildContext context) {
-    /// 차트 전환
-    return widget.isShowingMainData
-        ? LineChart(
-            mainChart,
-            duration: const Duration(milliseconds: 250),
-          )
-        : (widget.isConfigHighData || widget.isConfigLowData)
-            ? GestureDetector(
-                /// 만약 높은 온도와 낮은온도가 교차하면?
-                onPanUpdate: widget.onPanUpdate,
-                child: LineChart(
-                  settingChart,
-                  duration: const Duration(milliseconds: 0),
-                ),
-              )
-            : LineChart(
-                settingChart,
-                duration: const Duration(milliseconds: 0),
-              );
+    return GestureDetector(
+      onPanUpdate: (details) {
+        if (widget.isShowingMainData) {
+          updateSelectedTime(details);
+        } else {
+          widget.onPanUpdate!(details);
+        }
+      },
+      child: widget.isShowingMainData
+          ? LineChart(
+        mainChart,
+        duration: const Duration(milliseconds: 250),
+      )
+          : LineChart(
+        settingChart,
+        duration: const Duration(milliseconds: 0),
+      ),
+    );
   }
-
+  void updateSelectedTime(DragUpdateDetails details) {
+    double coordinateX = details.globalPosition.dx;
+    for (int i = 0; i < 48; i++) {
+      double timeX = 100 + 23.2 * i;
+      if (coordinateX <= timeX + 11.6 && coordinateX >= timeX - 11.6) {
+        String time = '${(i ~/ 2).toString().padLeft(2, '0')}:${(i % 2 * 30).toString().padLeft(2, '0')}';
+        widget.onTimeSelected(time);
+        break;
+      }
+    }
+  }
   LineChartData get mainChart => LineChartData(
         lineTouchData: mainlineTouchData,
         gridData: gridData,
