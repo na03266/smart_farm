@@ -1,8 +1,7 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_farm/consts/colors.dart';
+import 'package:smart_farm/consts/example.dart';
 import 'package:smart_farm/model/sensor_value_data_model.dart';
 import 'package:smart_farm/provider/data_provider.dart';
 import 'package:smart_farm/provider/sensor_info.dart';
@@ -53,62 +52,68 @@ class _Left extends StatefulWidget {
 }
 
 class _LeftState extends State<_Left> {
-  List<LineBarSpot>? currentTooltipSpots;
+  final ValueNotifier<double?> commonXPositionNotifier =
+      ValueNotifier<double?>(null);
+
+  @override
+  void dispose() {
+    commonXPositionNotifier.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(30.0),
-      child: Consumer<DataProvider>(
-        builder: (context, dataProvider, child) {
-          List<SensorInfo> sensorsInfo = dataProvider.sensors!;
-          List<SensorInfo> reGeneratedList =
-              sensorsInfo.where((e) => e.isSelected == true).toList();
-          return Stack(
-            children: <Widget>[
-              ...reGeneratedList.map(
-                (e) => CustomFlChart(
-                  color: e.color,
-                  onTooltipShow: (spots) => _updateTooltipSpots(spots),
-                  max: e.max,
-                  min: e.min,
-                  data: [
-                    /// DB에서 값 불러와서 저장하기
-                  ],
-                ),
+    return Consumer<DataProvider>(
+      builder: (context, dataProvider, child) {
+        List<SensorInfo> sensorsInfo = dataProvider.sensors!;
+        List<SensorInfo> reGeneratedList =
+            sensorsInfo.where((e) => e.isSelected == true).toList();
+        return Stack(
+          children: <Widget>[
+            ...reGeneratedList.map(
+              (e) => CustomFlChart(
+                color: e.color,
+                onTooltipShow: (x) {
+                  commonXPositionNotifier.value = x;
+                },
+                max: e.max,
+                min: e.min,
+                data: exData[e.setChannel],
+                sensorChannel: e.setChannel,
               ),
-              if (currentTooltipSpots != null)
-                Positioned(
-                  top: 0,
-                  left: 0,
+            ),
+            ValueListenableBuilder<double?>(
+              valueListenable: commonXPositionNotifier,
+              builder: (context, commonXPosition, child) {
+                if (commonXPosition == null) return const SizedBox.shrink();
+                return Positioned(
+                  top: 36,
+                  right: 30,
                   child: Container(
                     padding: const EdgeInsets.all(8),
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withOpacity(0.2),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...reGeneratedList.map(
-                          (e) => Text(
-                              '${e.sensorName}: ${(currentTooltipSpots![0].y - 1).toStringAsFixed(2)}',
-                              style: TextStyle(color: e.color)),
-                        ),
-                      ],
+                      children: reGeneratedList.map((e) {
+                        final spot = exData[e.setChannel].firstWhere(
+                          (spot) => spot.x == commonXPosition,
+                          orElse: () => exData[e.setChannel].last,
+                        );
+                        return Text(
+                          '${e.sensorName}: ${spot.y.toStringAsFixed(1)}',
+                          style: TextStyle(
+                              color: e.color, fontWeight: FontWeight.bold),
+                        );
+                      }).toList(),
                     ),
                   ),
-                ),
-            ],
-          );
-        },
-      ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
-  }
-
-  void _updateTooltipSpots(List<LineBarSpot> spots) {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        currentTooltipSpots = spots;
-      });
-    });
   }
 }
 

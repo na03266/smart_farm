@@ -18,7 +18,6 @@ part 'drift.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
-
   // /// 타이머
   // Future<int> createTimer(TimerTableCompanion data) =>
   //     into(timerTable).insert(data);
@@ -74,23 +73,90 @@ class AppDatabase extends _$AppDatabase {
       into(sensorDataTable).insert(data);
 
   // Read: 특정 기간 동안의 센서 데이터 가져오기
-  Future<List<SensorDataTableData>> getSensorDataFromLastDay() {
+// Read: 특정 기간 동안의 센서 데이터 가져오기
+// Read: 특정 기간 동안의 센서 데이터 가져오기
+  Future<List<SensorDataTableData>> getSensorDataFromLastDay() async {
     final now = DateTime.now();
-    final oneDayAgo = now.subtract(const Duration(days: 1));
-
+    final todayMidnight = DateTime(now.year, now.month, now.day);
     final query = select(sensorDataTable)
-      ..where((tbl) => tbl.createdAt.isBetweenValues(oneDayAgo, now))
+      ..where((tbl) => tbl.createdAt.isBetweenValues(todayMidnight, now))
       ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]);
 
-    return query.get();
+    final sensorData = await query.get();
+
+    List<SensorDataTableData> averagedData = [];
+
+    for (int i = 0; i < 48; i++) {
+      // 48 intervals of 30 minutes in a day
+      final start = todayMidnight.add(Duration(minutes: i * 30));
+      final end = start.add(Duration(minutes: 30));
+
+      final intervalData = sensorData
+          .where((data) =>
+              data.createdAt.isAfter(start) && data.createdAt.isBefore(end))
+          .toList();
+
+      if (intervalData.isNotEmpty) {
+        final averageTemperature = intervalData
+                .map((data) => data.temperature)
+                .reduce((a, b) => a + b) /
+            intervalData.length;
+        final averageHumidity =
+            intervalData.map((data) => data.humidity).reduce((a, b) => a + b) /
+                intervalData.length;
+        final averagePressure =
+            intervalData.map((data) => data.pressure).reduce((a, b) => a + b) /
+                intervalData.length;
+        final averageLightIntensity = intervalData
+                .map((data) => data.lightIntensity)
+                .reduce((a, b) => a + b) /
+            intervalData.length;
+        final averageCo2 =
+            intervalData.map((data) => data.co2).reduce((a, b) => a + b) /
+                intervalData.length;
+        final averagePh =
+            intervalData.map((data) => data.ph).reduce((a, b) => a + b) /
+                intervalData.length;
+        final averageSoilTemperature = intervalData
+                .map((data) => data.soilTemperature)
+                .reduce((a, b) => a + b) /
+            intervalData.length;
+        final averageSoilMoisture = intervalData
+                .map((data) => data.soilMoisture)
+                .reduce((a, b) => a + b) /
+            intervalData.length;
+        final averageElectricalConductivity = intervalData
+                .map((data) => data.electricalConductivity)
+                .reduce((a, b) => a + b) /
+            intervalData.length;
+
+        averagedData.add(SensorDataTableData(
+          id: intervalData.first.id,
+          // Assuming you want to use the ID from one of the entries
+          temperature: averageTemperature,
+          humidity: averageHumidity,
+          pressure: averagePressure,
+          lightIntensity: averageLightIntensity,
+          co2: averageCo2,
+          ph: averagePh,
+          soilTemperature: averageSoilTemperature,
+          soilMoisture: averageSoilMoisture,
+          electricalConductivity: averageElectricalConductivity,
+          createdAt: start,
+        ));
+      }
+    }
+
+    return averagedData;
   }
 
   // Read: 가장 최근 센서 데이터 가져오기
-  Future<SensorDataTableData?> getLatestSensorData() =>
-      (select(sensorDataTable)
-        ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)])
+  Future<SensorDataTableData?> getLatestSensorData() => (select(sensorDataTable)
+        ..orderBy([
+          (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)
+        ])
         ..limit(1))
-          .getSingleOrNull();
+      .getSingleOrNull();
 
   // Update: 특정 ID의 센서 데이터 업데이트
   Future<bool> updateSensorData(SensorDataTableCompanion data) =>

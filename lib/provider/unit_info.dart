@@ -26,7 +26,7 @@ class UnitInfo {
 
   // JSON에서 객체 생성
   factory UnitInfo.fromJson(Map<String, dynamic> json) => UnitInfo(
-        icon: IconData(json['icon'], fontFamily: 'MaterialIcons'),
+        icon: json['icon'],
         unitName: json['unitName'],
         status: json['status'],
         isAuto: json['isAuto'],

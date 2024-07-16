@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 
 class CustomFlChart extends StatefulWidget {
   final Color color;
-  final Function(List<LineBarSpot>) onTooltipShow;
+  final Function(double) onTooltipShow; // 여기를 double로 변경
   final double max;
   final double min;
   final List<FlSpot> data;
+  final int sensorChannel;
 
   const CustomFlChart({
     super.key,
@@ -15,6 +16,7 @@ class CustomFlChart extends StatefulWidget {
     required this.max,
     required this.min,
     required this.data,
+    required this.sensorChannel,
   });
 
   @override
@@ -96,26 +98,61 @@ class _CustomFlChartState extends State<CustomFlChart> {
     );
   }
 
-  /// y축 문자 표시
   Widget leftTitleWidgets(double value, TitleMeta meta) {
     TextStyle style = TextStyle(
       fontWeight: FontWeight.bold,
-      color: Colors.white.withOpacity(0.4),
+      color: widget.color.withOpacity(0.8),
       fontSize: 16,
     );
-    return Text('', style: style, textAlign: TextAlign.left);
+
+    // value 는 인터벌
+    List<int> index = List.generate(20, (int index) => index);
+
+    int offset = quarter();
+
+    // 5의 배수에 offset을 더한 값만 표시
+    /// 0, 6
+    /// 1,7
+    /// 2,4
+    /// 3
+    /// 5,8
+    // 이게 트루?
+    for (int i in index) {
+      if (value == widget.max / 100 * 5 * index[i] + offset) {
+        return Center(
+          child: Text(
+            '${value.toInt()}',
+            style: style,
+          ),
+        );
+      }
+    }
+    return const SizedBox(); // 조건에 맞지 않으면 빈 위젯 반환
+
   }
 
   LineChartData mainData() {
     return LineChartData(
       lineTouchData: LineTouchData(
+        touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
+          if (touchResponse?.lineBarSpots != null &&
+              touchResponse!.lineBarSpots!.isNotEmpty) {
+            if (event is FlPanStartEvent ||
+                event is FlPanUpdateEvent ||
+                event is FlLongPressStart ||
+                event is FlLongPressMoveUpdate ||
+                event is FlTapDownEvent) {
+              widget.onTooltipShow(touchResponse.lineBarSpots!.first.x);
+            }
+          }
+        },
         touchTooltipData: LineTouchTooltipData(
           getTooltipItems: (touchedSpots) {
-            widget.onTooltipShow(touchedSpots);
-            return touchedSpots.map((LineBarSpot touchedSpot) {}).toList();
+            return touchedSpots.map((LineBarSpot touchedSpot) {
+              return null; // 빈 툴팁 반환
+            }).toList();
           },
         ),
-
         handleBuiltInTouches: true,
         getTouchedSpotIndicator:
             (LineChartBarData barData, List<int> spotIndexes) {
@@ -136,17 +173,8 @@ class _CustomFlChartState extends State<CustomFlChart> {
         /// 선을 그래프의 최대 높이까지 연장
         getTouchLineEnd: (_, maxY) => widget.max,
       ),
-      gridData: FlGridData(
-        show: true,
-        drawVerticalLine: true,
-        drawHorizontalLine: false,
-        verticalInterval: 4,
-        getDrawingVerticalLine: (value) {
-          return FlLine(
-            color: Colors.white.withOpacity(0.2),
-            strokeWidth: 1,
-          );
-        },
+      gridData: const FlGridData(
+        show: false,
       ),
       titlesData: FlTitlesData(
         show: true,
@@ -167,9 +195,9 @@ class _CustomFlChartState extends State<CustomFlChart> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 1,
+            reservedSize: 50, // 필요하다면 크기 증가
+            interval: (widget.max) / 100,
             getTitlesWidget: leftTitleWidgets,
-            reservedSize: 42,
           ),
         ),
       ),
@@ -199,5 +227,26 @@ class _CustomFlChartState extends State<CustomFlChart> {
         ),
       ],
     );
+  }
+
+  int quarter() {
+    // chartIndex에 따라 다른 로직 적용
+    switch (widget.sensorChannel) {
+      case 0:
+      case 6:
+        return 0;
+      case 1:
+      case 7:
+        return 1;
+      case 2:
+      case 4:
+        return 2;
+
+      case 5:
+      case 8:
+        return 3;
+      default:
+        return 4;
+    }
   }
 }
