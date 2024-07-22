@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:smart_farm/component/custom_timer_list.dart';
 import 'package:smart_farm/model/set_up_data_model.dart';
@@ -109,20 +110,20 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
     timerName = GetIt.I<DataProvider>().timers![widget.timerId!].timerName;
     }
     return Padding(
-      padding: const EdgeInsets.all(100.0),
+      padding: EdgeInsets.all(100.w),
       child: Form(
         key: formKey,
         child: Material(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(10.r),
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(24.w),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  padding: EdgeInsets.symmetric(horizontal: 50.w),
                   child: CustomTextField(
                     label: '타이머 이름',
                     onSaved: onNameSaved,
@@ -161,23 +162,23 @@ class _TimerModalPopupState extends State<TimerModalPopup> {
                         OutlinedButton(
                           onPressed: updateTimerList,
                           style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(100, 50)),
+                              minimumSize:  Size(100.w, 50.h)),
                           child: const Text('시간 추가'),
                         ),
-                        const SizedBox(height: 30),
+                        SizedBox(height: 30.h),
                         OutlinedButton(
                           onPressed: () => onFinishPressed(context),
                           style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(100, 50)),
+                              minimumSize:  Size(100.w, 50.h)),
                           child: const Text('완료'),
                         ),
-                        const SizedBox(height: 30),
+                        SizedBox(height: 30.h),
                         OutlinedButton(
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                           style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(100, 50)),
+                              minimumSize:  Size(100.w, 50.h)),
                           child: const Text('취소'),
                         )
                       ],

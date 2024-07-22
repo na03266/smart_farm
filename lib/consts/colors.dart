@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Default
 const colors = [
   Color(0xff000000), // 0
   Color(0xFF082722), // 1
@@ -48,6 +49,7 @@ class UnitCardColor {
 
 
 final CARDS = [
+  /// On
   UnitCardColor(
     bg: const Color(0xffffffff),
     icon: const Color(0xff1d2b2b),
@@ -61,6 +63,7 @@ final CARDS = [
     manual: const Color(0xff30736a),
     manualFont: const Color(0xffffffff),
   ),
+  /// Off
   UnitCardColor(
     bg: const Color(0xff082722),
     icon: const Color(0xff687e7b),

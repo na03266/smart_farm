@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_farm/consts/colors.dart';
@@ -40,7 +41,7 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
         List<int> tempH = dataProvider.setupData!.setTempH;
 
         return SizedBox(
-            height: MediaQuery.of(context).size.height,
+            height: 1.sh, // 전체 화면 높이
             child: Scaffold(
               body: Column(
                 children: [
@@ -48,8 +49,6 @@ class _AllUnitScreenState extends State<AllUnitScreen> {
                     onToggle: (int? index) {
                       onAllUnitToAutoToggle(index, context, dataProvider);
                     },
-
-                    /// 장치중 하나라도 수동이면 전체버튼 수동 표시
                     selectedIndex: units.any((u) => u.unitMode == 0) ? 0 : 1,
                   ),
                   Expanded(
@@ -177,44 +176,38 @@ class _TopBarState extends State<_TopBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: 1.sw, // 전체 화면 너비
       color: colors[1],
       child: Padding(
-        padding: const EdgeInsets.only(
-          right: 36.0,
-          left: 36.0,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 36.w),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            /// 전원 아이콘 + 레이블 박스
             SizedBox(
-              height: 60,
+              height: 60.h,
               child: Row(
                 children: [
                   Icon(
                     Icons.power_settings_new_outlined,
-                    size: 35,
+                    size: 35.sp,
                     color: colors[2],
                   ),
                   Text(
                     '  전원제어',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       color: colors[6],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 30),
-
-            ///전체 전원 토글 스위치
+            SizedBox(width: 30.w),
             ToggleSwitch(
-              minWidth: 90.0,
+              minWidth: 90.w,
               borderColor: const [Colors.black],
               borderWidth: 0.4,
-              cornerRadius: 20.0,
+              cornerRadius: 20.r,
               activeBgColors: [
                 [colors[2]],
                 [colors[2]]
@@ -232,8 +225,7 @@ class _TopBarState extends State<_TopBar> {
         ),
       ),
     );
-  }
-}
+  }}
 
 typedef OnOffUnitButtonPressed = void Function(List<int> selectedUnitId);
 typedef OnAutoUnitButtonToggled = void Function(
@@ -288,8 +280,8 @@ class _UnitCardState extends State<_UnitCard> {
             SliverPadding(
               padding: const EdgeInsets.all(20),
               sliver: SliverGrid.count(
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                crossAxisSpacing: 10.w,
+                mainAxisSpacing: 10.h,
                 crossAxisCount: 5,
                 children: <Widget>[
                   ...mergedUnits.map(
@@ -348,13 +340,13 @@ class _SettingButtons extends StatelessWidget {
           },
           heroTag: "timeButton",
           backgroundColor: colors[7],
-          child: const Icon(
+          child: Icon(
             Icons.timer,
-            size: 50,
+            size: 50.sp,
             color: Colors.white,
           ),
         ),
-        const SizedBox(width: 16),
+         SizedBox(width: 16.w),
 
         /// 온도 제어 화면 전환 버튼
         FloatingActionButton.large(
@@ -401,9 +393,9 @@ class _SettingButtons extends StatelessWidget {
           },
           heroTag: "tempButton",
           backgroundColor: colors[10],
-          child: const Icon(
+          child: Icon(
             Icons.device_thermostat_outlined,
-            size: 50,
+            size: 50.sp,
             color: Colors.white,
           ),
         )

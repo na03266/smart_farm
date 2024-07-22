@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smart_farm/consts/colors.dart';
 
 class TemperatureSettingScreen extends StatefulWidget {
@@ -51,24 +52,24 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
         title: Text(
           "온도 설정",
           style: TextStyle(
-              color: colors[6], fontSize: 32, fontWeight: FontWeight.w700),
+              color: colors[6], fontSize: 32.sp, fontWeight: FontWeight.w700),
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 32.0),
+            padding: EdgeInsets.only(right: 32.0.w),
             child: OutlinedButton(
               style: ButtonStyle(
                   elevation: WidgetStateProperty.all(10), // 그림자 높이 설정
                   backgroundColor: WidgetStateProperty.all(colors[7])),
               onPressed: onFinishPressed,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0.r),
                 child: Text(
                   '완료',
                   style: TextStyle(
                     color: colors[6],
                     fontWeight: FontWeight.w700,
-                    fontSize: 16,
+                    fontSize: 16.sp,
                   ),
                 ),
               ),
@@ -77,26 +78,24 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.only(
-            bottom: 24.0, left: 24.0, right: 24.0, top: 8.0),
+        padding: EdgeInsets.fromLTRB(24.0.w, 8.0.h, 24.0.w, 24.0.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ///제목 바, 완료 버튼
-
             Flexible(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0.r),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15), // 가장자리 둥글게 처리
+                    borderRadius: BorderRadius.circular(15.r),
                     boxShadow: [
                       BoxShadow(
                         blurRadius: 5,
                         color: colors[2],
                       ),
                       BoxShadow(
-                        offset: const Offset(1, 2),
+                        offset: Offset(1.w, 2.h),
                         blurRadius: 5,
                         spreadRadius: 2,
                         color: colors[1],
@@ -113,12 +112,10 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const SizedBox(
-                              height: 40,
-                            ),
+                            SizedBox(height: 40.h),
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.all(20),
+                                padding: EdgeInsets.all(20.r),
                                 child: _LineChart(
                                   isShowingMainData: isShowingMainData,
                                   isConfigHighData: isConfigHighData,
@@ -134,19 +131,17 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(
-                              height: 10,
-                            ),
+                            SizedBox(height: 10.h),
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0.r),
                           child: Row(
                             children: [
                               IconButton(
                                 icon: Icon(
                                   Icons.settings,
-                                  size: 28,
+                                  size: 28.sp,
                                   color: Colors.white.withOpacity(
                                       isShowingMainData ? 1.0 : 0.5),
                                 ),
@@ -159,7 +154,7 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                               IconButton(
                                 icon: Icon(
                                   Icons.device_thermostat_rounded,
-                                  size: 28,
+                                  size: 28.sp,
                                   color: Colors.lightBlueAccent
                                       .withOpacity(isShowingMainData
                                           ? 0.0
@@ -179,7 +174,7 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                               IconButton(
                                 icon: Icon(
                                   Icons.device_thermostat_rounded,
-                                  size: 28,
+                                  size: 28.sp,
                                   color: Colors.redAccent
                                       .withOpacity(isShowingMainData
                                           ? 0.0
@@ -197,16 +192,17 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
                                 },
                               ),
                               const Expanded(child: SizedBox()),
-                              Text(   isShowingMainData
-                                  ? '선택된 시간: $selectedTime'
-                                  : '선택된 시간: $selectedTime   선택된 온도: $selectedTemperature°C',
-                                style: const TextStyle(
+                              Text(
+                                isShowingMainData
+                                    ? '선택된 시간: $selectedTime'
+                                    : '선택된 시간: $selectedTime   선택된 온도: $selectedTemperature°C',
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 24,
+                                  fontSize: 24.sp,
                                 ),
                               ),
-                              const SizedBox(width: 30)
+                              SizedBox(width: 30.w)
                             ],
                           ),
                         ),
@@ -236,53 +232,62 @@ class _TemperatureSettingScreenState extends State<TemperatureSettingScreen> {
     List<FlSpot> updatedHighData = List.from(widget.highData);
     List<FlSpot> updatedLowData = List.from(widget.lowData);
 
+    // 차트의 크기와 위치를 계산
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final Size size = renderBox.size;
+    final Offset position = renderBox.localToGlobal(Offset.zero);
+
+    // 차트의 실제 범위 계산
+    double chartLeft = position.dx;
+    double chartRight = position.dx + size.width;
+    double chartTop = position.dy;
+    double chartBottom = position.dy + size.height;
+
+    // X축과 Y축의 스케일 계산
+    double xScale = size.width / 48;
+    double yScale = size.height / 50; // 온도 범위가 0-50이라고 가정
+
     for (int i = 0; i < 48; i++) {
       double coordinateX = details.globalPosition.dx;
-      double timeX = 100 + 23.2 * i;
+      double timeX = chartLeft + xScale * i;
       double coordinateY = details.globalPosition.dy;
-      print('$coordinateX , $coordinateY');
 
-      /// tempY = a*y + b >> 화면 좌표 기준 온도 값 변환식
-      double tempY = (5 * 660 / 51) - (50 / 510 * coordinateY);
-
+      // 온도 계산 (Y축 반전 고려)
+      double tempY = 50 - (coordinateY - chartTop) / yScale;
       tempY = double.parse(tempY.toStringAsFixed(1));
 
-      /// 그래프 안의 좌표만 허용
-      bool timeCondition =
-          coordinateX <= timeX + 11.6 && coordinateX >= timeX - 11.6;
-      bool tempCondition = coordinateY <= 660 && coordinateY >= 140;
+      // 그래프 안의 좌표만 허용
+      bool timeCondition = coordinateX <= timeX + xScale / 2 &&
+          coordinateX >= timeX - xScale / 2;
+      bool tempCondition =
+          coordinateY <= chartBottom && coordinateY >= chartTop;
 
       double roundToNearestHalf(double value) {
         return value.toInt().toDouble();
       }
 
-      /// 표 오른쪽 바깥인 경우 행동안함
       if (timeCondition && tempCondition) {
         double roundedTempY = roundToNearestHalf(tempY);
         setState(() {
-          selectedTime = '${(i ~/ 2).toString().padLeft(2, '0')}:${(i % 2 * 30).toString().padLeft(2, '0')}';
+          selectedTime =
+              '${(i ~/ 2).toString().padLeft(2, '0')}:${(i % 2 * 30).toString().padLeft(2, '0')}';
           selectedTemperature = roundedTempY.toStringAsFixed(1);
         });
-        if (isConfigHighData) {
-          // 높은 온도를 조절할 때
-          updatedHighData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
 
-          // 만약 새로운 높은 온도가 현재 낮은 온도보다 낮다면, 낮은 온도도 함께 조정
+        if (isConfigHighData) {
+          updatedHighData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
+          print(updatedHighData[i]);
           if (roundedTempY < updatedLowData[i].y) {
             updatedLowData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
           }
         }
         if (isConfigLowData) {
-          // 낮은 온도를 조절할 때
           updatedLowData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
-
-          // 만약 새로운 낮은 온도가 현재 높은 온도 보다 높다면, 높은 온도도 함께 조정
           if (roundedTempY > updatedHighData[i].y) {
             updatedHighData[i] = FlSpot(i.toDouble() + 0.5, roundedTempY);
           }
         }
       }
-
     }
 
     setState(() {
@@ -301,7 +306,6 @@ class _LineChart extends StatefulWidget {
   final GestureDragUpdateCallback? onPanUpdate;
   final Function(String) onTimeSelected;
 
-
   _LineChart({
     required this.isShowingMainData,
     required this.isConfigHighData,
@@ -310,7 +314,6 @@ class _LineChart extends StatefulWidget {
     required this.highData,
     required this.onPanUpdate,
     required this.onTimeSelected,
-
   });
 
   @override
@@ -330,26 +333,33 @@ class _LineChartState extends State<_LineChart> {
       },
       child: widget.isShowingMainData
           ? LineChart(
-        mainChart,
-        duration: const Duration(milliseconds: 250),
-      )
+              mainChart,
+              duration: const Duration(milliseconds: 0),
+            )
           : LineChart(
-        settingChart,
-        duration: const Duration(milliseconds: 0),
-      ),
+              settingChart,
+              duration: const Duration(milliseconds: 0),
+            ),
     );
   }
+
   void updateSelectedTime(DragUpdateDetails details) {
     double coordinateX = details.globalPosition.dx;
+    double chartWidth = 1.sw - 100.w; // 차트의 전체 너비를 반응형으로 계산
+    double intervalWidth = chartWidth / 48; // 각 간격의 너비를 계산
+
     for (int i = 0; i < 48; i++) {
-      double timeX = 100 + 23.2 * i;
-      if (coordinateX <= timeX + 11.6 && coordinateX >= timeX - 11.6) {
-        String time = '${(i ~/ 2).toString().padLeft(2, '0')}:${(i % 2 * 30).toString().padLeft(2, '0')}';
+      double timeX = 50.w + intervalWidth * i; // 시작점을 50.w로 조정
+      if (coordinateX <= timeX + intervalWidth / 2 &&
+          coordinateX >= timeX - intervalWidth / 2) {
+        String time =
+            '${(i ~/ 2).toString().padLeft(2, '0')}:${(i % 2 * 30).toString().padLeft(2, '0')}';
         widget.onTimeSelected(time);
         break;
       }
     }
   }
+
   LineChartData get mainChart => LineChartData(
         lineTouchData: mainlineTouchData,
         gridData: gridData,
@@ -360,6 +370,16 @@ class _LineChartState extends State<_LineChart> {
         maxX: 48,
         maxY: 50,
         minY: 0,
+
+        clipData: const FlClipData.all(),
+        // 차트의 크기를 화면 크기에 맞게 조정
+        betweenBarsData: [
+          BetweenBarsData(
+            fromIndex: 0,
+            toIndex: 1,
+            color: Colors.transparent,
+          )
+        ],
       );
 
   LineChartData get settingChart => LineChartData(
@@ -432,10 +452,10 @@ class _LineChartState extends State<_LineChart> {
 
   /// Y축 설명
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
+    final style = TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
-      fontSize: 14,
+      fontSize: 14.sp,
     );
     String text;
     switch (value.toInt()) {
@@ -465,32 +485,32 @@ class _LineChartState extends State<_LineChart> {
         getTitlesWidget: leftTitleWidgets,
         showTitles: true,
         interval: 1,
-        reservedSize: 40,
+        reservedSize: 40.w,
       );
 
   /// X축 설명
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
+    final style = TextStyle(
       fontWeight: FontWeight.bold,
       color: Colors.white,
-      fontSize: 16,
+      fontSize: 16.sp,
     );
     Widget text;
     switch (value.toInt()) {
       case 0:
-        text = const Text('0', style: style);
+        text = Text('0', style: style);
         break;
       case 12:
-        text = const Text('6', style: style);
+        text = Text('6', style: style);
         break;
       case 24:
-        text = const Text('12', style: style);
+        text = Text('12', style: style);
         break;
       case 36:
-        text = const Text('18', style: style);
+        text = Text('18', style: style);
         break;
       case 48:
-        text = const Text('24', style: style);
+        text = Text('24', style: style);
         break;
       default:
         text = const Text('');
@@ -505,10 +525,10 @@ class _LineChartState extends State<_LineChart> {
   }
 
   SideTitles get bottomTitles => SideTitles(
-        showTitles: true,
-        reservedSize: 32,
-        interval: 1,
         getTitlesWidget: bottomTitleWidgets,
+        showTitles: true,
+        interval: 1,
+        reservedSize: 32.h,
       );
 
   FlGridData get gridData => const FlGridData(show: false);
@@ -526,11 +546,10 @@ class _LineChartState extends State<_LineChart> {
         ),
       );
 
-  /// 곡선
   LineChartBarData get mainHighLineChartBarData => LineChartBarData(
-        isCurved: true,
+        isCurved: false,
         color: Colors.blueAccent,
-        barWidth: 4,
+        barWidth: 4.w,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(show: false),
@@ -538,21 +557,19 @@ class _LineChartState extends State<_LineChart> {
       );
 
   LineChartBarData get mainLowLineChartBarData => LineChartBarData(
-        isCurved: true,
+        isCurved: false,
         color: Colors.redAccent,
-        barWidth: 4,
+        barWidth: 4.w,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(show: false),
         spots: widget.lowData,
       );
 
-  ///꺽은선
   LineChartBarData get settingHighLineChartBarData => LineChartBarData(
         isCurved: false,
-        curveSmoothness: 0,
         color: Colors.blueAccent.withOpacity(0.5),
-        barWidth: 4,
+        barWidth: 4.w,
         isStrokeCapRound: false,
         dotData: const FlDotData(show: false),
         aboveBarData: BarAreaData(
@@ -563,10 +580,10 @@ class _LineChartState extends State<_LineChart> {
       );
 
   LineChartBarData get settingLowLineChartBarData => LineChartBarData(
-        isCurved: true,
+        isCurved: false,
         color: Colors.redAccent.withOpacity(0.5),
-        barWidth: 4,
-        isStrokeCapRound: true,
+        barWidth: 4.w,
+        isStrokeCapRound: false,
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(
           show: true,

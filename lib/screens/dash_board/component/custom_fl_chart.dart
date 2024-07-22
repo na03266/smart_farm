@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomFlChart extends StatefulWidget {
   final Color color;
@@ -28,14 +29,14 @@ class _CustomFlChartState extends State<CustomFlChart> {
 
   @override
   Widget build(BuildContext context) {
+    print(MediaQuery.of(context).size.width /
+        MediaQuery.of(context).size.height);
     return AspectRatio(
-      aspectRatio: 1.70,
+      aspectRatio: MediaQuery.of(context).size.width /
+          MediaQuery.of(context).size.height,
       child: Padding(
-        padding: const EdgeInsets.only(
-          right: 18,
-          left: 12,
-          top: 24,
-          bottom: 12,
+        padding: EdgeInsets.all(
+          50.w,
         ),
         child: LineChart(
           mainData(),
@@ -48,7 +49,7 @@ class _CustomFlChartState extends State<CustomFlChart> {
     TextStyle style = TextStyle(
       fontWeight: FontWeight.bold,
       color: Colors.white.withOpacity(0.4),
-      fontSize: 16,
+      fontSize: 16.sp,
     );
     Widget text;
     switch (value.toInt()) {
@@ -102,7 +103,7 @@ class _CustomFlChartState extends State<CustomFlChart> {
     TextStyle style = TextStyle(
       fontWeight: FontWeight.bold,
       color: widget.color.withOpacity(0.8),
-      fontSize: 16,
+      fontSize: 16.sp,
     );
 
     // value 는 인터벌
@@ -180,7 +181,7 @@ class _CustomFlChartState extends State<CustomFlChart> {
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30,
+            reservedSize: 30.w,
             interval: 1,
             getTitlesWidget: bottomTitleWidgets,
           ),
@@ -188,7 +189,7 @@ class _CustomFlChartState extends State<CustomFlChart> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 50, // 필요하다면 크기 증가
+            reservedSize: 50.w, // 필요하다면 크기 증가
             interval: (widget.max) / 25,
             getTitlesWidget: leftTitleWidgets,
           ),
@@ -209,7 +210,7 @@ class _CustomFlChartState extends State<CustomFlChart> {
           spots: widget.data,
           isCurved: false,
           color: widget.color,
-          barWidth: 5,
+          barWidth: 5.w,
           isStrokeCapRound: true,
           dotData: const FlDotData(
             show: false,
@@ -219,6 +220,7 @@ class _CustomFlChartState extends State<CustomFlChart> {
           ),
         ),
       ],
+      clipData: const FlClipData.all(),
     );
   }
 

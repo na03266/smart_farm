@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smart_farm/consts/colors.dart';
 
 class CustomProgressIndicator extends StatelessWidget {
@@ -15,46 +16,46 @@ class CustomProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 16.0, top: 20),
+      padding:  EdgeInsets.only(right: 16.0.w, top: 20.h),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   sensorName,
-                  style: const TextStyle(
+                  style:  TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(width: 5),
+                 SizedBox(width: 5.w ),
                 Text(
                   sensorValue.toStringAsFixed(1),
-                  style: const TextStyle(
+                  style:  TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+           SizedBox(height: 8.h),
           Center(
             child: SizedBox(
-              width: 200,
+              width: 200.w  ,
               child: LinearProgressIndicator(
                 value: percent,
                 backgroundColor: colors[1],
                 color: Colors.white.withOpacity(0.5),
-                minHeight: 8,
-                borderRadius: BorderRadius.circular(15),
+                minHeight: 8.h,
+                borderRadius: BorderRadius.circular(15.r),
               ),
             ),
           )

@@ -60,7 +60,7 @@ flutter_native_splash:
   #image: assets/android12splash.png
 
   # Splash screen background color.
-  #color: "#42a5f5"
+   color: "#082722"
 
   # App icon background color.
   #icon_background_color: "#111111"
@@ -118,7 +118,7 @@ flutter_native_splash:
   # center_horizontal, center_vertical, clip_horizontal, clip_vertical, end, fill, fill_horizontal,
   # fill_vertical, left, right, start, or top.
   #android_gravity: center
-  #
+  #GridSettingPage
   # ios_content_mode can be one of the following iOS UIView.ContentMode (see
   # https://developer.apple.com/documentation/uikit/uiview/contentmode): scaleToFill,
   # scaleAspectFit, scaleAspectFill, center, top, bottom, left, right, topLeft, topRight,

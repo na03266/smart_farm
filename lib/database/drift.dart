@@ -75,13 +75,14 @@ class AppDatabase extends _$AppDatabase {
   // Read: 특정 기간 동안의 센서 데이터 가져오기
 // Read: 특정 기간 동안의 센서 데이터 가져오기
 // Read: 특정 기간 동안의 센서 데이터 가져오기
-  Future<List<SensorDataTableData>> getSensorDataFromLastDay(DateTime date) async {
-
+  Future<List<SensorDataTableData>> getSensorDataFromLastDay(
+      DateTime date) async {
     final todayMidnight = DateTime(date.year, date.month, date.day);
     final tomorrowMidnight = todayMidnight.add(Duration(days: 1));
 
     final query = select(sensorDataTable)
-      ..where((tbl) => tbl.createdAt.isBetweenValues(todayMidnight, tomorrowMidnight))
+      ..where((tbl) =>
+          tbl.createdAt.isBetweenValues(todayMidnight, tomorrowMidnight))
       ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]);
 
     final sensorData = await query.get();
@@ -146,10 +147,11 @@ class AppDatabase extends _$AppDatabase {
           electricalConductivity: averageElectricalConductivity,
           createdAt: start,
         ));
-      }else {
+      } else {
         // 데이터가 없는 경우에도 null 값으로 추가
         averagedData.add(SensorDataTableData(
-          id: i, // 또는 적절한 기본값
+          id: i,
+          // 또는 적절한 기본값
           temperature: 0,
           humidity: 0,
           pressure: 0,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 typedef RemoveTimer = void Function(int index);
 
@@ -22,16 +23,18 @@ class _CustomTimerListState extends State<CustomTimerList> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('타이머 목록',
-            style: TextStyle(
-              color: Colors.black.withOpacity(0.7),
-              fontSize: 16,
-              decoration: TextDecoration.none,
-            )),
+        Text(
+          '타이머 목록',
+          style: TextStyle(
+            color: Colors.black.withOpacity(0.7),
+            fontSize: 16.sp,
+            decoration: TextDecoration.none,
+          ),
+        ),
         Container(
           color: Colors.white,
-          width: 200,
-          height: 300,
+          width: 200.w,
+          height: 300.h,
           child: ListView.separated(
             itemCount: widget.timerList.length,
             itemBuilder: (BuildContext context, int index) {
@@ -39,14 +42,14 @@ class _CustomTimerListState extends State<CustomTimerList> {
                 children: [
                   Text(
                     '${widget.timerList[index][0].hour.toString().padLeft(2, '0')}:${widget.timerList[index][0].minute.toString().padLeft(2, '0')} ~ ',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style:  TextStyle(
+                      fontSize: 16.sp,
                     ),
                   ),
                   Text(
                     '${widget.timerList[index][1].hour.toString().padLeft(2, '0')}:${widget.timerList[index][1].minute.toString().padLeft(2, '0')}',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style:  TextStyle(
+                      fontSize: 16.sp,
                     ),
                   ),
                   IconButton(
@@ -62,12 +65,11 @@ class _CustomTimerListState extends State<CustomTimerList> {
               );
             },
             separatorBuilder: (BuildContext context, int index) {
-              return const SizedBox(height: 1);
+              return  SizedBox(height: 1.h);
             },
           ),
         ),
       ],
     );
   }
-
 }

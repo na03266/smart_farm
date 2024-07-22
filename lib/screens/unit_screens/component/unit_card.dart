@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:smart_farm/consts/colors.dart';
 import 'package:smart_farm/provider/data_provider.dart';
@@ -36,20 +37,18 @@ class _UnitCardState extends State<UnitCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         color: widget.selectedTheme.bg,
       ),
-      height: MediaQuery.of(context).size.height / 2 - 50,
+      height: 0.5.sh - 50.h, // 화면 높이의 절반에서 50 logical pixels를 뺀 값
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 8, top: 8),
-
-            /// 카드 최상단 아이콘,온오프 버튼
+            padding: EdgeInsets.only(left: 8.w, top: 8.h),
             child: _CardTop(
               icon: widget.icon,
               isOnTheme: widget.selectedTheme,
@@ -59,22 +58,14 @@ class _UnitCardState extends State<UnitCard> {
               setChannels: widget.setChannel,
             ),
           ),
-
-          /// 아이콘 아래 글자
           _CardLabel(label: widget.label, isOnTheme: widget.selectedTheme),
-
-          ///공백
-          const SizedBox(height: 8),
-
-          /// 개별 제어 버튼
+          SizedBox(height: 8.h),
           widget.setChannel.length > 1
               ? _EachControlButton(
-                  isOnTheme: widget.selectedTheme,
-                  setChannel: widget.setChannel,
-                )
-              : const SizedBox(height: 50),
-
-          /// 자동 수동 버튼
+            isOnTheme: widget.selectedTheme,
+            setChannel: widget.setChannel,
+          )
+              : SizedBox(height: 50.h),
           _IsAutoButton(
             isOnTheme: widget.selectedTheme,
             isAuto: widget.isAuto,
@@ -83,8 +74,7 @@ class _UnitCardState extends State<UnitCard> {
         ],
       ),
     );
-  }
-}
+  }}
 
 class _CardTop extends StatefulWidget {
   final String label;
@@ -121,34 +111,32 @@ class _CardTopState extends State<_CardTop> {
       children: [
         Icon(
           widget.icon,
-          size: 48,
+          size: 48.sp,
           color: widget.isOnTheme.icon,
         ),
         TextButton(
           onPressed: widget.onPressed,
-          // 원형 버튼을 만들기 위해 설정
           style: TextButton.styleFrom(
               shape: const CircleBorder(),
               backgroundColor: widget.isOnTheme.onOff),
           child: Text(
             type == 1
                 ? widget.condition
-                    ? '열림'
-                    : '닫힘'
+                ? '열림'
+                : '닫힘'
                 : widget.condition
-                    ? '켜짐'
-                    : '꺼짐',
+                ? '켜짐'
+                : '꺼짐',
             style: TextStyle(
               color: widget.isOnTheme.onOffFont,
               fontWeight: FontWeight.w500,
-              fontSize: 16,
+              fontSize: 16.sp,
             ),
           ),
         )
       ],
     );
-  }
-}
+  }}
 
 class _CardLabel extends StatelessWidget {
   final String label;
@@ -159,21 +147,20 @@ class _CardLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 16.0,
-        top: 4,
+      padding: EdgeInsets.only(
+        left: 16.w,
+        top: 4.h,
       ),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 25,
+          fontSize: 25.sp,
           fontWeight: FontWeight.w700,
           color: isOnTheme.labelFont,
         ),
       ),
     );
-  }
-}
+  }}
 
 class _EachControlButton extends StatelessWidget {
   final UnitCardColor isOnTheme;
@@ -190,7 +177,7 @@ class _EachControlButton extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const SizedBox(width: 30),
+        SizedBox(width: 30.w),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: isOnTheme.timeControl,
@@ -207,20 +194,18 @@ class _EachControlButton extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.settings_input_component_outlined,
                 color: Colors.white,
-                size: 20,
+                size: 20.sp,
               ),
-              const SizedBox(
-                width: 8,
-              ),
+              SizedBox(width: 8.w),
               Text(
                 '개별 제어',
                 style: TextStyle(
                   color: isOnTheme.timeControlFont,
                   fontWeight: FontWeight.w500,
-                  fontSize: 16,
+                  fontSize: 16.sp,
                 ),
               )
             ],
@@ -228,8 +213,7 @@ class _EachControlButton extends StatelessWidget {
         ),
       ],
     );
-  }
-}
+  }}
 
 class _IsAutoButton extends StatelessWidget {
   final UnitCardColor isOnTheme;
@@ -248,14 +232,12 @@ class _IsAutoButton extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const SizedBox(
-          width: 8,
-        ),
+        SizedBox(width: 8.w),
         ToggleSwitch(
-          minWidth: 80.0,
+          minWidth: 80.w,
           borderColor: const [Colors.black],
           borderWidth: 0.4,
-          cornerRadius: 20.0,
+          cornerRadius: 20.r,
           activeBgColors: [
             [isOnTheme.manual],
             [isOnTheme.manual]
@@ -271,5 +253,4 @@ class _IsAutoButton extends StatelessWidget {
         ),
       ],
     );
-  }
-}
+  }}

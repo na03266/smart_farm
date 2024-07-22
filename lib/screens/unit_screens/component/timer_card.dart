@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smart_farm/screens/unit_screens/component/timer_modal_popup.dart';
 import 'package:smart_farm/consts/colors.dart';
 
@@ -23,14 +24,18 @@ class TimerCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(10.0.r),
           border:
-              selectedCard ? Border.all(color: Colors.white, width: 2) : null,
+              selectedCard ? Border.all(color: Colors.white, width: 2.w) : null,
           color: colors[1],
         ),
         child: Padding(
-          padding:
-              const EdgeInsets.only(left: 16.0, right: 16, top: 20, bottom: 20),
+          padding: EdgeInsets.only(
+            left: 16.w,
+            right: 16.w,
+            top: 20.h,
+            bottom: 20.h,
+          ),
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -38,21 +43,20 @@ class TimerCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     timerName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: 20.sp,
                     ),
                   ),
                 ),
-                const SizedBox(width: 24),
+                 SizedBox(width: 24.w),
                 IconButton(
                     onPressed: () async {
                       await showCupertinoModalPopup(
                         barrierDismissible: false,
                         context: context,
                         builder: (_) {
-
                           return TimerModalPopup(
                             timerId: timerId,
                           );

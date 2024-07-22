@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/cupertino.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_farm/consts/colors.dart';
@@ -48,9 +49,9 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
                 ),
 
                 /// 제목
-                title: const Text(
+                title: Text(
                   "타이머 설정",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.w700),
                 ),
               ),
               body: Consumer<DataProvider>(
@@ -111,19 +112,19 @@ class _TimerSettingScreenState extends State<TimerSettingScreen> {
         builder: (dialogContext) => Container(
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
           child: AlertDialog(
-            content: const Text(
+            content:  Text(
               "타이머는 16개를 초과할 수 없습니다.",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
               ),
             ),
             actions: [
               TextButton(
-                child: const Text(
+                child:  Text(
                   "확인",
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -178,18 +179,18 @@ class _LeftState extends State<_Left> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding:  EdgeInsets.all(8.0.w),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(15.r),
           boxShadow: [
             BoxShadow(
-              blurRadius: 5,
+              blurRadius: 5.r,
               color: colors[2],
             ),
             BoxShadow(
-              offset: const Offset(1, 2),
-              blurRadius: 5,
+              offset:  Offset(1.w, 2.h),
+              blurRadius: 5.r,
               spreadRadius: 2,
               color: colors[1],
               inset: true,
@@ -197,29 +198,29 @@ class _LeftState extends State<_Left> {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding:  EdgeInsets.all(16.0.w),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               /// 시간 추가 버튼
               Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding:  EdgeInsets.all(12.0.w),
                 child: ElevatedButton(
                   onPressed: widget.onPressed,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0), // 버튼의 모양 설정
+                      borderRadius: BorderRadius.circular(10.0.r), // 버튼의 모양 설정
                     ),
                     backgroundColor: colors[3],
                     foregroundColor: Colors.white,
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
+                  child:  Padding(
+                    padding: EdgeInsets.all(8.0.w),
                     child: Text(
                       '타이머 추가',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -231,7 +232,7 @@ class _LeftState extends State<_Left> {
               Expanded(
                 child: Padding(
                   padding:
-                      const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
+                       EdgeInsets.only(left: 12.0.w, right: 12.0.w, top: 12.0.h),
                   child: Consumer<DataProvider>(
                       builder: (context, dataProvider, child) {
                     loadedTimer = dataProvider.timers!;
@@ -289,7 +290,7 @@ class _LeftState extends State<_Left> {
                         );
                       },
                       separatorBuilder: (BuildContext context, int index) {
-                        return const SizedBox(height: 8.0);
+                        return  SizedBox(height: 8.0.w);
                       },
                     );
                   }),
@@ -345,19 +346,19 @@ class _RightState extends State<_Right> {
     /// 타이머 번호,
     /// 이름,
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding:  EdgeInsets.all(8.0.w ),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10), // 가장 자리 둥글게 처리
+          borderRadius: BorderRadius.circular(10.r), // 가장 자리 둥글게 처리
           boxShadow: [
             BoxShadow(
               blurRadius: 5,
               color: colors[2],
             ),
             BoxShadow(
-              offset: const Offset(1, 2),
-              blurRadius: 5,
-              spreadRadius: 2,
+              offset:  Offset(1.w, 2.h),
+              blurRadius: 5.r,
+              spreadRadius: 2.r,
               color: colors[1],
               inset: true,
             ),
@@ -367,7 +368,7 @@ class _RightState extends State<_Right> {
         /// 현재 페이지 컨펌 받기
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding:  EdgeInsets.all(16.0.w  ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -377,13 +378,13 @@ class _RightState extends State<_Right> {
                 /// 유닛 목록
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding:  EdgeInsets.all(12.w),
                     child: GridView.builder(
                       gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                           SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4, // 각 항목의 너비를 고정
-                        mainAxisSpacing: 8.0, // 세로 간격
-                        crossAxisSpacing: 8.0, // 가로 간격
+                        mainAxisSpacing: 8.0.h, // 세로 간격
+                        crossAxisSpacing: 8.0.w, // 가로 간격
                         childAspectRatio: 16 / 9,
                       ),
                       itemCount: labelList.length,
@@ -397,12 +398,12 @@ class _RightState extends State<_Right> {
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10.r),
 
                               /// 타이머의 번호가 현재 할당된 번호와 같으면
                               border: data.setDevice[index].unitTimerSet ==
                                       widget.selectedTimerId
-                                  ? Border.all(width: 2, color: Colors.white)
+                                  ? Border.all(width: 2.w, color: Colors.white)
                                   : null,
                               color: data.setDevice[index].unitTimerSet ==
                                       widget.selectedTimerId
@@ -412,10 +413,10 @@ class _RightState extends State<_Right> {
                             child: Center(
                               child: Text(
                                 labelList[index],
-                                style: const TextStyle(
+                                style:  TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 24,
+                                  fontSize: 24.sp,
                                 ),
                               ),
                             ),

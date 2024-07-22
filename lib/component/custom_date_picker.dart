@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomDatePicker extends StatelessWidget {
   final String label;
@@ -22,14 +23,14 @@ class CustomDatePicker extends StatelessWidget {
           label,
           style: TextStyle(
             color: Colors.black.withOpacity(0.7),
-            fontSize: 16,
+            fontSize: 16.sp,
             decoration: TextDecoration.none,
           ),
         ),
         Container(
           color: Colors.white,
-          width: 200,
-          height: 300,
+          width: 200.w  ,
+          height: 300.h,
           child: CupertinoDatePicker(
             mode: CupertinoDatePickerMode.time,
             initialDateTime: initialTime,

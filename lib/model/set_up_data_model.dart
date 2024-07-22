@@ -42,8 +42,6 @@ class SetupDevice {
       unitTimerSet: 0,
     );
   }
-
-
 }
 
 class SetupSensor {
@@ -73,8 +71,6 @@ class SetupSensor {
       sensorEQ: Uint8List(256), // 센서 수식값의 길이가 256바이트라고 가정
     );
   }
-
-
 }
 
 class SetupData {
@@ -132,14 +128,36 @@ class SetupData {
       tel: Uint8List(13),
       awsBit: 0,
       unitTimer: List.generate(16, (_) => Uint8List(180)),
-      setDevice: List.generate(16, (_) => SetupDevice.initialValue()),
-      setSensor: List.generate(8, (_) => SetupSensor.initialValue()),
+      setDevice: List.generate(
+          16,
+          (index) => SetupDevice(
+                unitId: index,
+                // 여기서 index를 unitId로 사용합니다.
+                unitType: 0,
+                unitCH: 0,
+                unitOpenCH: 0,
+                unitCloseCH: 0,
+                unitMoveTime: 0,
+                unitStopTime: 0,
+                unitOpenTime: 0,
+                unitCloseTime: 0,
+                unitOPTime: 0,
+                unitTimerSet: 0,
+              )),
+      setSensor: List.generate(
+          9,
+          (index) => SetupSensor(
+                sensorID: index,
+                sensorCH: 0,
+                sensorReserved: 0,
+                sensorMULT: 1.0,
+                sensorOffSet: 0.0,
+                sensorEQ: Uint8List(256),
+              )),
       dummy1: 0,
       dummy2: 0,
       crcL: 0,
       crcH: 0,
     );
   }
-
-
 }

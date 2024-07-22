@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -53,9 +54,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
         heroTag: "calenderButton",
         backgroundColor: colors[7].withOpacity(0.5),
         elevation: 0,
-        child: const Icon(
+        child: Icon(
           Icons.calendar_month_outlined,
-          size: 30,
+          size: 30.sp,
           color: Colors.white,
         ),
       ),
@@ -73,17 +74,17 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             final defaultBoxDecoration = BoxDecoration(
-              borderRadius: BorderRadius.circular(6.0),
-              border: Border.all(color: Colors.grey[400]!, width: 1.0),
+              borderRadius: BorderRadius.circular(6.0.r),
+              border: Border.all(color: Colors.grey[400]!, width: 1.0.w ),
             );
             return Center(
               child: Container(
-                width: 700,
-                height: 450,
+                width: 700.w,
+                height: 450.h,
                 color: Colors.white,
                 child: Scaffold(
                   body: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(8.0.w),
                     child: Column(
                       children: [
                         Expanded(
@@ -93,11 +94,11 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                             firstDay: DateTime.now()
                                 .subtract(const Duration(days: 365 * 2)),
                             lastDay: DateTime.now(),
-                            headerStyle: const HeaderStyle(
+                            headerStyle:  HeaderStyle(
                               formatButtonVisible: false,
                               titleCentered: true,
                               titleTextStyle: TextStyle(
-                                fontSize: 24,
+                                fontSize: 24.sp,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -108,11 +109,11 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                 selectedDecoration:
                                     defaultBoxDecoration.copyWith(
                                   border:
-                                      Border.all(color: colors[3], width: 2.0),
+                                      Border.all(color: colors[3], width: 2.0.w),
                                 ),
                                 todayDecoration: defaultBoxDecoration.copyWith(
                                   color: colors[3],
-                                  border: Border.all(width: 2.0),
+                                  border: Border.all(width: 2.0.w),
                                 ),
                                 selectedTextStyle: TextStyle(color: colors[2])),
                             onDaySelected: (selectedDay, focusedDay) {
@@ -126,10 +127,10 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                           ),
                         ),
                         CupertinoButton(
-                          child: const Text(
+                          child:  Text(
                             '확인',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 24.sp,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -238,10 +239,10 @@ class _LeftState extends State<_Left> {
                 children: [
                   Text(
                     DateFormat('yyyy. MM. dd.').format(widget.selectedDate),
-                    style: const TextStyle(
+                    style:  TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
-                        fontSize: 30),
+                        fontSize: 30.sp),
                   ),
                   Stack(
                     children: <Widget>[
@@ -264,8 +265,8 @@ class _LeftState extends State<_Left> {
                             return const SizedBox.shrink();
                           }
                           return Positioned(
-                            top: 36,
-                            right: 30,
+                            top: 36.h,
+                            right: 30.w ,
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               color: Colors.black.withOpacity(0.2),
